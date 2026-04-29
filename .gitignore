@@ -1,0 +1,17 @@
+# Generated intermediate — recreated by fetch_rocm_data.py
+rocm_ci_data.py
+
+# Old file superseded by ROCm_CICD_Comprehensive.xlsx
+ROCm_Components_CICD.xlsx
+
+# Local clone of ROCm/InferenceMAX_rocm — not part of this project
+InferenceMAX_rocm/
+
+# Python bytecode
+__pycache__/
+*.pyc
+*.pyo
+
+# Environment files
+.env
+.env.*
