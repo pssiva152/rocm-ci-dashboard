@@ -73,8 +73,9 @@ footer{background:var(--amd-dark);color:#888;text-align:center;padding:16px;font
 .hdr-imax{background:#4A148C;color:#fff}
 .hdr-infr{background:#4E342E;color:#fff}
 .imax-row{background:#F8F0FC}
-.bool-yes{background:#C6EFCE;font-weight:700;text-align:center}
-.bool-no{color:#999;text-align:center}
+.imax-row td{vertical-align:middle}
+.bool-yes{background:#C6EFCE;font-weight:700;text-align:center;vertical-align:middle}
+.bool-no{color:#999;text-align:center;vertical-align:middle}
 .inf-source{font-size:11px;color:#777;margin-bottom:10px}
 .ecosystem-banner{display:flex;align-items:center;gap:14px;padding:12px 36px;margin:0}
 .ecosystem-banner.therock{background:linear-gradient(90deg,#1A1A1A 0%,#2c3e50 100%);border-bottom:3px solid #CC0000}
@@ -82,11 +83,12 @@ footer{background:var(--amd-dark);color:#888;text-align:center;padding:16px;font
 .ecosystem-banner .eco-title{color:#fff;font-size:14px;font-weight:700;letter-spacing:.5px}
 .ecosystem-banner .eco-subtitle{color:rgba(255,255,255,.6);font-size:11px}
 .ecosystem-banner .eco-badge{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);color:#fff;border-radius:4px;padding:3px 10px;font-size:11px;white-space:nowrap}
-.fw-summary-bar{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:14px}
-.fw-summary-chip{background:#fff;border:1px solid #ddd;border-radius:6px;padding:8px 14px;font-size:11px;display:flex;flex-direction:column;gap:3px;min-width:160px}
-.fw-summary-chip .chip-label{font-weight:700;color:#1F4E79;font-size:12px}
-.fw-summary-chip.jax .chip-label{color:#2E7D32}
-.fw-summary-chip .chip-detail{color:#555}
+.fw-table td,.fw-table th{border:1px solid #d0d7de}
+.fw-table thead tr th{border-bottom:2px solid #b0bec5}
+.fw-server-table th{background:#37474F;color:#fff;font-size:11.5px;white-space:nowrap}
+.fw-server-table td{font-size:11.5px;vertical-align:middle}
+.fw-server-table .fw-pytorch td{background:#EBF3FB}
+.fw-server-table .fw-jax td{background:#E8F5E9}
 </style>
 </head>
 <body>
@@ -98,6 +100,7 @@ footer{background:var(--amd-dark);color:#888;text-align:center;padding:16px;font
   <a href="#components">Components</a>
   <a href="#frameworks">Frameworks</a>
   <a href="#wheels">Wheels</a>
+  <a href="#server-counts">Server Counts</a>
   <a href="#runners">Runners</a>
   <span class="nav-divider"></span>
   <span class="nav-section-label" style="color:#CE93D8">InferenceMAX CI</span>
@@ -110,7 +113,7 @@ footer{background:var(--amd-dark);color:#888;text-align:center;padding:16px;font
 <div class="page-header">
   <h1>ROCm CI/CD Matrix &mdash; TheRock &amp; InferenceMAX Ecosystems</h1>
   <p>Two distinct CI ecosystems in one view: <b>TheRock CI</b> (component builds, frameworks, runners) and <b>InferenceMAX CI</b> (AMD GPU inference benchmarking).</p>
-  <p style="margin-top:6px;opacity:.6;font-size:12px">&#128337; Last updated: April 29, 2026 07:19 AM PDT</p>
+  <p style="margin-top:6px;opacity:.6;font-size:12px">&#128337; Last updated: May 04, 2026 06:13 AM PDT</p>
 </div>
 <div class="ecosystem-banner therock">
   <span class="eco-title">&#9654; TheRock CI</span>
@@ -120,7 +123,7 @@ footer{background:var(--amd-dark);color:#888;text-align:center;padding:16px;font
 
 <div class="summary">
   <div class="card"><h3>Total Rows</h3><div class="num">74</div><div class="sub">65 ROCm components + 9 Framework version slots</div></div>
-  <div class="card"><h3>CI-Enabled (non-FW)</h3><div class="num">49</div><div class="sub">Yes or Partial coverage</div></div>
+  <div class="card"><h3>CI-Enabled (non-FW)</h3><div class="num">45</div><div class="sub">Yes or Partial coverage</div></div>
   <div class="card"><h3>GPU Families</h3><div class="num">13</div><div class="sub">Linux; 4 Windows; gfx900–gfx120X</div></div>
   <div class="card"><h3>Test Runners</h3><div class="num">23</div><div class="sub">Linux + Windows + build pools</div></div>
   <div class="card"><h3>PyTorch Versions</h3><div class="num">5</div><div class="sub">2.8, 2.9, 2.10, 2.11, nightly</div></div>
@@ -259,6 +262,7 @@ footer{background:var(--amd-dark);color:#888;text-align:center;padding:16px;font
   <span><span class="legend-dot" style="background:#E65100"></span>CI Nightly</span>
   <span style="margin-left:12px;color:#888">Within each tier: Linux gfx &rarr; Linux Runners &rarr; Windows gfx &rarr; Windows Runners &rarr; Test Type</span>
 </div>
+
 <div class="tbl-wrap" style="max-height:80vh;overflow-y:auto"><table id="compTable">
 <thead>
 <tr class="tier1">
@@ -270,7 +274,7 @@ footer{background:var(--amd-dark);color:#888;text-align:center;padding:16px;font
   <th colspan="5" class="th-pc" style="text-align:center">&#128196; Pre-commit (PR)</th>
   <th colspan="5" class="th-po" style="text-align:center">&#10003; Post-commit (Sub Bump)</th>
   <th colspan="5" class="th-ni" style="text-align:center">&#127769; CI Nightly</th>
-  <th colspan="2" class="th-misc" style="text-align:center">Meta</th>
+  <th colspan="2" class="th-misc" style="text-align:center">Comments</th>
 </tr>
 <tr class="tier2">
   <th class="sub-pc">Linux gfx</th>
@@ -733,10 +737,10 @@ footer{background:var(--amd-dark);color:#888;text-align:center;padding:16px;font
       <td class="sep-misc">Linux only</td>
       <td style="font-size:10px;color:#555">Nightly only at TheRock level; also triggers at PR/post-commit when RCCL paths change (rocm-systems therock-rccl-ci-linux.yml); both gfx94X-dcgpu (multi-node) and gfx950-dcgpu (single-node) tested; single generic artifact (not per-GPU-family); requires 8-GPU runner + Slurm for multi-node</td>
     </tr>
-<tr style="background:#D5E8D4" data-cat="Libraries" data-ci="Partial">
+<tr style="background:#D5E8D4" data-cat="Libraries" data-ci="No">
       <td>Libraries</td><td>Communication</td>
       <td><b>rocSHMEM</b></td><td style="font-size:11px">rocm-systems</td>
-      <td><span class="part">Partial</span></td>
+      <td><span class="no">No</span></td>
       <td class="sep-pc"><span class="dash">&mdash;</span></td>
       <td style="font-size:10.5px"><span class="dash">&mdash;</span></td>
       <td><span class="dash">&mdash;</span></td>
@@ -1151,10 +1155,10 @@ footer{background:var(--amd-dark);color:#888;text-align:center;padding:16px;font
       <td class="sep-misc">Linux only</td>
       <td style="font-size:10px;color:#555">Own CI: amdsmi-build.yml + abi-compliance-check.yml; GPU tests enabled (requires /dev/kfd + /dev/dri); multi-OS: Ubuntu 20/22, Debian 10, RHEL 8/9/10, AzureLinux 3, AlmaLinux 8, SLES; CLI + C++ unit + Python tests</td>
     </tr>
-<tr style="background:#E1D5E7" data-cat="Tools" data-ci="Partial">
+<tr style="background:#E1D5E7" data-cat="Tools" data-ci="No">
       <td>Tools</td><td>System Mgmt</td>
       <td><b>ROCm SMI Lib</b></td><td style="font-size:11px">rocm-systems</td>
-      <td><span class="part">Partial</span></td>
+      <td><span class="no">No</span></td>
       <td class="sep-pc"><span class="dash">&mdash;</span></td>
       <td style="font-size:10.5px"><span class="dash">&mdash;</span></td>
       <td><span class="dash">&mdash;</span></td>
@@ -1195,10 +1199,10 @@ footer{background:var(--amd-dark);color:#888;text-align:center;padding:16px;font
       <td class="sep-misc">Linux only</td>
       <td style="font-size:10px;color:#555">Part of 'core' CI group; test_sanity.py; 1 shard / 5 min</td>
     </tr>
-<tr style="background:#E1D5E7" data-cat="Tools" data-ci="Partial">
+<tr style="background:#E1D5E7" data-cat="Tools" data-ci="No">
       <td>Tools</td><td>System Mgmt</td>
       <td><b>ROCm Data Center Tool</b></td><td style="font-size:11px">rocm-systems</td>
-      <td><span class="part">Partial</span></td>
+      <td><span class="no">No</span></td>
       <td class="sep-pc"><span class="dash">&mdash;</span></td>
       <td style="font-size:10.5px"><span class="dash">&mdash;</span></td>
       <td><span class="dash">&mdash;</span></td>
@@ -1657,10 +1661,10 @@ footer{background:var(--amd-dark);color:#888;text-align:center;padding:16px;font
       <td class="sep-misc">Both</td>
       <td style="font-size:10px;color:#555">Tested as part of HIP/CLR CI (no standalone workflow); libhipcxx_hipcc: Linux + Windows (1 shard each, 30 min); libhipcxx_hiprtc: Linux only (1 shard, 20 min); hiprtc Linux only</td>
     </tr>
-<tr style="background:#F3E5F5" data-cat="iree-libs" data-ci="Partial">
+<tr style="background:#F3E5F5" data-cat="iree-libs" data-ci="No">
       <td>iree-libs</td><td><span class="dash">&mdash;</span></td>
       <td><b>IREE Compiler & Runtime</b></td><td style="font-size:11px">TheRock (iree-org/iree)</td>
-      <td><span class="part">Partial</span></td>
+      <td><span class="no">No</span></td>
       <td class="sep-pc"><span class="dash">&mdash;</span></td>
       <td style="font-size:10.5px"><span class="dash">&mdash;</span></td>
       <td><span class="dash">&mdash;</span></td>
@@ -1924,6 +1928,128 @@ footer{background:var(--amd-dark);color:#888;text-align:center;padding:16px;font
 
 </tbody>
 </table></div>
+
+<h3 style="margin:20px 0 8px 0;font-size:13px;color:#444;font-weight:600">Component CI Matrix — Unique Server Counts by Tier</h3>
+<div class="tbl-wrap" style="margin-bottom:6px"><table class="fw-table fw-server-table">
+<thead><tr>
+  <th>CI Tier</th>
+  <th>Pool Type</th>
+  <th style="text-align:center">Count</th>
+  <th>Azure Build Pool (no GPU)</th>
+  <th>Physical GPU Machines</th>
+  <th>Runner Labels &amp; Counts</th>
+  <th>Notes</th>
+</tr></thead>
+<tbody>
+
+<!-- Shared Azure Build Pool row -->
+<tr style="background:#FFF9E6">
+  <td rowspan="2" style="font-weight:700;color:#555;vertical-align:middle;text-align:center;border-left:4px solid #F9A825">All Tiers</td>
+  <td>Azure Build Pool<br><span style="font-weight:400;font-size:10px;color:#777">cloud VMs, no GPU — compile &amp; package only</span></td>
+  <td style="text-align:center"><b>182</b><br><span style="font-weight:400;font-size:10px;color:#777">VMs (snapshot)</span></td>
+  <td style="text-align:center"><b>113</b> Linux VMs<br>+<br><b>69</b> Windows VMs</td>
+  <td style="text-align:center;color:#aaa">&mdash;</td>
+  <td><code>azure-linux-scale-rocm</code> = <b>113</b> &bull; <code>azure-windows-scale-rocm</code> = <b>69</b></td>
+  <td style="font-size:11px;color:#555">Shared across all tiers; elastic — can scale beyond snapshot count under queue pressure</td>
+</tr>
+<tr style="font-weight:700;background:#F5F0D8">
+  <td>Build Subtotal</td>
+  <td style="text-align:center;font-size:13px"><b>182</b></td>
+  <td style="text-align:center;font-weight:400;font-size:11px">182 VMs total</td>
+  <td style="text-align:center;color:#aaa">&mdash;</td>
+  <td colspan="2" style="color:#555;font-size:11px">113 Linux + 69 Windows Azure VMs — no GPU hardware involved</td>
+</tr>
+
+<!-- Pre-commit rows -->
+<tr style="background:#EBF3FB">
+  <td rowspan="2" style="font-weight:700;color:#1565C0;vertical-align:middle;text-align:center;border-left:4px solid #1565C0">&#128196; Pre-commit<br>(PR)</td>
+  <td>GPU Test Pool<br><span style="font-weight:400;font-size:10px;color:#777">2 physical runner types</span></td>
+  <td style="text-align:center"><b>95</b><br><span style="font-weight:400;font-size:10px;color:#777">physical</span></td>
+  <td style="text-align:center;color:#aaa">&mdash;</td>
+  <td style="text-align:center"><b>95</b> unique nodes</td>
+  <td style="font-size:10.5px;line-height:1.7">
+    <code>linux-gfx942-1gpu-ossci-rocm</code> (gfx94X) = <b>84</b><br>
+    <code>windows-gfx1151-gpu-rocm</code> (gfx1151, build-only) = <b>11</b>
+  </td>
+  <td style="font-size:11px;color:#555">gfx94X: Build + Test &bull; gfx1151 Win: Build-only (nightly_check_only)</td>
+</tr>
+<tr style="font-weight:700;background:#D0E8F8">
+  <td>Pre-commit Subtotal</td>
+  <td style="text-align:center;font-size:13px;color:#1565C0"><b>95</b></td>
+  <td style="text-align:center;font-weight:400;font-size:11px">182 shared build VMs</td>
+  <td style="text-align:center;font-weight:400;font-size:11px">95 physical GPU</td>
+  <td colspan="2" style="color:#555;font-size:11px">182 Azure build VMs + <b>95</b> physical GPU machines = <b>277</b> total</td>
+</tr>
+
+<!-- Post-commit rows -->
+<tr style="background:#EBF5EB">
+  <td rowspan="2" style="font-weight:700;color:#2E7D32;vertical-align:middle;text-align:center;border-left:4px solid #2E7D32">&#10003; Post-commit<br>(Sub Bump)</td>
+  <td>GPU Test Pool<br><span style="font-weight:400;font-size:10px;color:#777">3 physical runner types</span></td>
+  <td style="text-align:center"><b>98</b><br><span style="font-weight:400;font-size:10px;color:#777">physical</span></td>
+  <td style="text-align:center;color:#aaa">&mdash;</td>
+  <td style="text-align:center"><b>98</b> unique nodes</td>
+  <td style="font-size:10.5px;line-height:1.7">
+    <code>linux-gfx942-1gpu-ossci-rocm</code> (gfx94X) = <b>84</b><br>
+    <code>linux-mi355-1gpu-ossci-rocm</code> (gfx950 / MI355X) = <b>3</b><br>
+    <code>windows-gfx1151-gpu-rocm</code> (gfx1151, build-only) = <b>11</b>
+  </td>
+  <td style="font-size:11px;color:#555">Adds gfx950 (MI355X) vs Pre-commit; gfx1151 Win remains build-only</td>
+</tr>
+<tr style="font-weight:700;background:#C8E6C9">
+  <td>Post-commit Subtotal</td>
+  <td style="text-align:center;font-size:13px;color:#2E7D32"><b>98</b></td>
+  <td style="text-align:center;font-weight:400;font-size:11px">182 shared build VMs</td>
+  <td style="text-align:center;font-weight:400;font-size:11px">98 physical GPU</td>
+  <td colspan="2" style="color:#555;font-size:11px">182 Azure build VMs + <b>98</b> physical GPU machines = <b>280</b> total</td>
+</tr>
+
+<!-- Nightly rows -->
+<tr style="background:#FFF3E0">
+  <td rowspan="2" style="font-weight:700;color:#E65100;vertical-align:middle;text-align:center;border-left:4px solid #E65100">&#127769; CI Nightly</td>
+  <td>GPU Test Pool<br><span style="font-weight:400;font-size:10px;color:#777">13 physical runner types</span></td>
+  <td style="text-align:center"><b>159</b><br><span style="font-weight:400;font-size:10px;color:#777">physical</span></td>
+  <td style="text-align:center;color:#aaa">&mdash;</td>
+  <td style="text-align:center"><b>159</b> unique nodes</td>
+  <td style="font-size:10.5px;line-height:1.7">
+    <code>linux-gfx942-1gpu-ossci-rocm</code> (gfx94X) = <b>84</b> &bull;
+    <code>linux-gfx942-8gpu-ossci-rocm</code> (gfx94X 8-GPU) = <b>4</b><br>
+    <code>linux-mi355-1gpu-ossci-rocm</code> (gfx950) = <b>3</b> &bull;
+    <code>linux-gfx90a-gpu-rocm</code> (gfx90a) = <b>12</b><br>
+    <code>linux-gfx1030-gpu-rocm</code> (gfx103X) = <b>2</b> &bull;
+    <code>linux-gfx110X-gpu-rocm</code> (gfx110X) = <b>6</b> &bull;
+    <code>windows-gfx110X-gpu-rocm</code> = <b>23</b><br>
+    <code>linux-gfx1150-gpu-rocm</code> (gfx1150) = <b>1</b> &bull;
+    <code>linux-gfx1151-gpu-rocm</code> (gfx1151 L) = <b>4</b> &bull;
+    <code>windows-gfx1151-gpu-rocm</code> (gfx1151 W) = <b>11</b><br>
+    <code>linux-gfx1153-gpu-rocm</code> (gfx1153) = <b>3</b> &bull;
+    <code>linux-gfx120X-gpu-rocm</code> (gfx120X) = <b>4</b> &bull;
+    <code>windows-gfx1030-gpu-rocm</code> (gfx103X W) = <b>2</b>
+  </td>
+  <td style="font-size:11px;color:#555">Full GPU family coverage; all unique physical machines, each counted once</td>
+</tr>
+<tr style="font-weight:700;background:#FFE0B2">
+  <td>Nightly Subtotal</td>
+  <td style="text-align:center;font-size:13px;color:#E65100"><b>159</b></td>
+  <td style="text-align:center;font-weight:400;font-size:11px">182 shared build VMs</td>
+  <td style="text-align:center;font-weight:400;font-size:11px">159 physical GPU</td>
+  <td colspan="2" style="color:#555;font-size:11px">182 Azure build VMs + <b>159</b> physical GPU machines = <b>341</b> total</td>
+</tr>
+
+<!-- Grand Total -->
+<tr style="font-weight:700;background:#37474F;color:#fff">
+  <td colspan="2" style="text-align:center;font-size:13px;letter-spacing:0.3px">Grand Total (all tiers, unique)</td>
+  <td style="text-align:center;font-size:13px"><b>341</b></td>
+  <td style="text-align:center;font-size:12px">182 VMs<br><span style="font-weight:400;font-size:10px;opacity:0.85">(Azure, no GPU)</span></td>
+  <td style="text-align:center;font-size:12px"><b>159</b> physical<br><span style="font-weight:400;font-size:10px;opacity:0.85">unique GPU machines</span></td>
+  <td colspan="2" style="font-size:11px;opacity:0.9">182 Azure build VMs (cloud, no GPU) + 159 unique physical GPU machines = <b>341</b> &nbsp;&bull;&nbsp; <span style="font-weight:400">GPU node counts cumulative across tiers — each physical machine counted once</span></td>
+</tr>
+
+</tbody>
+</table></div>
+<p style="font-size:10.5px;color:#777;margin:4px 0 16px 4px">
+  <b>Azure Build Pool</b>: Cloud-managed VMs with no GPU — used exclusively for compile, package, and artifact jobs. VM counts are point-in-time snapshots; elastic pools can provision beyond this number under load.<br>
+  <b>Physical GPU counts</b>: Unique machines counted once regardless of how many tiers use them. Pre-commit uses 95, Post-commit adds MI355X for 98, Nightly expands to all 159 GPU machines across 13 runner types.
+</p>
 </div>
 
 <!-- ═══════════════════════════════════════════════════════════════════
@@ -1931,34 +2057,7 @@ footer{background:var(--amd-dark);color:#888;text-align:center;padding:16px;font
 ════════════════════════════════════════════════════════════════════ -->
 <div class="section" id="frameworks">
 <h2>Framework Build &amp; Test Detail</h2>
-<div class="fw-summary-bar">
-  <div class="fw-summary-chip">
-    <span class="chip-label">&#128268; PyTorch — Total Servers</span>
-    <span class="chip-detail"><b>228</b> machines (69 build + 159 GPU test)</span>
-    <span class="chip-detail">5 versions × 5 Python vers × 13 GPU runner types</span>
-  </div>
-  <div class="fw-summary-chip">
-    <span class="chip-label">&#128268; PyTorch — Build Pool</span>
-    <span class="chip-detail"><b>0</b> Linux + <b>69</b> Windows elastic build runners</span>
-    <span class="chip-detail">azure-linux-scale-rocm &bull; azure-windows-scale-rocm</span>
-  </div>
-  <div class="fw-summary-chip">
-    <span class="chip-label">&#128268; PyTorch — GPU Test Pool</span>
-    <span class="chip-detail"><b>159</b> GPU machines across 13 runner types</span>
-    <span class="chip-detail">gfx94X (84) · gfx94X-8GPU (4) · gfx950 (3) · gfx90a (12) · and more</span>
-  </div>
-  <div class="fw-summary-chip jax">
-    <span class="chip-label">&#9881; JAX — Total Servers</span>
-    <span class="chip-detail"><b>84</b> machines (0 build + 84 GPU test)</span>
-    <span class="chip-detail">4 versions × 4 Python vers × 1 GPU runner type (gfx94X test-only)</span>
-  </div>
-  <div class="fw-summary-chip jax">
-    <span class="chip-label">&#9881; JAX — GPU Test Pool</span>
-    <span class="chip-detail"><b>84</b> machines (gfx94X only — MI300X/MI325X)</span>
-    <span class="chip-detail">linux-gfx942-1gpu-ossci-rocm &bull; gfx94X Build + Test; all others build-only</span>
-  </div>
-</div>
-<div class="tbl-wrap"><table>
+<div class="tbl-wrap"><table class="fw-table">
 <thead><tr>
   <th>Framework</th><th>Version</th><th>Python Vers</th>
   <th>Distro</th>
@@ -2105,7 +2204,7 @@ footer{background:var(--amd-dark);color:#888;text-align:center;padding:16px;font
 ════════════════════════════════════════════════════════════════════ -->
 <div class="section" id="wheels">
 <h2>Wheel Artifact Publishing</h2>
-<div class="tbl-wrap"><table>
+<div class="tbl-wrap"><table class="fw-table">
 <thead><tr>
   <th>Framework</th><th>Version</th><th>Python Vers</th>
   <th>Distro</th>
@@ -2223,10 +2322,125 @@ footer{background:var(--amd-dark);color:#888;text-align:center;padding:16px;font
 </div>
 
 <!-- ═══════════════════════════════════════════════════════════════════
+     SERVER COUNT DETAILS
+════════════════════════════════════════════════════════════════════ -->
+<div class="section" id="server-counts">
+<h2>Framework Runner &amp; Server Count Details</h2>
+<div class="tbl-wrap" style="margin-bottom:18px"><table class="fw-table fw-server-table">
+<thead><tr>
+  <th>Framework</th>
+  <th>Pool</th>
+  <th>Count</th>
+  <th>Build (VMs)</th>
+  <th>GPU Test (Physical)</th>
+  <th>Runner Labels &amp; Counts</th>
+  <th>Coverage</th>
+</tr></thead>
+<tbody>
+<tr class="fw-pytorch">
+  <td rowspan="3" style="font-weight:700;color:#1F4E79;vertical-align:middle;text-align:center">PyTorch</td>
+  <td>Build Pool<br><span style="font-weight:400;font-size:10px;color:#777">2 VM pools, no GPU</span></td>
+  <td style="text-align:center"><b>182</b> VMs<br><span style="font-weight:400;font-size:10px;color:#777">(snapshot)</span></td>
+  <td style="text-align:center"><b>113</b> Linux VMs<br>+<br><b>69</b> Windows VMs</td>
+  <td style="text-align:center;color:#aaa">&mdash;</td>
+  <td><code>azure-linux-scale-rocm</code> = <b>113</b> VMs &bull; <code>azure-windows-scale-rocm</code> = <b>69</b> VMs</td>
+  <td>2 elastic VM pools (no GPU); auto-scales beyond snapshot count when queue builds up</td>
+</tr>
+<tr class="fw-pytorch">
+  <td>GPU Test Pool<br><span style="font-weight:400;font-size:10px;color:#777">13 physical runner types</span></td>
+  <td style="text-align:center"><b>159</b> physical</td>
+  <td style="text-align:center;color:#aaa">&mdash;</td>
+  <td style="text-align:center"><b>159</b> across 13 runner types</td>
+  <td style="font-size:10.5px;line-height:1.6"><code>linux-gfx942-1gpu-ossci-rocm</code> (gfx94X (MI300X/MI325X)) = <b>84</b> &bull; <code>linux-gfx942-8gpu-ossci-rocm</code> (gfx94X 8-GPU distributed) = <b>4</b> &bull; <code>linux-mi355-1gpu-ossci-rocm</code> (gfx950 (MI355X)) = <b>3</b> &bull; <code>linux-gfx90a-gpu-rocm</code> (gfx90a (MI200)) = <b>12</b> &bull; <code>linux-gfx1030-gpu-rocm</code> (gfx103X (RDNA2)) = <b>2</b> &bull; <code>linux-gfx110X-gpu-rocm</code> (gfx110X (Navi3)) = <b>6</b> &bull; <code>linux-gfx1150-gpu-rocm</code> (gfx1150 (Strix Point)) = <b>1</b> &bull; <code>linux-gfx1151-gpu-rocm</code> (gfx1151 (Strix Halo)) = <b>4</b> &bull; <code>linux-gfx1153-gpu-rocm</code> (gfx1153 (Krackan)) = <b>3</b> &bull; <code>linux-gfx120X-gpu-rocm</code> (gfx120X (Navi4)) = <b>4</b> &bull; <code>windows-gfx1151-gpu-rocm</code> (gfx1151 Windows) = <b>11</b> &bull; <code>windows-gfx110X-gpu-rocm</code> (gfx110X Windows) = <b>23</b> &bull; <code>windows-gfx1030-gpu-rocm</code> (gfx103X Windows) = <b>2</b></td>
+  <td>5 versions × 5 Python vers × 13 GPU runner types</td>
+</tr>
+<tr class="fw-pytorch" style="font-weight:700;background:#D0E8F8">
+  <td>Total</td>
+  <td style="text-align:center;color:#1F4E79"><b>341</b></td>
+  <td style="text-align:center;font-weight:400;font-size:11px">182 VMs (build)</td>
+  <td style="text-align:center;font-weight:400;font-size:11px">159 physical (GPU test)</td>
+  <td colspan="2" style="color:#555;font-size:11px">182 build VMs + 159 physical GPU machines = <b>341</b> &nbsp;(mixed: VMs + physical)</td>
+</tr>
+<tr class="fw-jax">
+  <td rowspan="2" style="font-weight:700;color:#2E7D32;vertical-align:middle;text-align:center">JAX</td>
+  <td>Build + Test<br><span style="font-weight:400;font-size:10px;color:#777">shared build VM pool</span></td>
+  <td style="text-align:center"><b>84</b> physical<br><span style="font-weight:400;font-size:10px;color:#777">(dedicated GPU)</span></td>
+  <td style="color:#777;font-size:10.5px">Shared with PyTorch<br><code style="font-size:10px">azure-linux-scale-rocm</code><br><span style="font-size:10px">(VMs, not counted separately)</span></td>
+  <td style="text-align:center"><b>84</b> physical<br><span style="font-size:10px">(gfx94X only)</span></td>
+  <td><code>linux-gfx942-1gpu-ossci-rocm</code> = <b>84</b> physical &nbsp;<span style="color:#888;font-size:10.5px">| Build: shared <code>azure-linux-scale-rocm</code> VMs</span></td>
+  <td>4 versions × 4 Python vers × 1 GPU runner type (gfx94X test-only)</td>
+</tr>
+<tr class="fw-jax" style="font-weight:700;background:#C8E6C9">
+  <td>Total</td>
+  <td style="text-align:center;color:#2E7D32"><b>84</b><br><span style="font-weight:400;font-size:10px">physical only</span></td>
+  <td style="font-weight:400;font-size:10.5px;color:#555">Build VMs shared with PyTorch — not counted separately</td>
+  <td style="text-align:center;font-weight:400;font-size:11px">84 physical</td>
+  <td colspan="2" style="color:#555;font-size:11px"><b>84</b> dedicated physical GPU machines + shared build VM pool (counted under PyTorch)</td>
+</tr>
+<tr style="font-weight:700;background:#37474F;color:#fff">
+  <td colspan="2" style="text-align:center;font-size:13px;letter-spacing:0.3px">Grand Total (PyTorch + JAX)</td>
+  <td style="text-align:center;font-size:13px"><b>341</b></td>
+  <td style="text-align:center;font-size:12px">182 VMs<br><span style="font-weight:400;font-size:10px;opacity:0.85">(shared build pool)</span></td>
+  <td style="text-align:center;font-size:12px"><b>159</b> physical<br><span style="font-weight:400;font-size:10px;opacity:0.85">unique GPU machines<br>JAX shares PyTorch pool</span></td>
+  <td colspan="2" style="font-size:11px;opacity:0.9">182 shared build VMs + 159 unique physical GPU machines = <b>341</b> &nbsp;&bull;&nbsp; <span style="font-weight:400">JAX reuses <code>linux-gfx942-1gpu-ossci-rocm</code> from PyTorch&apos;s pool — not counted separately</span></td>
+</tr>
+</tbody>
+</table>
+<p style="font-size:10.5px;color:#777;margin:4px 0 16px 4px">
+  <b>Count</b>: VM instance counts are point-in-time snapshots from the runner fleet; elastic pools can provision beyond this number under load.<br>
+  <b>Build VMs</b>: Azure-managed virtual machines with no GPU — 2 pools total (<code>azure-linux-scale-rocm</code>, <code>azure-windows-scale-rocm</code>). Physical server count underneath is managed by Azure and not exposed.
+</p>
+</div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════
      RUNNER INVENTORY
 ════════════════════════════════════════════════════════════════════ -->
 <div class="section" id="runners">
 <h2>Runner Inventory (All Known Runners) <a href="https://therock-runner-health.com/" target="_blank" rel="noopener" style="font-size:13px;font-weight:400;vertical-align:middle;margin-left:10px;color:#1565C0;text-decoration:none;border:1px solid #1565C0;padding:2px 8px;border-radius:4px">&#128279; Runner Health Dashboard</a></h2>
+<h3 style="margin:0 0 8px 0;font-size:13px;color:#444;font-weight:600">Physical GPU Machines by Location</h3>
+<div class="tbl-wrap" style="margin-bottom:6px"><table class="fw-table">
+<thead><tr>
+  <th>Location</th>
+  <th style="text-align:center">Physical Machines</th>
+  <th style="text-align:center">Linux</th>
+  <th style="text-align:center">Windows</th>
+  <th style="text-align:center">Share</th>
+  <th>Runner Labels</th>
+</tr></thead>
+<tbody>
+<tr>
+  <td><span style="background:#1565C0;color:#fff;padding:2px 8px;border-radius:4px;font-size:11px;white-space:nowrap">OSSCI</span></td>
+  <td style="text-align:center;font-weight:700;font-size:14px">91</td>
+  <td style="text-align:center">91</td>
+  <td style="text-align:center">—</td>
+  <td style="text-align:center;color:#555;font-size:11px">55%</td>
+  <td style="font-size:11px"><code>linux-gfx942-1gpu-ossci-rocm</code>, <code>linux-gfx942-8gpu-ossci-rocm</code>, <code>linux-mi355-1gpu-ossci-rocm</code></td>
+</tr>
+<tr>
+  <td><span style="background:#2E7D32;color:#fff;padding:2px 8px;border-radius:4px;font-size:11px;white-space:nowrap">On-Prem</span></td>
+  <td style="text-align:center;font-weight:700;font-size:14px">74</td>
+  <td style="text-align:center">38</td>
+  <td style="text-align:center">36</td>
+  <td style="text-align:center;color:#555;font-size:11px">45%</td>
+  <td style="font-size:11px"><code>linux-gfx90a-gpu-rocm</code>, <code>linux-gfx1030-gpu-rocm</code>, <code>linux-gfx110X-gpu-rocm</code>, <code>linux-gfx1150-gpu-rocm</code>, <code>linux-gfx1151-gpu-rocm</code>, <code>linux-strix-halo-gpu-rocm-oem</code>, <code>linux-gfx1153-gpu-rocm</code>, <code>linux-gfx120X-gpu-rocm</code>, <code>windows-gfx1151-gpu-rocm</code>, <code>windows-gfx110X-gpu-rocm</code>, <code>windows-gfx1030-gpu-rocm</code>, <code>nova-linux-slurm-scale-runner</code>, <code>rocm-asan-mi325-sandbox</code></td>
+</tr>
+<tr style="background:#37474F;color:#fff;font-weight:700">
+  <td>Total</td>
+  <td style="text-align:center;font-size:14px">165</td>
+  <td style="text-align:center">129</td>
+  <td style="text-align:center">36</td>
+  <td style="text-align:center">100%</td>
+  <td style="font-size:11px;opacity:0.85">All physical GPU runners</td>
+</tr>
+
+</tbody>
+</table></div>
+<p style="font-size:10.5px;color:#777;margin:4px 0 18px 4px">
+  <b>165 unique physical GPU machines</b> across all runner pools — each machine counted once.
+  The Framework section shows <b>159</b> GPU machines (PyTorch&apos;s pool, which JAX also shares) + <b>182</b> shared build VMs = <b>341</b>.
+  The additional 6 machines here (<code>linux-strix-halo-gpu-rocm-oem</code>, <code>nova-linux-slurm-scale-runner</code>, <code>rocm-asan-mi325-sandbox</code>) are not part of the PyTorch/JAX framework CI runner lists.
+</p>
 <div class="tbl-wrap"><table>
 <thead><tr>
   <th style="text-align:center">#</th><th>Runner Label</th><th>Platform</th><th>OS / Distro</th>
@@ -2480,356 +2694,386 @@ footer{background:var(--amd-dark);color:#888;text-align:center;padding:16px;font
 <h2 style="color:#4A148C">&#128640; InferenceMAX CI &mdash; AMD GPU Inference Benchmarks</h2>
 <p class="inf-source">Source: <a href="https://github.com/ROCm/InferenceMAX_rocm" target="_blank" rel="noopener">ROCm/InferenceMAX_rocm</a> &bull; AMD fork of SemiAnalysis InferenceX for MI300X/MI325X/MI355X benchmarking</p>
 <div class="summary" style="margin-bottom:16px">
-  <div class="card"><h3>AMD Configs</h3><div class="num" style="color:#4A148C">34</div><div class="sub">benchmark configurations</div></div>
-  <div class="card"><h3>GPU Runner Types</h3><div class="num" style="color:#4A148C">6</div><div class="sub">distinct GPU types (mi300x / mi325x / mi355x)</div></div>
-  <div class="card"><h3>Total Servers</h3><div class="num" style="color:#4A148C">27</div><div class="sub">physical nodes across all AMD runner pools</div></div>
-  <div class="card"><h3>Frameworks</h3><div class="num" style="color:#4A148C">4</div><div class="sub">inference frameworks (atom / sglang / vllm)</div></div>
+  <div class="card"><h3>AMD Configs</h3><div class="num" style="color:#4A148C">37</div><div class="sub">benchmark configurations</div></div>
+  <div class="card"><h3>GPU Runner Types</h3><div class="num" style="color:#4A148C">7</div><div class="sub">distinct GPU types (mi300x / mi325x / mi355x)</div></div>
+  <div class="card"><h3>Total Servers</h3><div class="num" style="color:#4A148C">31</div><div class="sub">physical nodes across all AMD runner pools</div></div>
+  <div class="card"><h3>Frameworks</h3><div class="num" style="color:#4A148C">4</div><div class="sub">inference frameworks (atom / sglang / sglang-disagg / vllm)</div></div>
   <div class="card"><h3>Multi-Node</h3><div class="num" style="color:#4A148C">4</div><div class="sub">multi-node configs</div></div>
 </div>
-<div class="tbl-wrap"><table>
+<div class="tbl-wrap"><table style="width:100%">
 <thead><tr class="hdr-imax">
   <th>Config Name</th><th>Model</th><th>Model Prefix</th><th>GPU Runner</th>
-  <th>Precision</th><th>Framework</th><th>Multi-Node</th><th>Pinned Docker Image</th>
+  <th style="text-align:center">Precision</th><th style="text-align:center">Framework</th><th style="text-align:center">Multi-Node</th><th>Pinned Docker Image</th>
 </tr></thead>
-<tbody><tr class="imax-row">
-          <td><code style="font-size:11px">glm5-fp8-mi355x-atom</code></td>
-          <td style="font-size:11px">zai-org/GLM-5-FP8</td>
-          <td><b>glm5</b></td>
-          <td><span style="background:#EDE7F6;color:#4A148C;padding:2px 6px;border-radius:3px;font-size:11px">mi355x</span></td>
-          <td style="text-align:center">fp8</td>
-          <td style="text-align:center">atom</td>
-          <td class="bool-no">—</td>
-          <td style="font-size:10px;color:#555;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="rocm/atom-dev:nightly_202603291522">rocm/atom-dev:nightly_202603291522</td>
+<tbody><tr class="imax-row" style="background:#EDE7F6">
+          <td style="vertical-align:middle"><code style="font-size:11px">glm5-fp8-mi355x-atom</code></td>
+          <td style="font-size:11px;vertical-align:middle">zai-org/GLM-5-FP8</td>
+          <td style="vertical-align:middle"><b>glm5</b></td>
+          <td style="vertical-align:middle"><span style="background:#EDE7F6;color:#4A148C;padding:2px 6px;border-radius:3px;font-size:11px">mi355x</span></td>
+          <td style="text-align:center;vertical-align:middle;white-space:nowrap">fp8</td>
+          <td style="text-align:center;vertical-align:middle;white-space:nowrap">atom</td>
+          <td class="bool-no" style="vertical-align:middle;white-space:nowrap">—</td>
+          <td style="font-size:10px;color:#555;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;vertical-align:middle" title="rocm/atom-dev:nightly_202603291522">rocm/atom-dev:nightly_202603291522</td>
         </tr>
-<tr class="imax-row">
-          <td><code style="font-size:11px">kimik2.5-fp4-mi355x-atom</code></td>
-          <td style="font-size:11px">amd/Kimi-K2.5-MXFP4</td>
-          <td><b>kimik2.5</b></td>
-          <td><span style="background:#EDE7F6;color:#4A148C;padding:2px 6px;border-radius:3px;font-size:11px">mi355x</span></td>
-          <td style="text-align:center">fp4</td>
-          <td style="text-align:center">atom</td>
-          <td class="bool-no">—</td>
-          <td style="font-size:10px;color:#555;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="rocm/atom-dev:nightly_202603251629">rocm/atom-dev:nightly_202603251629</td>
+<tr class="imax-row" style="background:#E3F2FD">
+          <td style="vertical-align:middle"><code style="font-size:11px">kimik2.5-fp4-mi355x-atom</code></td>
+          <td style="font-size:11px;vertical-align:middle">amd/Kimi-K2.5-MXFP4</td>
+          <td style="vertical-align:middle"><b>kimik2.5</b></td>
+          <td style="vertical-align:middle"><span style="background:#EDE7F6;color:#4A148C;padding:2px 6px;border-radius:3px;font-size:11px">mi355x</span></td>
+          <td style="text-align:center;vertical-align:middle;white-space:nowrap">fp4</td>
+          <td style="text-align:center;vertical-align:middle;white-space:nowrap">atom</td>
+          <td class="bool-no" style="vertical-align:middle;white-space:nowrap">—</td>
+          <td style="font-size:10px;color:#555;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;vertical-align:middle" title="rocm/atom-dev:nightly_202603251629">rocm/atom-dev:nightly_202603251629</td>
         </tr>
-<tr class="imax-row">
-          <td><code style="font-size:11px">minimaxm2.5-fp8-mi355x-atom</code></td>
-          <td style="font-size:11px">MiniMaxAI/MiniMax-M2.5</td>
-          <td><b>minimaxm2.5</b></td>
-          <td><span style="background:#EDE7F6;color:#4A148C;padding:2px 6px;border-radius:3px;font-size:11px">mi355x</span></td>
-          <td style="text-align:center">fp8</td>
-          <td style="text-align:center">atom</td>
-          <td class="bool-no">—</td>
-          <td style="font-size:10px;color:#555;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="rocm/atom-dev:nightly_202603251629">rocm/atom-dev:nightly_202603251629</td>
+<tr class="imax-row" style="background:#E8F5E9">
+          <td style="vertical-align:middle"><code style="font-size:11px">minimaxm2.5-fp8-mi355x-atom</code></td>
+          <td style="font-size:11px;vertical-align:middle">MiniMaxAI/MiniMax-M2.5</td>
+          <td style="vertical-align:middle"><b>minimaxm2.5</b></td>
+          <td style="vertical-align:middle"><span style="background:#EDE7F6;color:#4A148C;padding:2px 6px;border-radius:3px;font-size:11px">mi355x</span></td>
+          <td style="text-align:center;vertical-align:middle;white-space:nowrap">fp8</td>
+          <td style="text-align:center;vertical-align:middle;white-space:nowrap">atom</td>
+          <td class="bool-no" style="vertical-align:middle;white-space:nowrap">—</td>
+          <td style="font-size:10px;color:#555;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;vertical-align:middle" title="rocm/atom-dev:nightly_202603251629">rocm/atom-dev:nightly_202603251629</td>
         </tr>
-<tr class="imax-row">
-          <td><code style="font-size:11px">gptoss-fp4-mi355x-atom</code></td>
-          <td style="font-size:11px">openai/gpt-oss-120b</td>
-          <td><b>gptoss</b></td>
-          <td><span style="background:#EDE7F6;color:#4A148C;padding:2px 6px;border-radius:3px;font-size:11px">mi355x</span></td>
-          <td style="text-align:center">fp4</td>
-          <td style="text-align:center">atom</td>
-          <td class="bool-no">—</td>
-          <td style="font-size:10px;color:#555;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="rocm/atom-dev:nightly_202603251629">rocm/atom-dev:nightly_202603251629</td>
+<tr class="imax-row" style="background:#FFF8E1">
+          <td style="vertical-align:middle"><code style="font-size:11px">gptoss-fp4-mi355x-atom</code></td>
+          <td style="font-size:11px;vertical-align:middle">openai/gpt-oss-120b</td>
+          <td style="vertical-align:middle"><b>gptoss</b></td>
+          <td style="vertical-align:middle"><span style="background:#EDE7F6;color:#4A148C;padding:2px 6px;border-radius:3px;font-size:11px">mi355x</span></td>
+          <td style="text-align:center;vertical-align:middle;white-space:nowrap">fp4</td>
+          <td style="text-align:center;vertical-align:middle;white-space:nowrap">atom</td>
+          <td class="bool-no" style="vertical-align:middle;white-space:nowrap">—</td>
+          <td style="font-size:10px;color:#555;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;vertical-align:middle" title="rocm/atom-dev:nightly_202603251629">rocm/atom-dev:nightly_202603251629</td>
         </tr>
-<tr class="imax-row">
-          <td><code style="font-size:11px">dsr1-fp4-mi355x-atom-mtp</code></td>
-          <td style="font-size:11px">amd/DeepSeek-R1-0528-MXFP4-MTP-MoEFP4</td>
-          <td><b>dsr1</b></td>
-          <td><span style="background:#EDE7F6;color:#4A148C;padding:2px 6px;border-radius:3px;font-size:11px">mi355x</span></td>
-          <td style="text-align:center">fp4</td>
-          <td style="text-align:center">atom</td>
-          <td class="bool-no">—</td>
-          <td style="font-size:10px;color:#555;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="rocm/atom:rocm7.2.1-ubuntu24.04-pytorch2.9.1-atom0.1.2">rocm/atom:rocm7.2.1-ubuntu24.04-pytorch2.9.1-atom0.1.2</td>
+<tr class="imax-row" style="background:#FCE4EC">
+          <td style="vertical-align:middle"><code style="font-size:11px">dsr1-fp4-mi355x-atom-mtp</code></td>
+          <td style="font-size:11px;vertical-align:middle">amd/DeepSeek-R1-0528-MXFP4-MTP-MoEFP4</td>
+          <td style="vertical-align:middle"><b>dsr1</b></td>
+          <td style="vertical-align:middle"><span style="background:#EDE7F6;color:#4A148C;padding:2px 6px;border-radius:3px;font-size:11px">mi355x</span></td>
+          <td style="text-align:center;vertical-align:middle;white-space:nowrap">fp4</td>
+          <td style="text-align:center;vertical-align:middle;white-space:nowrap">atom</td>
+          <td class="bool-no" style="vertical-align:middle;white-space:nowrap">—</td>
+          <td style="font-size:10px;color:#555;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;vertical-align:middle" title="rocm/atom:rocm7.2.1-ubuntu24.04-pytorch2.9.1-atom0.1.2">rocm/atom:rocm7.2.1-ubuntu24.04-pytorch2.9.1-atom0.1.2</td>
         </tr>
-<tr class="imax-row">
-          <td><code style="font-size:11px">dsr1-fp8-mi355x-atom-mtp</code></td>
-          <td style="font-size:11px">deepseek-ai/DeepSeek-R1-0528</td>
-          <td><b>dsr1</b></td>
-          <td><span style="background:#EDE7F6;color:#4A148C;padding:2px 6px;border-radius:3px;font-size:11px">mi355x</span></td>
-          <td style="text-align:center">fp8</td>
-          <td style="text-align:center">atom</td>
-          <td class="bool-no">—</td>
-          <td style="font-size:10px;color:#555;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="rocm/atom:rocm7.2.1-ubuntu24.04-pytorch2.9.1-atom0.1.2">rocm/atom:rocm7.2.1-ubuntu24.04-pytorch2.9.1-atom0.1.2</td>
+<tr class="imax-row" style="background:#FCE4EC">
+          <td style="vertical-align:middle"><code style="font-size:11px">dsr1-fp8-mi355x-atom-mtp</code></td>
+          <td style="font-size:11px;vertical-align:middle">deepseek-ai/DeepSeek-R1-0528</td>
+          <td style="vertical-align:middle"><b>dsr1</b></td>
+          <td style="vertical-align:middle"><span style="background:#EDE7F6;color:#4A148C;padding:2px 6px;border-radius:3px;font-size:11px">mi355x</span></td>
+          <td style="text-align:center;vertical-align:middle;white-space:nowrap">fp8</td>
+          <td style="text-align:center;vertical-align:middle;white-space:nowrap">atom</td>
+          <td class="bool-no" style="vertical-align:middle;white-space:nowrap">—</td>
+          <td style="font-size:10px;color:#555;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;vertical-align:middle" title="rocm/atom:rocm7.2.1-ubuntu24.04-pytorch2.9.1-atom0.1.2">rocm/atom:rocm7.2.1-ubuntu24.04-pytorch2.9.1-atom0.1.2</td>
         </tr>
-<tr class="imax-row">
-          <td><code style="font-size:11px">dsr1-fp4-mi355x-atom</code></td>
-          <td style="font-size:11px">amd/DeepSeek-R1-0528-MXFP4-Preview</td>
-          <td><b>dsr1</b></td>
-          <td><span style="background:#EDE7F6;color:#4A148C;padding:2px 6px;border-radius:3px;font-size:11px">mi355x</span></td>
-          <td style="text-align:center">fp4</td>
-          <td style="text-align:center">atom</td>
-          <td class="bool-no">—</td>
-          <td style="font-size:10px;color:#555;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="rocm/atom:rocm7.1.1-ubuntu24.04-pytorch2.9-atom0.1.1-MI350x">rocm/atom:rocm7.1.1-ubuntu24.04-pytorch2.9-atom0.1.1-MI350x</td>
+<tr class="imax-row" style="background:#FCE4EC">
+          <td style="vertical-align:middle"><code style="font-size:11px">dsr1-fp4-mi355x-atom</code></td>
+          <td style="font-size:11px;vertical-align:middle">amd/DeepSeek-R1-0528-MXFP4-Preview</td>
+          <td style="vertical-align:middle"><b>dsr1</b></td>
+          <td style="vertical-align:middle"><span style="background:#EDE7F6;color:#4A148C;padding:2px 6px;border-radius:3px;font-size:11px">mi355x</span></td>
+          <td style="text-align:center;vertical-align:middle;white-space:nowrap">fp4</td>
+          <td style="text-align:center;vertical-align:middle;white-space:nowrap">atom</td>
+          <td class="bool-no" style="vertical-align:middle;white-space:nowrap">—</td>
+          <td style="font-size:10px;color:#555;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;vertical-align:middle" title="rocm/atom:rocm7.1.1-ubuntu24.04-pytorch2.9-atom0.1.1-MI350x">rocm/atom:rocm7.1.1-ubuntu24.04-pytorch2.9-atom0.1.1-MI350x</td>
         </tr>
-<tr class="imax-row">
-          <td><code style="font-size:11px">dsr1-fp8-mi355x-atom</code></td>
-          <td style="font-size:11px">deepseek-ai/DeepSeek-R1-0528</td>
-          <td><b>dsr1</b></td>
-          <td><span style="background:#EDE7F6;color:#4A148C;padding:2px 6px;border-radius:3px;font-size:11px">mi355x</span></td>
-          <td style="text-align:center">fp8</td>
-          <td style="text-align:center">atom</td>
-          <td class="bool-no">—</td>
-          <td style="font-size:10px;color:#555;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="rocm/atom:rocm7.1.1-ubuntu24.04-pytorch2.9-atom0.1.1-MI350x">rocm/atom:rocm7.1.1-ubuntu24.04-pytorch2.9-atom0.1.1-MI350x</td>
+<tr class="imax-row" style="background:#FCE4EC">
+          <td style="vertical-align:middle"><code style="font-size:11px">dsr1-fp8-mi355x-atom</code></td>
+          <td style="font-size:11px;vertical-align:middle">deepseek-ai/DeepSeek-R1-0528</td>
+          <td style="vertical-align:middle"><b>dsr1</b></td>
+          <td style="vertical-align:middle"><span style="background:#EDE7F6;color:#4A148C;padding:2px 6px;border-radius:3px;font-size:11px">mi355x</span></td>
+          <td style="text-align:center;vertical-align:middle;white-space:nowrap">fp8</td>
+          <td style="text-align:center;vertical-align:middle;white-space:nowrap">atom</td>
+          <td class="bool-no" style="vertical-align:middle;white-space:nowrap">—</td>
+          <td style="font-size:10px;color:#555;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;vertical-align:middle" title="rocm/atom:rocm7.1.1-ubuntu24.04-pytorch2.9-atom0.1.1-MI350x">rocm/atom:rocm7.1.1-ubuntu24.04-pytorch2.9-atom0.1.1-MI350x</td>
         </tr>
-<tr class="imax-row">
-          <td><code style="font-size:11px">dsr1-fp4-mi355x-sglang</code></td>
-          <td style="font-size:11px">amd/DeepSeek-R1-0528-MXFP4-Preview</td>
-          <td><b>dsr1</b></td>
-          <td><span style="background:#EDE7F6;color:#4A148C;padding:2px 6px;border-radius:3px;font-size:11px">mi355x</span></td>
-          <td style="text-align:center">fp4</td>
-          <td style="text-align:center">sglang</td>
-          <td class="bool-no">—</td>
-          <td style="font-size:10px;color:#555;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="lmsysorg/sglang:v0.5.9-rocm700-mi35x">lmsysorg/sglang:v0.5.9-rocm700-mi35x</td>
+<tr class="imax-row" style="background:#E0F7FA">
+          <td style="vertical-align:middle"><code style="font-size:11px">dsv4-fp8-mi355x-sglang</code></td>
+          <td style="font-size:11px;vertical-align:middle">sgl-project/DeepSeek-V4-Pro-FP8</td>
+          <td style="vertical-align:middle"><b>dsv4</b></td>
+          <td style="vertical-align:middle"><span style="background:#EDE7F6;color:#4A148C;padding:2px 6px;border-radius:3px;font-size:11px">mi355x</span></td>
+          <td style="text-align:center;vertical-align:middle;white-space:nowrap">fp8</td>
+          <td style="text-align:center;vertical-align:middle;white-space:nowrap">sglang</td>
+          <td class="bool-no" style="vertical-align:middle;white-space:nowrap">—</td>
+          <td style="font-size:10px;color:#555;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;vertical-align:middle" title="rocm/sgl-dev:rocm720-deepseek-v4-mi35x">rocm/sgl-dev:rocm720-deepseek-v4-mi35x</td>
         </tr>
-<tr class="imax-row">
-          <td><code style="font-size:11px">dsr1-fp8-mi300x-sglang</code></td>
-          <td style="font-size:11px">deepseek-ai/DeepSeek-R1-0528</td>
-          <td><b>dsr1</b></td>
-          <td><span style="background:#EDE7F6;color:#4A148C;padding:2px 6px;border-radius:3px;font-size:11px">mi300x</span></td>
-          <td style="text-align:center">fp8</td>
-          <td style="text-align:center">sglang</td>
-          <td class="bool-no">—</td>
-          <td style="font-size:10px;color:#555;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="lmsysorg/sglang:v0.5.9-rocm700-mi30x">lmsysorg/sglang:v0.5.9-rocm700-mi30x</td>
+<tr class="imax-row" style="background:#E0F7FA">
+          <td style="vertical-align:middle"><code style="font-size:11px">dsv4-fp4-mi355x-sglang</code></td>
+          <td style="font-size:11px;vertical-align:middle">deepseek-ai/DeepSeek-V4-Pro</td>
+          <td style="vertical-align:middle"><b>dsv4</b></td>
+          <td style="vertical-align:middle"><span style="background:#EDE7F6;color:#4A148C;padding:2px 6px;border-radius:3px;font-size:11px">mi355x</span></td>
+          <td style="text-align:center;vertical-align:middle;white-space:nowrap">fp4</td>
+          <td style="text-align:center;vertical-align:middle;white-space:nowrap">sglang</td>
+          <td class="bool-no" style="vertical-align:middle;white-space:nowrap">—</td>
+          <td style="font-size:10px;color:#555;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;vertical-align:middle" title="rocm/sgl-dev:rocm720-deepseek-v4-mi35x">rocm/sgl-dev:rocm720-deepseek-v4-mi35x</td>
         </tr>
-<tr class="imax-row">
-          <td><code style="font-size:11px">dsr1-fp8-mi325x-sglang</code></td>
-          <td style="font-size:11px">deepseek-ai/DeepSeek-R1-0528</td>
-          <td><b>dsr1</b></td>
-          <td><span style="background:#EDE7F6;color:#4A148C;padding:2px 6px;border-radius:3px;font-size:11px">mi325x</span></td>
-          <td style="text-align:center">fp8</td>
-          <td style="text-align:center">sglang</td>
-          <td class="bool-no">—</td>
-          <td style="font-size:10px;color:#555;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="lmsysorg/sglang:v0.5.9-rocm700-mi30x">lmsysorg/sglang:v0.5.9-rocm700-mi30x</td>
+<tr class="imax-row" style="background:#E0F7FA">
+          <td style="vertical-align:middle"><code style="font-size:11px">dsv4-fp4-mi355x-vllm</code></td>
+          <td style="font-size:11px;vertical-align:middle">deepseek-ai/DeepSeek-V4-Pro</td>
+          <td style="vertical-align:middle"><b>dsv4</b></td>
+          <td style="vertical-align:middle"><span style="background:#EDE7F6;color:#4A148C;padding:2px 6px;border-radius:3px;font-size:11px">mi355x-p02-g57</span></td>
+          <td style="text-align:center;vertical-align:middle;white-space:nowrap">fp4</td>
+          <td style="text-align:center;vertical-align:middle;white-space:nowrap">vllm</td>
+          <td class="bool-no" style="vertical-align:middle;white-space:nowrap">—</td>
+          <td style="font-size:10px;color:#555;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;vertical-align:middle" title="rocm/pytorch-private:dsv4_dsv4_adapt_upstream_0430">rocm/pytorch-private:dsv4_dsv4_adapt_upstream_0430</td>
         </tr>
-<tr class="imax-row">
-          <td><code style="font-size:11px">dsr1-fp8-mi355x-sglang</code></td>
-          <td style="font-size:11px">deepseek-ai/DeepSeek-R1-0528</td>
-          <td><b>dsr1</b></td>
-          <td><span style="background:#EDE7F6;color:#4A148C;padding:2px 6px;border-radius:3px;font-size:11px">mi355x</span></td>
-          <td style="text-align:center">fp8</td>
-          <td style="text-align:center">sglang</td>
-          <td class="bool-no">—</td>
-          <td style="font-size:10px;color:#555;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="lmsysorg/sglang:v0.5.9-rocm700-mi35x">lmsysorg/sglang:v0.5.9-rocm700-mi35x</td>
+<tr class="imax-row" style="background:#FCE4EC">
+          <td style="vertical-align:middle"><code style="font-size:11px">dsr1-fp4-mi355x-sglang</code></td>
+          <td style="font-size:11px;vertical-align:middle">amd/DeepSeek-R1-0528-MXFP4-Preview</td>
+          <td style="vertical-align:middle"><b>dsr1</b></td>
+          <td style="vertical-align:middle"><span style="background:#EDE7F6;color:#4A148C;padding:2px 6px;border-radius:3px;font-size:11px">mi355x</span></td>
+          <td style="text-align:center;vertical-align:middle;white-space:nowrap">fp4</td>
+          <td style="text-align:center;vertical-align:middle;white-space:nowrap">sglang</td>
+          <td class="bool-no" style="vertical-align:middle;white-space:nowrap">—</td>
+          <td style="font-size:10px;color:#555;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;vertical-align:middle" title="lmsysorg/sglang:v0.5.9-rocm700-mi35x">lmsysorg/sglang:v0.5.9-rocm700-mi35x</td>
         </tr>
-<tr class="imax-row">
-          <td><code style="font-size:11px">qwen3.5-bf16-mi355x-sglang</code></td>
-          <td style="font-size:11px">Qwen/Qwen3.5-397B-A17B</td>
-          <td><b>qwen3.5</b></td>
-          <td><span style="background:#EDE7F6;color:#4A148C;padding:2px 6px;border-radius:3px;font-size:11px">mi355x</span></td>
-          <td style="text-align:center">bf16</td>
-          <td style="text-align:center">sglang</td>
-          <td class="bool-no">—</td>
-          <td style="font-size:10px;color:#555;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="rocm/sgl-dev:v0.5.8.post1-rocm720-mi35x-20260215">rocm/sgl-dev:v0.5.8.post1-rocm720-mi35x-20260215</td>
+<tr class="imax-row" style="background:#FCE4EC">
+          <td style="vertical-align:middle"><code style="font-size:11px">dsr1-fp8-mi300x-sglang</code></td>
+          <td style="font-size:11px;vertical-align:middle">deepseek-ai/DeepSeek-R1-0528</td>
+          <td style="vertical-align:middle"><b>dsr1</b></td>
+          <td style="vertical-align:middle"><span style="background:#EDE7F6;color:#4A148C;padding:2px 6px;border-radius:3px;font-size:11px">mi300x</span></td>
+          <td style="text-align:center;vertical-align:middle;white-space:nowrap">fp8</td>
+          <td style="text-align:center;vertical-align:middle;white-space:nowrap">sglang</td>
+          <td class="bool-no" style="vertical-align:middle;white-space:nowrap">—</td>
+          <td style="font-size:10px;color:#555;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;vertical-align:middle" title="lmsysorg/sglang:v0.5.9-rocm700-mi30x">lmsysorg/sglang:v0.5.9-rocm700-mi30x</td>
         </tr>
-<tr class="imax-row">
-          <td><code style="font-size:11px">qwen3.5-bf16-mi355x-atom</code></td>
-          <td style="font-size:11px">Qwen/Qwen3.5-397B-A17B</td>
-          <td><b>qwen3.5</b></td>
-          <td><span style="background:#EDE7F6;color:#4A148C;padding:2px 6px;border-radius:3px;font-size:11px">mi355x</span></td>
-          <td style="text-align:center">bf16</td>
-          <td style="text-align:center">atom</td>
-          <td class="bool-no">—</td>
-          <td style="font-size:10px;color:#555;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="rocm/atom:rocm7.2.1-ubuntu24.04-pytorch2.9.1-atom0.1.2-vllm0.17.0">rocm/atom:rocm7.2.1-ubuntu24.04-pytorch2.9.1-atom0.1.2-vllm0.17.0</td>
+<tr class="imax-row" style="background:#FCE4EC">
+          <td style="vertical-align:middle"><code style="font-size:11px">dsr1-fp8-mi325x-sglang</code></td>
+          <td style="font-size:11px;vertical-align:middle">deepseek-ai/DeepSeek-R1-0528</td>
+          <td style="vertical-align:middle"><b>dsr1</b></td>
+          <td style="vertical-align:middle"><span style="background:#EDE7F6;color:#4A148C;padding:2px 6px;border-radius:3px;font-size:11px">mi325x</span></td>
+          <td style="text-align:center;vertical-align:middle;white-space:nowrap">fp8</td>
+          <td style="text-align:center;vertical-align:middle;white-space:nowrap">sglang</td>
+          <td class="bool-no" style="vertical-align:middle;white-space:nowrap">—</td>
+          <td style="font-size:10px;color:#555;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;vertical-align:middle" title="lmsysorg/sglang:v0.5.9-rocm700-mi30x">lmsysorg/sglang:v0.5.9-rocm700-mi30x</td>
         </tr>
-<tr class="imax-row">
-          <td><code style="font-size:11px">qwen3.5-bf16-mi300x-sglang</code></td>
-          <td style="font-size:11px">Qwen/Qwen3.5-397B-A17B</td>
-          <td><b>qwen3.5</b></td>
-          <td><span style="background:#EDE7F6;color:#4A148C;padding:2px 6px;border-radius:3px;font-size:11px">mi300x</span></td>
-          <td style="text-align:center">bf16</td>
-          <td style="text-align:center">sglang</td>
-          <td class="bool-no">—</td>
-          <td style="font-size:10px;color:#555;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="lmsysorg/sglang:v0.5.9-rocm720-mi30x">lmsysorg/sglang:v0.5.9-rocm720-mi30x</td>
+<tr class="imax-row" style="background:#FCE4EC">
+          <td style="vertical-align:middle"><code style="font-size:11px">dsr1-fp8-mi355x-sglang</code></td>
+          <td style="font-size:11px;vertical-align:middle">deepseek-ai/DeepSeek-R1-0528</td>
+          <td style="vertical-align:middle"><b>dsr1</b></td>
+          <td style="vertical-align:middle"><span style="background:#EDE7F6;color:#4A148C;padding:2px 6px;border-radius:3px;font-size:11px">mi355x</span></td>
+          <td style="text-align:center;vertical-align:middle;white-space:nowrap">fp8</td>
+          <td style="text-align:center;vertical-align:middle;white-space:nowrap">sglang</td>
+          <td class="bool-no" style="vertical-align:middle;white-space:nowrap">—</td>
+          <td style="font-size:10px;color:#555;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;vertical-align:middle" title="lmsysorg/sglang:v0.5.9-rocm700-mi35x">lmsysorg/sglang:v0.5.9-rocm700-mi35x</td>
         </tr>
-<tr class="imax-row">
-          <td><code style="font-size:11px">qwen3.5-bf16-mi325x-sglang</code></td>
-          <td style="font-size:11px">Qwen/Qwen3.5-397B-A17B</td>
-          <td><b>qwen3.5</b></td>
-          <td><span style="background:#EDE7F6;color:#4A148C;padding:2px 6px;border-radius:3px;font-size:11px">mi325x</span></td>
-          <td style="text-align:center">bf16</td>
-          <td style="text-align:center">sglang</td>
-          <td class="bool-no">—</td>
-          <td style="font-size:10px;color:#555;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="lmsysorg/sglang:v0.5.9-rocm720-mi30x">lmsysorg/sglang:v0.5.9-rocm720-mi30x</td>
+<tr class="imax-row" style="background:#FBE9E7">
+          <td style="vertical-align:middle"><code style="font-size:11px">qwen3.5-bf16-mi355x-sglang</code></td>
+          <td style="font-size:11px;vertical-align:middle">Qwen/Qwen3.5-397B-A17B</td>
+          <td style="vertical-align:middle"><b>qwen3.5</b></td>
+          <td style="vertical-align:middle"><span style="background:#EDE7F6;color:#4A148C;padding:2px 6px;border-radius:3px;font-size:11px">mi355x</span></td>
+          <td style="text-align:center;vertical-align:middle;white-space:nowrap">bf16</td>
+          <td style="text-align:center;vertical-align:middle;white-space:nowrap">sglang</td>
+          <td class="bool-no" style="vertical-align:middle;white-space:nowrap">—</td>
+          <td style="font-size:10px;color:#555;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;vertical-align:middle" title="rocm/sgl-dev:v0.5.8.post1-rocm720-mi35x-20260215">rocm/sgl-dev:v0.5.8.post1-rocm720-mi35x-20260215</td>
         </tr>
-<tr class="imax-row">
-          <td><code style="font-size:11px">qwen3.5-fp8-mi325x-sglang</code></td>
-          <td style="font-size:11px">Qwen/Qwen3.5-397B-A17B-FP8</td>
-          <td><b>qwen3.5</b></td>
-          <td><span style="background:#EDE7F6;color:#4A148C;padding:2px 6px;border-radius:3px;font-size:11px">mi325x</span></td>
-          <td style="text-align:center">fp8</td>
-          <td style="text-align:center">sglang</td>
-          <td class="bool-no">—</td>
-          <td style="font-size:10px;color:#555;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="lmsysorg/sglang:v0.5.9-rocm720-mi30x">lmsysorg/sglang:v0.5.9-rocm720-mi30x</td>
+<tr class="imax-row" style="background:#FBE9E7">
+          <td style="vertical-align:middle"><code style="font-size:11px">qwen3.5-bf16-mi355x-atom</code></td>
+          <td style="font-size:11px;vertical-align:middle">Qwen/Qwen3.5-397B-A17B</td>
+          <td style="vertical-align:middle"><b>qwen3.5</b></td>
+          <td style="vertical-align:middle"><span style="background:#EDE7F6;color:#4A148C;padding:2px 6px;border-radius:3px;font-size:11px">mi355x</span></td>
+          <td style="text-align:center;vertical-align:middle;white-space:nowrap">bf16</td>
+          <td style="text-align:center;vertical-align:middle;white-space:nowrap">atom</td>
+          <td class="bool-no" style="vertical-align:middle;white-space:nowrap">—</td>
+          <td style="font-size:10px;color:#555;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;vertical-align:middle" title="rocm/atom:rocm7.2.1-ubuntu24.04-pytorch2.9.1-atom0.1.2-vllm0.17.0">rocm/atom:rocm7.2.1-ubuntu24.04-pytorch2.9.1-atom0.1.2-vllm0.17.0</td>
         </tr>
-<tr class="imax-row">
-          <td><code style="font-size:11px">qwen3.5-fp8-mi355x-sglang</code></td>
-          <td style="font-size:11px">Qwen/Qwen3.5-397B-A17B-FP8</td>
-          <td><b>qwen3.5</b></td>
-          <td><span style="background:#EDE7F6;color:#4A148C;padding:2px 6px;border-radius:3px;font-size:11px">mi355x</span></td>
-          <td style="text-align:center">fp8</td>
-          <td style="text-align:center">sglang</td>
-          <td class="bool-no">—</td>
-          <td style="font-size:10px;color:#555;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="rocm/sgl-dev:v0.5.8.post1-rocm720-mi35x-20260218">rocm/sgl-dev:v0.5.8.post1-rocm720-mi35x-20260218</td>
+<tr class="imax-row" style="background:#FBE9E7">
+          <td style="vertical-align:middle"><code style="font-size:11px">qwen3.5-bf16-mi300x-sglang</code></td>
+          <td style="font-size:11px;vertical-align:middle">Qwen/Qwen3.5-397B-A17B</td>
+          <td style="vertical-align:middle"><b>qwen3.5</b></td>
+          <td style="vertical-align:middle"><span style="background:#EDE7F6;color:#4A148C;padding:2px 6px;border-radius:3px;font-size:11px">mi300x</span></td>
+          <td style="text-align:center;vertical-align:middle;white-space:nowrap">bf16</td>
+          <td style="text-align:center;vertical-align:middle;white-space:nowrap">sglang</td>
+          <td class="bool-no" style="vertical-align:middle;white-space:nowrap">—</td>
+          <td style="font-size:10px;color:#555;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;vertical-align:middle" title="lmsysorg/sglang:v0.5.9-rocm720-mi30x">lmsysorg/sglang:v0.5.9-rocm720-mi30x</td>
         </tr>
-<tr class="imax-row">
-          <td><code style="font-size:11px">qwen3.5-fp8-mi355x-atom</code></td>
-          <td style="font-size:11px">Qwen/Qwen3.5-397B-A17B-FP8</td>
-          <td><b>qwen3.5</b></td>
-          <td><span style="background:#EDE7F6;color:#4A148C;padding:2px 6px;border-radius:3px;font-size:11px">mi355x</span></td>
-          <td style="text-align:center">fp8</td>
-          <td style="text-align:center">atom</td>
-          <td class="bool-no">—</td>
-          <td style="font-size:10px;color:#555;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="rocm/atom:rocm7.2.1-ubuntu24.04-pytorch2.9.1-atom0.1.2-vllm0.17.0">rocm/atom:rocm7.2.1-ubuntu24.04-pytorch2.9.1-atom0.1.2-vllm0.17.0</td>
+<tr class="imax-row" style="background:#FBE9E7">
+          <td style="vertical-align:middle"><code style="font-size:11px">qwen3.5-bf16-mi325x-sglang</code></td>
+          <td style="font-size:11px;vertical-align:middle">Qwen/Qwen3.5-397B-A17B</td>
+          <td style="vertical-align:middle"><b>qwen3.5</b></td>
+          <td style="vertical-align:middle"><span style="background:#EDE7F6;color:#4A148C;padding:2px 6px;border-radius:3px;font-size:11px">mi325x</span></td>
+          <td style="text-align:center;vertical-align:middle;white-space:nowrap">bf16</td>
+          <td style="text-align:center;vertical-align:middle;white-space:nowrap">sglang</td>
+          <td class="bool-no" style="vertical-align:middle;white-space:nowrap">—</td>
+          <td style="font-size:10px;color:#555;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;vertical-align:middle" title="lmsysorg/sglang:v0.5.9-rocm720-mi30x">lmsysorg/sglang:v0.5.9-rocm720-mi30x</td>
         </tr>
-<tr class="imax-row">
-          <td><code style="font-size:11px">qwen3.5-fp8-mi300x-sglang</code></td>
-          <td style="font-size:11px">Qwen/Qwen3.5-397B-A17B-FP8</td>
-          <td><b>qwen3.5</b></td>
-          <td><span style="background:#EDE7F6;color:#4A148C;padding:2px 6px;border-radius:3px;font-size:11px">mi300x</span></td>
-          <td style="text-align:center">fp8</td>
-          <td style="text-align:center">sglang</td>
-          <td class="bool-no">—</td>
-          <td style="font-size:10px;color:#555;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="lmsysorg/sglang:v0.5.9-rocm720-mi30x">lmsysorg/sglang:v0.5.9-rocm720-mi30x</td>
+<tr class="imax-row" style="background:#FBE9E7">
+          <td style="vertical-align:middle"><code style="font-size:11px">qwen3.5-fp8-mi325x-sglang</code></td>
+          <td style="font-size:11px;vertical-align:middle">Qwen/Qwen3.5-397B-A17B-FP8</td>
+          <td style="vertical-align:middle"><b>qwen3.5</b></td>
+          <td style="vertical-align:middle"><span style="background:#EDE7F6;color:#4A148C;padding:2px 6px;border-radius:3px;font-size:11px">mi325x</span></td>
+          <td style="text-align:center;vertical-align:middle;white-space:nowrap">fp8</td>
+          <td style="text-align:center;vertical-align:middle;white-space:nowrap">sglang</td>
+          <td class="bool-no" style="vertical-align:middle;white-space:nowrap">—</td>
+          <td style="font-size:10px;color:#555;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;vertical-align:middle" title="lmsysorg/sglang:v0.5.9-rocm720-mi30x">lmsysorg/sglang:v0.5.9-rocm720-mi30x</td>
         </tr>
-<tr class="imax-row">
-          <td><code style="font-size:11px">glm5-fp8-mi355x-sglang</code></td>
-          <td style="font-size:11px">zai-org/GLM-5-FP8</td>
-          <td><b>glm5</b></td>
-          <td><span style="background:#EDE7F6;color:#4A148C;padding:2px 6px;border-radius:3px;font-size:11px">mi355x</span></td>
-          <td style="text-align:center">fp8</td>
-          <td style="text-align:center">sglang</td>
-          <td class="bool-no">—</td>
-          <td style="font-size:10px;color:#555;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="rocm/sgl-dev:v0.5.8.post1-rocm720-mi35x-20260219">rocm/sgl-dev:v0.5.8.post1-rocm720-mi35x-20260219</td>
+<tr class="imax-row" style="background:#FBE9E7">
+          <td style="vertical-align:middle"><code style="font-size:11px">qwen3.5-fp8-mi355x-sglang</code></td>
+          <td style="font-size:11px;vertical-align:middle">Qwen/Qwen3.5-397B-A17B-FP8</td>
+          <td style="vertical-align:middle"><b>qwen3.5</b></td>
+          <td style="vertical-align:middle"><span style="background:#EDE7F6;color:#4A148C;padding:2px 6px;border-radius:3px;font-size:11px">mi355x</span></td>
+          <td style="text-align:center;vertical-align:middle;white-space:nowrap">fp8</td>
+          <td style="text-align:center;vertical-align:middle;white-space:nowrap">sglang</td>
+          <td class="bool-no" style="vertical-align:middle;white-space:nowrap">—</td>
+          <td style="font-size:10px;color:#555;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;vertical-align:middle" title="rocm/sgl-dev:v0.5.8.post1-rocm720-mi35x-20260218">rocm/sgl-dev:v0.5.8.post1-rocm720-mi35x-20260218</td>
         </tr>
-<tr class="imax-row">
-          <td><code style="font-size:11px">kimik2.5-int4-mi355x-vllm</code></td>
-          <td style="font-size:11px">moonshotai/Kimi-K2.5</td>
-          <td><b>kimik2.5</b></td>
-          <td><span style="background:#EDE7F6;color:#4A148C;padding:2px 6px;border-radius:3px;font-size:11px">mi355x_srok</span></td>
-          <td style="text-align:center">int4</td>
-          <td style="text-align:center">vllm</td>
-          <td class="bool-no">—</td>
-          <td style="font-size:10px;color:#555;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="aigmkt/kimi-k25-dev">aigmkt/kimi-k25-dev</td>
+<tr class="imax-row" style="background:#FBE9E7">
+          <td style="vertical-align:middle"><code style="font-size:11px">qwen3.5-fp8-mi355x-atom</code></td>
+          <td style="font-size:11px;vertical-align:middle">Qwen/Qwen3.5-397B-A17B-FP8</td>
+          <td style="vertical-align:middle"><b>qwen3.5</b></td>
+          <td style="vertical-align:middle"><span style="background:#EDE7F6;color:#4A148C;padding:2px 6px;border-radius:3px;font-size:11px">mi355x</span></td>
+          <td style="text-align:center;vertical-align:middle;white-space:nowrap">fp8</td>
+          <td style="text-align:center;vertical-align:middle;white-space:nowrap">atom</td>
+          <td class="bool-no" style="vertical-align:middle;white-space:nowrap">—</td>
+          <td style="font-size:10px;color:#555;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;vertical-align:middle" title="rocm/atom:rocm7.2.1-ubuntu24.04-pytorch2.9.1-atom0.1.2-vllm0.17.0">rocm/atom:rocm7.2.1-ubuntu24.04-pytorch2.9.1-atom0.1.2-vllm0.17.0</td>
         </tr>
-<tr class="imax-row">
-          <td><code style="font-size:11px">kimik2.5-int4-mi325x-vllm</code></td>
-          <td style="font-size:11px">moonshotai/Kimi-K2.5</td>
-          <td><b>kimik2.5</b></td>
-          <td><span style="background:#EDE7F6;color:#4A148C;padding:2px 6px;border-radius:3px;font-size:11px">mi325x</span></td>
-          <td style="text-align:center">int4</td>
-          <td style="text-align:center">vllm</td>
-          <td class="bool-no">—</td>
-          <td style="font-size:10px;color:#555;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="vllm/vllm-openai-rocm:v0.18.0">vllm/vllm-openai-rocm:v0.18.0</td>
+<tr class="imax-row" style="background:#FBE9E7">
+          <td style="vertical-align:middle"><code style="font-size:11px">qwen3.5-fp8-mi300x-sglang</code></td>
+          <td style="font-size:11px;vertical-align:middle">Qwen/Qwen3.5-397B-A17B-FP8</td>
+          <td style="vertical-align:middle"><b>qwen3.5</b></td>
+          <td style="vertical-align:middle"><span style="background:#EDE7F6;color:#4A148C;padding:2px 6px;border-radius:3px;font-size:11px">mi300x</span></td>
+          <td style="text-align:center;vertical-align:middle;white-space:nowrap">fp8</td>
+          <td style="text-align:center;vertical-align:middle;white-space:nowrap">sglang</td>
+          <td class="bool-no" style="vertical-align:middle;white-space:nowrap">—</td>
+          <td style="font-size:10px;color:#555;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;vertical-align:middle" title="lmsysorg/sglang:v0.5.9-rocm720-mi30x">lmsysorg/sglang:v0.5.9-rocm720-mi30x</td>
         </tr>
-<tr class="imax-row">
-          <td><code style="font-size:11px">kimik2.5-fp4-mi355x-vllm</code></td>
-          <td style="font-size:11px">amd/Kimi-K2.5-MXFP4</td>
-          <td><b>kimik2.5</b></td>
-          <td><span style="background:#EDE7F6;color:#4A148C;padding:2px 6px;border-radius:3px;font-size:11px">mi355x-p02-g42</span></td>
-          <td style="text-align:center">fp4</td>
-          <td style="text-align:center">vllm</td>
-          <td class="bool-no">—</td>
-          <td style="font-size:10px;color:#555;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="vllm/vllm-openai-rocm:v0.18.0">vllm/vllm-openai-rocm:v0.18.0</td>
+<tr class="imax-row" style="background:#EDE7F6">
+          <td style="vertical-align:middle"><code style="font-size:11px">glm5-fp8-mi355x-sglang</code></td>
+          <td style="font-size:11px;vertical-align:middle">zai-org/GLM-5-FP8</td>
+          <td style="vertical-align:middle"><b>glm5</b></td>
+          <td style="vertical-align:middle"><span style="background:#EDE7F6;color:#4A148C;padding:2px 6px;border-radius:3px;font-size:11px">mi355x</span></td>
+          <td style="text-align:center;vertical-align:middle;white-space:nowrap">fp8</td>
+          <td style="text-align:center;vertical-align:middle;white-space:nowrap">sglang</td>
+          <td class="bool-no" style="vertical-align:middle;white-space:nowrap">—</td>
+          <td style="font-size:10px;color:#555;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;vertical-align:middle" title="rocm/sgl-dev:v0.5.8.post1-rocm720-mi35x-20260219">rocm/sgl-dev:v0.5.8.post1-rocm720-mi35x-20260219</td>
         </tr>
-<tr class="imax-row">
-          <td><code style="font-size:11px">minimaxm2.5-fp8-mi355x-vllm</code></td>
-          <td style="font-size:11px">MiniMaxAI/MiniMax-M2.5</td>
-          <td><b>minimaxm2.5</b></td>
-          <td><span style="background:#EDE7F6;color:#4A148C;padding:2px 6px;border-radius:3px;font-size:11px">mi355x</span></td>
-          <td style="text-align:center">fp8</td>
-          <td style="text-align:center">vllm</td>
-          <td class="bool-no">—</td>
-          <td style="font-size:10px;color:#555;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="vllm/vllm-openai-rocm:v0.15.1">vllm/vllm-openai-rocm:v0.15.1</td>
+<tr class="imax-row" style="background:#E3F2FD">
+          <td style="vertical-align:middle"><code style="font-size:11px">kimik2.5-int4-mi355x-vllm</code></td>
+          <td style="font-size:11px;vertical-align:middle">moonshotai/Kimi-K2.5</td>
+          <td style="vertical-align:middle"><b>kimik2.5</b></td>
+          <td style="vertical-align:middle"><span style="background:#EDE7F6;color:#4A148C;padding:2px 6px;border-radius:3px;font-size:11px">mi355x_srok</span></td>
+          <td style="text-align:center;vertical-align:middle;white-space:nowrap">int4</td>
+          <td style="text-align:center;vertical-align:middle;white-space:nowrap">vllm</td>
+          <td class="bool-no" style="vertical-align:middle;white-space:nowrap">—</td>
+          <td style="font-size:10px;color:#555;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;vertical-align:middle" title="aigmkt/kimi-k25-dev">aigmkt/kimi-k25-dev</td>
         </tr>
-<tr class="imax-row">
-          <td><code style="font-size:11px">minimaxm2.5-fp8-mi300x-vllm</code></td>
-          <td style="font-size:11px">MiniMaxAI/MiniMax-M2.5</td>
-          <td><b>minimaxm2.5</b></td>
-          <td><span style="background:#EDE7F6;color:#4A148C;padding:2px 6px;border-radius:3px;font-size:11px">mi300x</span></td>
-          <td style="text-align:center">fp8</td>
-          <td style="text-align:center">vllm</td>
-          <td class="bool-no">—</td>
-          <td style="font-size:10px;color:#555;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="vllm/vllm-openai-rocm:v0.16.0">vllm/vllm-openai-rocm:v0.16.0</td>
+<tr class="imax-row" style="background:#E3F2FD">
+          <td style="vertical-align:middle"><code style="font-size:11px">kimik2.5-int4-mi325x-vllm</code></td>
+          <td style="font-size:11px;vertical-align:middle">moonshotai/Kimi-K2.5</td>
+          <td style="vertical-align:middle"><b>kimik2.5</b></td>
+          <td style="vertical-align:middle"><span style="background:#EDE7F6;color:#4A148C;padding:2px 6px;border-radius:3px;font-size:11px">mi325x</span></td>
+          <td style="text-align:center;vertical-align:middle;white-space:nowrap">int4</td>
+          <td style="text-align:center;vertical-align:middle;white-space:nowrap">vllm</td>
+          <td class="bool-no" style="vertical-align:middle;white-space:nowrap">—</td>
+          <td style="font-size:10px;color:#555;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;vertical-align:middle" title="vllm/vllm-openai-rocm:v0.18.0">vllm/vllm-openai-rocm:v0.18.0</td>
         </tr>
-<tr class="imax-row">
-          <td><code style="font-size:11px">minimaxm2.5-fp8-mi325x-vllm</code></td>
-          <td style="font-size:11px">MiniMaxAI/MiniMax-M2.5</td>
-          <td><b>minimaxm2.5</b></td>
-          <td><span style="background:#EDE7F6;color:#4A148C;padding:2px 6px;border-radius:3px;font-size:11px">mi325x</span></td>
-          <td style="text-align:center">fp8</td>
-          <td style="text-align:center">vllm</td>
-          <td class="bool-no">—</td>
-          <td style="font-size:10px;color:#555;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="vllm/vllm-openai-rocm:v0.16.0">vllm/vllm-openai-rocm:v0.16.0</td>
+<tr class="imax-row" style="background:#E3F2FD">
+          <td style="vertical-align:middle"><code style="font-size:11px">kimik2.5-fp4-mi355x-vllm</code></td>
+          <td style="font-size:11px;vertical-align:middle">amd/Kimi-K2.5-MXFP4</td>
+          <td style="vertical-align:middle"><b>kimik2.5</b></td>
+          <td style="vertical-align:middle"><span style="background:#EDE7F6;color:#4A148C;padding:2px 6px;border-radius:3px;font-size:11px">mi355x-p02-g42</span></td>
+          <td style="text-align:center;vertical-align:middle;white-space:nowrap">fp4</td>
+          <td style="text-align:center;vertical-align:middle;white-space:nowrap">vllm</td>
+          <td class="bool-no" style="vertical-align:middle;white-space:nowrap">—</td>
+          <td style="font-size:10px;color:#555;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;vertical-align:middle" title="vllm/vllm-openai-rocm:v0.18.0">vllm/vllm-openai-rocm:v0.18.0</td>
         </tr>
-<tr class="imax-row">
-          <td><code style="font-size:11px">gptoss-fp4-mi300x-vllm</code></td>
-          <td style="font-size:11px">openai/gpt-oss-120b</td>
-          <td><b>gptoss</b></td>
-          <td><span style="background:#EDE7F6;color:#4A148C;padding:2px 6px;border-radius:3px;font-size:11px">mi300x</span></td>
-          <td style="text-align:center">fp4</td>
-          <td style="text-align:center">vllm</td>
-          <td class="bool-no">—</td>
-          <td style="font-size:10px;color:#555;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="vllm/vllm-openai-rocm:v0.17.0">vllm/vllm-openai-rocm:v0.17.0</td>
+<tr class="imax-row" style="background:#E8F5E9">
+          <td style="vertical-align:middle"><code style="font-size:11px">minimaxm2.5-fp8-mi355x-vllm</code></td>
+          <td style="font-size:11px;vertical-align:middle">MiniMaxAI/MiniMax-M2.5</td>
+          <td style="vertical-align:middle"><b>minimaxm2.5</b></td>
+          <td style="vertical-align:middle"><span style="background:#EDE7F6;color:#4A148C;padding:2px 6px;border-radius:3px;font-size:11px">mi355x</span></td>
+          <td style="text-align:center;vertical-align:middle;white-space:nowrap">fp8</td>
+          <td style="text-align:center;vertical-align:middle;white-space:nowrap">vllm</td>
+          <td class="bool-no" style="vertical-align:middle;white-space:nowrap">—</td>
+          <td style="font-size:10px;color:#555;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;vertical-align:middle" title="vllm/vllm-openai-rocm:v0.15.1">vllm/vllm-openai-rocm:v0.15.1</td>
         </tr>
-<tr class="imax-row">
-          <td><code style="font-size:11px">gptoss-fp4-mi325x-vllm</code></td>
-          <td style="font-size:11px">openai/gpt-oss-120b</td>
-          <td><b>gptoss</b></td>
-          <td><span style="background:#EDE7F6;color:#4A148C;padding:2px 6px;border-radius:3px;font-size:11px">mi325x</span></td>
-          <td style="text-align:center">fp4</td>
-          <td style="text-align:center">vllm</td>
-          <td class="bool-no">—</td>
-          <td style="font-size:10px;color:#555;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="vllm/vllm-openai-rocm:v0.17.0">vllm/vllm-openai-rocm:v0.17.0</td>
+<tr class="imax-row" style="background:#E8F5E9">
+          <td style="vertical-align:middle"><code style="font-size:11px">minimaxm2.5-fp8-mi300x-vllm</code></td>
+          <td style="font-size:11px;vertical-align:middle">MiniMaxAI/MiniMax-M2.5</td>
+          <td style="vertical-align:middle"><b>minimaxm2.5</b></td>
+          <td style="vertical-align:middle"><span style="background:#EDE7F6;color:#4A148C;padding:2px 6px;border-radius:3px;font-size:11px">mi300x</span></td>
+          <td style="text-align:center;vertical-align:middle;white-space:nowrap">fp8</td>
+          <td style="text-align:center;vertical-align:middle;white-space:nowrap">vllm</td>
+          <td class="bool-no" style="vertical-align:middle;white-space:nowrap">—</td>
+          <td style="font-size:10px;color:#555;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;vertical-align:middle" title="vllm/vllm-openai-rocm:v0.16.0">vllm/vllm-openai-rocm:v0.16.0</td>
         </tr>
-<tr class="imax-row">
-          <td><code style="font-size:11px">gptoss-fp4-mi355x-vllm</code></td>
-          <td style="font-size:11px">amd/gpt-oss-120b-w-mxfp4-a-fp8</td>
-          <td><b>gptoss</b></td>
-          <td><span style="background:#EDE7F6;color:#4A148C;padding:2px 6px;border-radius:3px;font-size:11px">mi355x</span></td>
-          <td style="text-align:center">fp4</td>
-          <td style="text-align:center">vllm</td>
-          <td class="bool-no">—</td>
-          <td style="font-size:10px;color:#555;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="vllm/vllm-openai-rocm:v0.17.0">vllm/vllm-openai-rocm:v0.17.0</td>
+<tr class="imax-row" style="background:#E8F5E9">
+          <td style="vertical-align:middle"><code style="font-size:11px">minimaxm2.5-fp8-mi325x-vllm</code></td>
+          <td style="font-size:11px;vertical-align:middle">MiniMaxAI/MiniMax-M2.5</td>
+          <td style="vertical-align:middle"><b>minimaxm2.5</b></td>
+          <td style="vertical-align:middle"><span style="background:#EDE7F6;color:#4A148C;padding:2px 6px;border-radius:3px;font-size:11px">mi325x</span></td>
+          <td style="text-align:center;vertical-align:middle;white-space:nowrap">fp8</td>
+          <td style="text-align:center;vertical-align:middle;white-space:nowrap">vllm</td>
+          <td class="bool-no" style="vertical-align:middle;white-space:nowrap">—</td>
+          <td style="font-size:10px;color:#555;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;vertical-align:middle" title="vllm/vllm-openai-rocm:v0.16.0">vllm/vllm-openai-rocm:v0.16.0</td>
         </tr>
-<tr class="imax-row">
-          <td><code style="font-size:11px">dsr1-fp8-mi355x-sglang-disagg</code></td>
-          <td style="font-size:11px">deepseek-ai/DeepSeek-R1-0528</td>
-          <td><b>dsr1</b></td>
-          <td><span style="background:#EDE7F6;color:#4A148C;padding:2px 6px;border-radius:3px;font-size:11px">mi355x-disagg</span></td>
-          <td style="text-align:center">fp8</td>
-          <td style="text-align:center">sglang-disagg</td>
-          <td class="bool-yes">Yes</td>
-          <td style="font-size:10px;color:#555;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="rocm/sgl-dev:sglang-0.5.9-rocm720-mi35x-mori-0227-2">rocm/sgl-dev:sglang-0.5.9-rocm720-mi35x-mori-0227-2</td>
+<tr class="imax-row" style="background:#FFF8E1">
+          <td style="vertical-align:middle"><code style="font-size:11px">gptoss-fp4-mi300x-vllm</code></td>
+          <td style="font-size:11px;vertical-align:middle">openai/gpt-oss-120b</td>
+          <td style="vertical-align:middle"><b>gptoss</b></td>
+          <td style="vertical-align:middle"><span style="background:#EDE7F6;color:#4A148C;padding:2px 6px;border-radius:3px;font-size:11px">mi300x</span></td>
+          <td style="text-align:center;vertical-align:middle;white-space:nowrap">fp4</td>
+          <td style="text-align:center;vertical-align:middle;white-space:nowrap">vllm</td>
+          <td class="bool-no" style="vertical-align:middle;white-space:nowrap">—</td>
+          <td style="font-size:10px;color:#555;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;vertical-align:middle" title="vllm/vllm-openai-rocm:v0.17.0">vllm/vllm-openai-rocm:v0.17.0</td>
         </tr>
-<tr class="imax-row">
-          <td><code style="font-size:11px">dsr1-fp8-mi355x-sglang-disagg-mtp</code></td>
-          <td style="font-size:11px">deepseek-ai/DeepSeek-R1-0528</td>
-          <td><b>dsr1</b></td>
-          <td><span style="background:#EDE7F6;color:#4A148C;padding:2px 6px;border-radius:3px;font-size:11px">mi355x-disagg</span></td>
-          <td style="text-align:center">fp8</td>
-          <td style="text-align:center">sglang-disagg</td>
-          <td class="bool-yes">Yes</td>
-          <td style="font-size:10px;color:#555;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="rocm/sgl-dev:sglang-0.5.9-rocm720-mi35x-mori-0227-2">rocm/sgl-dev:sglang-0.5.9-rocm720-mi35x-mori-0227-2</td>
+<tr class="imax-row" style="background:#FFF8E1">
+          <td style="vertical-align:middle"><code style="font-size:11px">gptoss-fp4-mi325x-vllm</code></td>
+          <td style="font-size:11px;vertical-align:middle">openai/gpt-oss-120b</td>
+          <td style="vertical-align:middle"><b>gptoss</b></td>
+          <td style="vertical-align:middle"><span style="background:#EDE7F6;color:#4A148C;padding:2px 6px;border-radius:3px;font-size:11px">mi325x</span></td>
+          <td style="text-align:center;vertical-align:middle;white-space:nowrap">fp4</td>
+          <td style="text-align:center;vertical-align:middle;white-space:nowrap">vllm</td>
+          <td class="bool-no" style="vertical-align:middle;white-space:nowrap">—</td>
+          <td style="font-size:10px;color:#555;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;vertical-align:middle" title="vllm/vllm-openai-rocm:v0.17.0">vllm/vllm-openai-rocm:v0.17.0</td>
         </tr>
-<tr class="imax-row">
-          <td><code style="font-size:11px">dsr1-fp4-mi355x-sglang-disagg</code></td>
-          <td style="font-size:11px">amd/DeepSeek-R1-0528-MXFP4</td>
-          <td><b>dsr1</b></td>
-          <td><span style="background:#EDE7F6;color:#4A148C;padding:2px 6px;border-radius:3px;font-size:11px">mi355x-disagg</span></td>
-          <td style="text-align:center">fp4</td>
-          <td style="text-align:center">sglang-disagg</td>
-          <td class="bool-yes">Yes</td>
-          <td style="font-size:10px;color:#555;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="rocm/sgl-dev:sglang-0.5.9-rocm720-mi35x-mori-0227-3">rocm/sgl-dev:sglang-0.5.9-rocm720-mi35x-mori-0227-3</td>
+<tr class="imax-row" style="background:#FFF8E1">
+          <td style="vertical-align:middle"><code style="font-size:11px">gptoss-fp4-mi355x-vllm</code></td>
+          <td style="font-size:11px;vertical-align:middle">amd/gpt-oss-120b-w-mxfp4-a-fp8</td>
+          <td style="vertical-align:middle"><b>gptoss</b></td>
+          <td style="vertical-align:middle"><span style="background:#EDE7F6;color:#4A148C;padding:2px 6px;border-radius:3px;font-size:11px">mi355x</span></td>
+          <td style="text-align:center;vertical-align:middle;white-space:nowrap">fp4</td>
+          <td style="text-align:center;vertical-align:middle;white-space:nowrap">vllm</td>
+          <td class="bool-no" style="vertical-align:middle;white-space:nowrap">—</td>
+          <td style="font-size:10px;color:#555;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;vertical-align:middle" title="vllm/vllm-openai-rocm:v0.17.0">vllm/vllm-openai-rocm:v0.17.0</td>
         </tr>
-<tr class="imax-row">
-          <td><code style="font-size:11px">dsr1-fp4-mi355x-sglang-disagg-mtp</code></td>
-          <td style="font-size:11px">amd/DeepSeek-R1-0528-MXFP4</td>
-          <td><b>dsr1</b></td>
-          <td><span style="background:#EDE7F6;color:#4A148C;padding:2px 6px;border-radius:3px;font-size:11px">mi355x-disagg</span></td>
-          <td style="text-align:center">fp4</td>
-          <td style="text-align:center">sglang-disagg</td>
-          <td class="bool-yes">Yes</td>
-          <td style="font-size:10px;color:#555;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="rocm/sgl-dev:sglang-0.5.9-rocm720-mi35x-mori-0227-3">rocm/sgl-dev:sglang-0.5.9-rocm720-mi35x-mori-0227-3</td>
+<tr class="imax-row" style="background:#FCE4EC">
+          <td style="vertical-align:middle"><code style="font-size:11px">dsr1-fp8-mi355x-sglang-disagg</code></td>
+          <td style="font-size:11px;vertical-align:middle">deepseek-ai/DeepSeek-R1-0528</td>
+          <td style="vertical-align:middle"><b>dsr1</b></td>
+          <td style="vertical-align:middle"><span style="background:#EDE7F6;color:#4A148C;padding:2px 6px;border-radius:3px;font-size:11px">mi355x-disagg</span></td>
+          <td style="text-align:center;vertical-align:middle;white-space:nowrap">fp8</td>
+          <td style="text-align:center;vertical-align:middle;white-space:nowrap">sglang-disagg</td>
+          <td class="bool-yes" style="vertical-align:middle;white-space:nowrap">Yes</td>
+          <td style="font-size:10px;color:#555;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;vertical-align:middle" title="rocm/sgl-dev:sglang-0.5.9-rocm720-mi35x-mori-0227-2">rocm/sgl-dev:sglang-0.5.9-rocm720-mi35x-mori-0227-2</td>
+        </tr>
+<tr class="imax-row" style="background:#FCE4EC">
+          <td style="vertical-align:middle"><code style="font-size:11px">dsr1-fp8-mi355x-sglang-disagg-mtp</code></td>
+          <td style="font-size:11px;vertical-align:middle">deepseek-ai/DeepSeek-R1-0528</td>
+          <td style="vertical-align:middle"><b>dsr1</b></td>
+          <td style="vertical-align:middle"><span style="background:#EDE7F6;color:#4A148C;padding:2px 6px;border-radius:3px;font-size:11px">mi355x-disagg</span></td>
+          <td style="text-align:center;vertical-align:middle;white-space:nowrap">fp8</td>
+          <td style="text-align:center;vertical-align:middle;white-space:nowrap">sglang-disagg</td>
+          <td class="bool-yes" style="vertical-align:middle;white-space:nowrap">Yes</td>
+          <td style="font-size:10px;color:#555;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;vertical-align:middle" title="rocm/sgl-dev:sglang-0.5.9-rocm720-mi35x-mori-0227-2">rocm/sgl-dev:sglang-0.5.9-rocm720-mi35x-mori-0227-2</td>
+        </tr>
+<tr class="imax-row" style="background:#FCE4EC">
+          <td style="vertical-align:middle"><code style="font-size:11px">dsr1-fp4-mi355x-sglang-disagg</code></td>
+          <td style="font-size:11px;vertical-align:middle">amd/DeepSeek-R1-0528-MXFP4</td>
+          <td style="vertical-align:middle"><b>dsr1</b></td>
+          <td style="vertical-align:middle"><span style="background:#EDE7F6;color:#4A148C;padding:2px 6px;border-radius:3px;font-size:11px">mi355x-disagg</span></td>
+          <td style="text-align:center;vertical-align:middle;white-space:nowrap">fp4</td>
+          <td style="text-align:center;vertical-align:middle;white-space:nowrap">sglang-disagg</td>
+          <td class="bool-yes" style="vertical-align:middle;white-space:nowrap">Yes</td>
+          <td style="font-size:10px;color:#555;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;vertical-align:middle" title="rocm/sgl-dev:sglang-0.5.9-rocm720-mi35x-mori-0227-3">rocm/sgl-dev:sglang-0.5.9-rocm720-mi35x-mori-0227-3</td>
+        </tr>
+<tr class="imax-row" style="background:#FCE4EC">
+          <td style="vertical-align:middle"><code style="font-size:11px">dsr1-fp4-mi355x-sglang-disagg-mtp</code></td>
+          <td style="font-size:11px;vertical-align:middle">amd/DeepSeek-R1-0528-MXFP4</td>
+          <td style="vertical-align:middle"><b>dsr1</b></td>
+          <td style="vertical-align:middle"><span style="background:#EDE7F6;color:#4A148C;padding:2px 6px;border-radius:3px;font-size:11px">mi355x-disagg</span></td>
+          <td style="text-align:center;vertical-align:middle;white-space:nowrap">fp4</td>
+          <td style="text-align:center;vertical-align:middle;white-space:nowrap">sglang-disagg</td>
+          <td class="bool-yes" style="vertical-align:middle;white-space:nowrap">Yes</td>
+          <td style="font-size:10px;color:#555;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;vertical-align:middle" title="rocm/sgl-dev:sglang-0.5.9-rocm720-mi35x-mori-0227-3">rocm/sgl-dev:sglang-0.5.9-rocm720-mi35x-mori-0227-3</td>
         </tr>
 </tbody>
 </table></div>
@@ -2843,71 +3087,79 @@ footer{background:var(--amd-dark);color:#888;text-align:center;padding:16px;font
 <p class="inf-source">AMD runner pools (ROCm/InferenceMAX_rocm)</p>
 <div class="tbl-wrap"><table>
 <thead><tr class="hdr-infr">
-  <th>Ecosystem</th><th>GPU Type</th><th>Runner Label (preview)</th>
-  <th>Node Count</th><th>Cluster Type</th>
+  <th style="vertical-align:middle">Ecosystem</th><th style="vertical-align:middle">GPU Type</th><th style="vertical-align:middle">Runner Labels</th>
+  <th style="vertical-align:middle;text-align:center">Node Count</th><th style="vertical-align:middle">Cluster Type</th>
 </tr></thead>
 <tbody><tr>
-          <td><span style="background:#4A148C;color:#fff;padding:2px 6px;border-radius:3px;font-size:11px">AMD</span></td>
-          <td><b>mi300x</b></td>
-          <td style="font-size:11px;color:#555">mi300x-amd_0, mi300x-amd_1, mi300x-amd_2...</td>
-          <td style="font-size:11px">9</td>
-          <td style="font-size:11px">SLURM</td>
+          <td style="vertical-align:middle"><span style="background:#4A148C;color:#fff;padding:2px 6px;border-radius:3px;font-size:11px">AMD</span></td>
+          <td style="vertical-align:middle"><b>mi300x</b></td>
+          <td style="font-size:11px;vertical-align:middle"><code style='font-size:10.5px'>mi300x-amd_0</code>, <code style='font-size:10.5px'>mi300x-amd_1</code>, <code style='font-size:10.5px'>mi300x-amd_2</code>, <code style='font-size:10.5px'>mi300x-amd_3</code>, <code style='font-size:10.5px'>mi300x-amd_4</code>, <code style='font-size:10.5px'>mi300x-amds_0</code>, <code style='font-size:10.5px'>mi300x-amds_1</code>, <code style='font-size:10.5px'>mi300x-amds_2</code>, <code style='font-size:10.5px'>mi300x-amds_3</code></td>
+          <td style="text-align:center;font-weight:700;font-size:13px;vertical-align:middle">9</td>
+          <td style="font-size:11px;vertical-align:middle">SLURM</td>
         </tr>
 <tr>
-          <td><span style="background:#4A148C;color:#fff;padding:2px 6px;border-radius:3px;font-size:11px">AMD</span></td>
-          <td><b>mi325x</b></td>
-          <td style="font-size:11px;color:#555">mi325x-amd_0, mi325x-amd_1, mi325x-amd_2...</td>
-          <td style="font-size:11px">4</td>
-          <td style="font-size:11px">Docker/Self-hosted</td>
+          <td style="vertical-align:middle"><span style="background:#4A148C;color:#fff;padding:2px 6px;border-radius:3px;font-size:11px">AMD</span></td>
+          <td style="vertical-align:middle"><b>mi325x</b></td>
+          <td style="font-size:11px;vertical-align:middle"><code style='font-size:10.5px'>mi325x-amd_0</code>, <code style='font-size:10.5px'>mi325x-amd_1</code>, <code style='font-size:10.5px'>mi325x-amd_2</code>, <code style='font-size:10.5px'>mi325x-amd_3</code></td>
+          <td style="text-align:center;font-weight:700;font-size:13px;vertical-align:middle">4</td>
+          <td style="font-size:11px;vertical-align:middle">Docker/Self-hosted</td>
         </tr>
 <tr>
-          <td><span style="background:#4A148C;color:#fff;padding:2px 6px;border-radius:3px;font-size:11px">AMD</span></td>
-          <td><b>mi355x</b></td>
-          <td style="font-size:11px;color:#555">mi355x-amd_p02g32, mi355x-amd_p02g42, mi355x-amd_p02g57...</td>
-          <td style="font-size:11px">6</td>
-          <td style="font-size:11px">Docker/Self-hosted</td>
+          <td style="vertical-align:middle"><span style="background:#4A148C;color:#fff;padding:2px 6px;border-radius:3px;font-size:11px">AMD</span></td>
+          <td style="vertical-align:middle"><b>mi355x</b></td>
+          <td style="font-size:11px;vertical-align:middle"><code style='font-size:10.5px'>mi355x-amds_0</code>, <code style='font-size:10.5px'>mi355x-amds_1</code>, <code style='font-size:10.5px'>mi355x-amds_2</code>, <code style='font-size:10.5px'>mi355x-amds_3</code>, <code style='font-size:10.5px'>mi355x-amds_4</code>, <code style='font-size:10.5px'>mi355x-amds_5</code>, <code style='font-size:10.5px'>mi355x-amds_6</code>, <code style='font-size:10.5px'>mi355x-amds_7</code>, <code style='font-size:10.5px'>mi355x-amds_8</code>, <code style='font-size:10.5px'>mi355x-amd_p01_g06</code></td>
+          <td style="text-align:center;font-weight:700;font-size:13px;vertical-align:middle">10</td>
+          <td style="font-size:11px;vertical-align:middle">SLURM</td>
         </tr>
 <tr>
-          <td><span style="background:#4A148C;color:#fff;padding:2px 6px;border-radius:3px;font-size:11px">AMD</span></td>
-          <td><b>mi355x-disagg</b></td>
-          <td style="font-size:11px;color:#555">mi355x-amds_0, mi355x-amds_1, mi355x-amds_2</td>
-          <td style="font-size:11px">3</td>
-          <td style="font-size:11px">SLURM</td>
+          <td style="vertical-align:middle"><span style="background:#4A148C;color:#fff;padding:2px 6px;border-radius:3px;font-size:11px">AMD</span></td>
+          <td style="vertical-align:middle"><b>mi355x-disagg</b></td>
+          <td style="font-size:11px;vertical-align:middle"><code style='font-size:10.5px'>mi355x-amds_0</code>, <code style='font-size:10.5px'>mi355x-amds_1</code>, <code style='font-size:10.5px'>mi355x-amds_2</code></td>
+          <td style="text-align:center;font-weight:700;font-size:13px;vertical-align:middle">3</td>
+          <td style="font-size:11px;vertical-align:middle">SLURM</td>
         </tr>
 <tr>
-          <td><span style="background:#4A148C;color:#fff;padding:2px 6px;border-radius:3px;font-size:11px">AMD</span></td>
-          <td><b>mi355x-m15-17</b></td>
-          <td style="font-size:11px;color:#555">mi355x-amd</td>
-          <td style="font-size:11px">1</td>
-          <td style="font-size:11px">Docker/Self-hosted</td>
+          <td style="vertical-align:middle"><span style="background:#4A148C;color:#fff;padding:2px 6px;border-radius:3px;font-size:11px">AMD</span></td>
+          <td style="vertical-align:middle"><b>mi355x-m15-17</b></td>
+          <td style="font-size:11px;vertical-align:middle"><code style='font-size:10.5px'>mi355x-amd</code></td>
+          <td style="text-align:center;font-weight:700;font-size:13px;vertical-align:middle">1</td>
+          <td style="font-size:11px;vertical-align:middle">Docker/Self-hosted</td>
         </tr>
 <tr>
-          <td><span style="background:#4A148C;color:#fff;padding:2px 6px;border-radius:3px;font-size:11px">AMD</span></td>
-          <td><b>mi355x-p02-g09</b></td>
-          <td style="font-size:11px;color:#555">mi355x-amd_9</td>
-          <td style="font-size:11px">1</td>
-          <td style="font-size:11px">Docker/Self-hosted</td>
+          <td style="vertical-align:middle"><span style="background:#4A148C;color:#fff;padding:2px 6px;border-radius:3px;font-size:11px">AMD</span></td>
+          <td style="vertical-align:middle"><b>mi355x-p02-g09</b></td>
+          <td style="font-size:11px;vertical-align:middle"><code style='font-size:10.5px'>mi355x-amd_9</code></td>
+          <td style="text-align:center;font-weight:700;font-size:13px;vertical-align:middle">1</td>
+          <td style="font-size:11px;vertical-align:middle">Docker/Self-hosted</td>
         </tr>
 <tr>
-          <td><span style="background:#4A148C;color:#fff;padding:2px 6px;border-radius:3px;font-size:11px">AMD</span></td>
-          <td><b>mi355x-p02-g17</b></td>
-          <td style="font-size:11px;color:#555">mi355x-amd_17</td>
-          <td style="font-size:11px">1</td>
-          <td style="font-size:11px">Docker/Self-hosted</td>
+          <td style="vertical-align:middle"><span style="background:#4A148C;color:#fff;padding:2px 6px;border-radius:3px;font-size:11px">AMD</span></td>
+          <td style="vertical-align:middle"><b>mi355x-p02-g17</b></td>
+          <td style="font-size:11px;vertical-align:middle"><code style='font-size:10.5px'>mi355x-amd_17</code></td>
+          <td style="text-align:center;font-weight:700;font-size:13px;vertical-align:middle">1</td>
+          <td style="font-size:11px;vertical-align:middle">Docker/Self-hosted</td>
         </tr>
 <tr>
-          <td><span style="background:#4A148C;color:#fff;padding:2px 6px;border-radius:3px;font-size:11px">AMD</span></td>
-          <td><b>mi355x-p02-g42</b></td>
-          <td style="font-size:11px;color:#555">mi355x-amd_42</td>
-          <td style="font-size:11px">1</td>
-          <td style="font-size:11px">Docker/Self-hosted</td>
+          <td style="vertical-align:middle"><span style="background:#4A148C;color:#fff;padding:2px 6px;border-radius:3px;font-size:11px">AMD</span></td>
+          <td style="vertical-align:middle"><b>mi355x-p02-g42</b></td>
+          <td style="font-size:11px;vertical-align:middle"><code style='font-size:10.5px'>mi355x-amd_42</code></td>
+          <td style="text-align:center;font-weight:700;font-size:13px;vertical-align:middle">1</td>
+          <td style="font-size:11px;vertical-align:middle">Docker/Self-hosted</td>
         </tr>
 <tr>
-          <td><span style="background:#4A148C;color:#fff;padding:2px 6px;border-radius:3px;font-size:11px">AMD</span></td>
-          <td><b>mi355x-tw-sctrl</b></td>
-          <td style="font-size:11px;color:#555">mi355x-amds</td>
-          <td style="font-size:11px">1</td>
-          <td style="font-size:11px">SLURM</td>
+          <td style="vertical-align:middle"><span style="background:#4A148C;color:#fff;padding:2px 6px;border-radius:3px;font-size:11px">AMD</span></td>
+          <td style="vertical-align:middle"><b>mi355x-tw-sctrl</b></td>
+          <td style="font-size:11px;vertical-align:middle"><code style='font-size:10.5px'>mi355x-amds</code></td>
+          <td style="text-align:center;font-weight:700;font-size:13px;vertical-align:middle">1</td>
+          <td style="font-size:11px;vertical-align:middle">SLURM</td>
+        </tr>
+<tr style="background:#37474F;color:#fff;font-weight:700">
+          <td colspan="3" style="text-align:right;font-size:12px;padding-right:12px;vertical-align:middle">Total Nodes</td>
+          <td style="text-align:center;font-size:14px;vertical-align:middle">31</td>
+          <td style="font-size:11px;opacity:0.9;vertical-align:middle;line-height:1.8">
+            mi300x: <b>9</b> &nbsp;&bull;&nbsp; mi325x: <b>4</b> &nbsp;&bull;&nbsp; mi355x: <b>18</b><br>
+            <span style="font-weight:400;opacity:0.85">SLURM: <b>23</b> &nbsp;&bull;&nbsp; Docker/Self-hosted: <b>8</b></span>
+          </td>
         </tr>
 </tbody>
 </table></div>
@@ -3005,7 +3257,7 @@ footer{background:var(--amd-dark);color:#888;text-align:center;padding:16px;font
 
 </div>
 
-<footer>ROCm CI/CD Matrix &mdash; Last updated: April 29, 2026 07:19 AM PDT &bull; AMD Advanced Micro Devices &bull; Data sourced from TheRock/.github/workflows &amp; amdgpu_family_matrix.py</footer>
+<footer>ROCm CI/CD Matrix &mdash; Last updated: May 04, 2026 06:13 AM PDT &bull; AMD Advanced Micro Devices &bull; Data sourced from TheRock/.github/workflows &amp; amdgpu_family_matrix.py</footer>
 
 <script>
 function filterTable(){

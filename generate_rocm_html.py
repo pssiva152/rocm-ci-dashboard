@@ -212,9 +212,9 @@ COMPONENTS = [
      "Linux only",
      "Nightly only at TheRock level; also triggers at PR/post-commit when RCCL paths change (rocm-systems therock-rccl-ci-linux.yml); both gfx94X-dcgpu (multi-node) and gfx950-dcgpu (single-node) tested; single generic artifact (not per-GPU-family); requires 8-GPU runner + Slurm for multi-node"),
 
-    ("Libraries","Communication","rocSHMEM","rocm-systems","Partial",
+    ("Libraries","Communication","rocSHMEM","rocm-systems","No",
      "—","—","—","—","—","—","—","—","—","—","—","—","—","—","—",
-     "Linux only", "Test infrastructure exists in CMakeLists.txt (functional + unit tests, require MPI) but not actively triggered in TheRock CI workflows; build-only in practice"),
+     "Linux only", "Test infra exists in CMakeLists.txt (functional + unit tests, require MPI) but no CI tests triggered in TheRock workflows; build-only in practice"),
 
     ("Libraries","Communication","kpack","rocm-systems","Yes",
      PC_L_94, PCR_L, PC_W_BUILD, PCR_W, "standard",
@@ -321,9 +321,9 @@ COMPONENTS = [
      "Self-hosted (own CI)", "self-hosted (GPU-enabled)", "—", "—", "build + test + ABI check",
      "Linux only", "Own CI: amdsmi-build.yml + abi-compliance-check.yml; GPU tests enabled (requires /dev/kfd + /dev/dri); multi-OS: Ubuntu 20/22, Debian 10, RHEL 8/9/10, AzureLinux 3, AlmaLinux 8, SLES; CLI + C++ unit + Python tests"),
 
-    ("Tools","System Mgmt","ROCm SMI Lib","rocm-systems","Partial",
+    ("Tools","System Mgmt","ROCm SMI Lib","rocm-systems","No",
      "—","—","—","—","—","—","—","—","—","—","—","—","—","—","—",
-     "Linux only", "Own CI: formatting/linting only (lstt-formatting.yml); no build or test CI in TheRock pipeline; amdsmi is active successor"),
+     "Linux only", "Own CI: formatting/linting only (lstt-formatting.yml); no build or GPU test CI in TheRock pipeline; amdsmi is active successor"),
 
     ("Tools","System Mgmt","rocminfo","rocm-systems","Partial",
      PC_L_94, PCR_L, PC_W_NONE, "—", "standard",
@@ -331,9 +331,9 @@ COMPONENTS = [
      NL_FULL, NLR_FULL, NW_NONE, "—", "comprehensive",
      "Linux only", "Part of 'core' CI group; test_sanity.py; 1 shard / 5 min"),
 
-    ("Tools","System Mgmt","ROCm Data Center Tool","rocm-systems","Partial",
+    ("Tools","System Mgmt","ROCm Data Center Tool","rocm-systems","No",
      "—","—","—","—","—","—","—","—","—","—","—","—","—","—","—",
-     "Linux only", "dc_tools group — testing TBD"),
+     "Linux only", "dc_tools group exists but no CI tests wired in any stage; testing TBD"),
 
     ("Tools","System Mgmt","ROCm Validation Suite","—","No",
      "—","—","—","—","—","—","—","—","—","—","—","—","—","—","—",
@@ -456,10 +456,10 @@ COMPONENTS = [
      "Tested as part of HIP/CLR CI (no standalone workflow); libhipcxx_hipcc: Linux + Windows (1 shard each, 30 min); libhipcxx_hiprtc: Linux only (1 shard, 20 min); hiprtc Linux only"),
 
     # ── iree-libs ──────────────────────────────────────────────────────────────
-    ("iree-libs","—","IREE Compiler & Runtime","TheRock (iree-org/iree)","Partial",
+    ("iree-libs","—","IREE Compiler & Runtime","TheRock (iree-org/iree)","No",
      "—","—","—","—","—","—","—","—","—","—","—","—","—","—","—",
      "Linux only",
-     "Direct TheRock submodule from iree-org/iree; tested indirectly via Fusilli Provider; no standalone CI test"),
+     "Direct TheRock submodule from iree-org/iree; tested indirectly via Fusilli Provider; no standalone CI test or dedicated runners"),
 
     # ── Sysdeps ────────────────────────────────────────────────────────────────
     ("Sysdeps","—","amd-mesa (Display Driver)","TheRock","No",
@@ -636,7 +636,7 @@ RUNNER_DATA = [
 
 # ─── Per-framework server counts (parsed from RUNNER_DATA phys_machines field) ──
 def _parse_server_count(phys_str: str) -> int:
-    m = re.match(r"\s*(\d+)", str(phys_str))
+    m = re.match(r"\s*~?\s*(\d+)", str(phys_str))
     return int(m.group(1)) if m else 0
 
 _runner_counts: dict = {rec[0]: _parse_server_count(rec[4]) for rec in RUNNER_DATA}
@@ -661,10 +661,27 @@ _pt_gpu_total     = sum(_runner_counts.get(lbl, 0) for lbl, _ in _pt_gpu_runners
 _pt_total_servers = _pt_build_servers + _pt_gpu_total
 _pt_combinations  = f"5 versions × 5 Python vers × {len(_pt_gpu_runners)} GPU runner types"
 
+# Per-runner breakdown strings for the server table
+_pt_gpu_runner_breakdown = " &bull; ".join(
+    f"<code>{lbl}</code> ({desc}) = <b>{_runner_counts.get(lbl, 0)}</b>"
+    for lbl, desc in _pt_gpu_runners
+)
+
 _jax_build_servers = _runner_counts.get("azure-linux-scale-rocm", 0)
 _jax_gpu_servers   = _runner_counts.get("linux-gfx942-1gpu-ossci-rocm", 0)
 _jax_total_servers = _jax_build_servers + _jax_gpu_servers
 _jax_combinations  = "4 versions × 4 Python vers × 1 GPU runner type (gfx94X test-only)"
+_grand_physical    = _pt_gpu_total   # unique physical GPU machines used by frameworks (JAX shares PyTorch's pool — no double-count)
+_grand_total       = _pt_build_servers + _grand_physical # shared build VMs + unique physical GPU machines
+
+# ── Per-tier server counts for Component CI Matrix summary bar ──────────────
+_build_vms        = _pt_build_servers   # 182 shared Azure VMs (Linux 113 + Windows 69)
+_pc_gpu_nodes     = (_runner_counts.get("linux-gfx942-1gpu-ossci-rocm", 0) +
+                     _runner_counts.get("windows-gfx1151-gpu-rocm", 0))          # 84 + 11 = 95
+_po_gpu_nodes     = (_pc_gpu_nodes +
+                     _runner_counts.get("linux-mi355-1gpu-ossci-rocm", 0))        # +3 = 98
+_ni_gpu_nodes     = _pt_gpu_total                                                 # 159 (all unique)
+_ni_runner_types  = len(_pt_gpu_runners)                                          # 13
 
 _imax_server_total = sum(
     len(nodes) for nodes in INFERENCE_RUNNERS.get("amd", {}).values()
@@ -672,6 +689,48 @@ _imax_server_total = sum(
 
 plat_bg  = {"runner-linux":"#EBF3FB","runner-windows":"#EBF5EB","runner-build":"#FFF9E6"}
 loc_badge = {"OSSCI":"#1565C0","On-Prem":"#2E7D32","On-Prem (AUS)":"#2E7D32","GitHub-hosted":"#555"}
+
+# ── Location summary for physical GPU runners (runner-linux / runner-windows, non-build) ──
+from collections import defaultdict as _dd
+_loc_summary: dict = _dd(lambda: {"count": 0, "runners": [], "linux": 0, "windows": 0})
+for _rec in RUNNER_DATA:
+    _lbl, _plat, _os, _loc, _phys, _gpu_fam, _isa, _cnt, _used, _notes, _cls = _rec
+    if _cls in ("runner-linux", "runner-windows"):
+        _n = _parse_server_count(_phys)
+        if _n > 0:
+            _loc_key = "On-Prem" if _loc.startswith("On-Prem") else _loc
+            _loc_summary[_loc_key]["count"] += _n
+            _loc_summary[_loc_key]["runners"].append(_lbl)
+            if _cls == "runner-linux":
+                _loc_summary[_loc_key]["linux"] += _n
+            else:
+                _loc_summary[_loc_key]["windows"] += _n
+_loc_total = sum(v["count"] for v in _loc_summary.values())
+
+_loc_summary_rows = ""
+_loc_colors = {"OSSCI": "#1565C0", "On-Prem": "#2E7D32", "GitHub-hosted": "#555"}
+for _loc_key, _data in sorted(_loc_summary.items()):
+    _color = _loc_colors.get(_loc_key, "#555")
+    _runner_list = ", ".join(f"<code>{r}</code>" for r in _data["runners"])
+    _pct = round(_data["count"] / _loc_total * 100) if _loc_total else 0
+    _linux_str = str(_data["linux"]) if _data["linux"] else "—"
+    _win_str   = str(_data["windows"]) if _data["windows"] else "—"
+    _loc_summary_rows += f"""<tr>
+  <td><span style="background:{_color};color:#fff;padding:2px 8px;border-radius:4px;font-size:11px;white-space:nowrap">{_loc_key}</span></td>
+  <td style="text-align:center;font-weight:700;font-size:14px">{_data["count"]}</td>
+  <td style="text-align:center">{_linux_str}</td>
+  <td style="text-align:center">{_win_str}</td>
+  <td style="text-align:center;color:#555;font-size:11px">{_pct}%</td>
+  <td style="font-size:11px">{_runner_list}</td>
+</tr>\n"""
+_loc_summary_rows += f"""<tr style="background:#37474F;color:#fff;font-weight:700">
+  <td>Total</td>
+  <td style="text-align:center;font-size:14px">{_loc_total}</td>
+  <td style="text-align:center">{sum(v["linux"] for v in _loc_summary.values())}</td>
+  <td style="text-align:center">{sum(v["windows"] for v in _loc_summary.values())}</td>
+  <td style="text-align:center">100%</td>
+  <td style="font-size:11px;opacity:0.85">All physical GPU runners</td>
+</tr>\n"""
 
 runner_rows_html = ""
 for _ri, rec in enumerate(RUNNER_DATA, 1):
@@ -693,36 +752,85 @@ for _ri, rec in enumerate(RUNNER_DATA, 1):
 # ── Build InferenceMAX / InferenceX HTML sections ────────────────────────────
 def _inf_bool(v) -> str:
     if v:
-        return '<td class="bool-yes">Yes</td>'
-    return '<td class="bool-no">—</td>'
+        return '<td class="bool-yes" style="vertical-align:middle;white-space:nowrap">Yes</td>'
+    return '<td class="bool-no" style="vertical-align:middle;white-space:nowrap">—</td>'
 
 def _inf_rows_html(data: list, row_cls: str) -> str:
+    # Assign a stable alternating index to each distinct model_prefix (in order of first appearance)
+    _prefix_order: list = []
+    for rec in data:
+        if rec[2] not in _prefix_order:
+            _prefix_order.append(rec[2])
+    # Distinct subtle tint per model group (up to 10 groups)
+    _group_palette = [
+        "#EDE7F6",  # pale violet
+        "#E3F2FD",  # pale blue
+        "#E8F5E9",  # pale green
+        "#FFF8E1",  # pale amber
+        "#FCE4EC",  # pale pink
+        "#E0F7FA",  # pale cyan
+        "#FBE9E7",  # pale deep-orange
+        "#F1F8E9",  # pale light-green
+        "#EEF2FF",  # pale indigo
+        "#FFF3E0",  # pale orange
+    ]
+    _prefix_bg = {p: _group_palette[i % len(_group_palette)] for i, p in enumerate(_prefix_order)}
     rows = ""
-    for i, rec in enumerate(data):
+    for rec in data:
         (name, model, model_prefix, runner, precision, framework,
          multinode, docker_image) = rec
-        rows += f"""<tr class="{row_cls}">
-          <td><code style="font-size:11px">{name}</code></td>
-          <td style="font-size:11px">{model}</td>
-          <td><b>{model_prefix}</b></td>
-          <td><span style="background:#EDE7F6;color:#4A148C;padding:2px 6px;border-radius:3px;font-size:11px">{runner}</span></td>
-          <td style="text-align:center">{precision}</td>
-          <td style="text-align:center">{framework}</td>
+        bg = _prefix_bg[model_prefix]
+        rows += f"""<tr class="{row_cls}" style="background:{bg}">
+          <td style="vertical-align:middle"><code style="font-size:11px">{name}</code></td>
+          <td style="font-size:11px;vertical-align:middle">{model}</td>
+          <td style="vertical-align:middle"><b>{model_prefix}</b></td>
+          <td style="vertical-align:middle"><span style="background:#EDE7F6;color:#4A148C;padding:2px 6px;border-radius:3px;font-size:11px">{runner}</span></td>
+          <td style="text-align:center;vertical-align:middle;white-space:nowrap">{precision}</td>
+          <td style="text-align:center;vertical-align:middle;white-space:nowrap">{framework}</td>
           {_inf_bool(multinode)}
-          <td style="font-size:10px;color:#555;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="{docker_image}">{docker_image if docker_image else "—"}</td>
+          <td style="font-size:10px;color:#555;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;vertical-align:middle" title="{docker_image}">{docker_image if docker_image else "—"}</td>
         </tr>\n"""
     return rows
 
 def _inf_runner_rows_html(runners_dict: dict, ecosystem: str, badge_color: str) -> str:
     rows = ""
+    grand_total = 0
+    slurm_total = 0
+    docker_total = 0
+    family_totals: dict = {}   # base family → node count
     for gpu_type, nodes in sorted(runners_dict.items()):
         cluster = "SLURM" if any("amds" in n or "slurm" in n.lower() or "dgxc" in n.lower() for n in nodes) else "Docker/Self-hosted"
+        grand_total += len(nodes)
+        if cluster == "SLURM":
+            slurm_total += len(nodes)
+        else:
+            docker_total += len(nodes)
+        # Group by base family: first token before "-" that starts with "mi"
+        base = gpu_type.split("-")[0] if gpu_type.startswith("mi") else gpu_type
+        family_totals[base] = family_totals.get(base, 0) + len(nodes)
+        node_list = ", ".join(f"<code style='font-size:10.5px'>{n}</code>" for n in nodes)
         rows += f"""<tr>
-          <td><span style="background:{badge_color};color:#fff;padding:2px 6px;border-radius:3px;font-size:11px">{ecosystem}</span></td>
-          <td><b>{gpu_type}</b></td>
-          <td style="font-size:11px;color:#555">{", ".join(nodes[:3])}{"..." if len(nodes)>3 else ""}</td>
-          <td style="font-size:11px">{len(nodes)}</td>
-          <td style="font-size:11px">{cluster}</td>
+          <td style="vertical-align:middle"><span style="background:{badge_color};color:#fff;padding:2px 6px;border-radius:3px;font-size:11px">{ecosystem}</span></td>
+          <td style="vertical-align:middle"><b>{gpu_type}</b></td>
+          <td style="font-size:11px;vertical-align:middle">{node_list}</td>
+          <td style="text-align:center;font-weight:700;font-size:13px;vertical-align:middle">{len(nodes)}</td>
+          <td style="font-size:11px;vertical-align:middle">{cluster}</td>
+        </tr>\n"""
+    if rows:
+        family_parts = " &nbsp;&bull;&nbsp; ".join(
+            f"{fam}: <b>{cnt}</b>" for fam, cnt in sorted(family_totals.items())
+        )
+        cluster_parts = " &nbsp;&bull;&nbsp; ".join(filter(None, [
+            f"SLURM: <b>{slurm_total}</b>" if slurm_total else "",
+            f"Docker/Self-hosted: <b>{docker_total}</b>" if docker_total else "",
+        ]))
+        rows += f"""<tr style="background:#37474F;color:#fff;font-weight:700">
+          <td colspan="3" style="text-align:right;font-size:12px;padding-right:12px;vertical-align:middle">Total Nodes</td>
+          <td style="text-align:center;font-size:14px;vertical-align:middle">{grand_total}</td>
+          <td style="font-size:11px;opacity:0.9;vertical-align:middle;line-height:1.8">
+            {family_parts}<br>
+            <span style="font-weight:400;opacity:0.85">{cluster_parts}</span>
+          </td>
         </tr>\n"""
     return rows
 
@@ -810,8 +918,9 @@ footer{{background:var(--amd-dark);color:#888;text-align:center;padding:16px;fon
 .hdr-imax{{background:#4A148C;color:#fff}}
 .hdr-infr{{background:#4E342E;color:#fff}}
 .imax-row{{background:#F8F0FC}}
-.bool-yes{{background:#C6EFCE;font-weight:700;text-align:center}}
-.bool-no{{color:#999;text-align:center}}
+.imax-row td{{vertical-align:middle}}
+.bool-yes{{background:#C6EFCE;font-weight:700;text-align:center;vertical-align:middle}}
+.bool-no{{color:#999;text-align:center;vertical-align:middle}}
 .inf-source{{font-size:11px;color:#777;margin-bottom:10px}}
 .ecosystem-banner{{display:flex;align-items:center;gap:14px;padding:12px 36px;margin:0}}
 .ecosystem-banner.therock{{background:linear-gradient(90deg,#1A1A1A 0%,#2c3e50 100%);border-bottom:3px solid #CC0000}}
@@ -819,11 +928,12 @@ footer{{background:var(--amd-dark);color:#888;text-align:center;padding:16px;fon
 .ecosystem-banner .eco-title{{color:#fff;font-size:14px;font-weight:700;letter-spacing:.5px}}
 .ecosystem-banner .eco-subtitle{{color:rgba(255,255,255,.6);font-size:11px}}
 .ecosystem-banner .eco-badge{{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);color:#fff;border-radius:4px;padding:3px 10px;font-size:11px;white-space:nowrap}}
-.fw-summary-bar{{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:14px}}
-.fw-summary-chip{{background:#fff;border:1px solid #ddd;border-radius:6px;padding:8px 14px;font-size:11px;display:flex;flex-direction:column;gap:3px;min-width:160px}}
-.fw-summary-chip .chip-label{{font-weight:700;color:#1F4E79;font-size:12px}}
-.fw-summary-chip.jax .chip-label{{color:#2E7D32}}
-.fw-summary-chip .chip-detail{{color:#555}}
+.fw-table td,.fw-table th{{border:1px solid #d0d7de}}
+.fw-table thead tr th{{border-bottom:2px solid #b0bec5}}
+.fw-server-table th{{background:#37474F;color:#fff;font-size:11.5px;white-space:nowrap}}
+.fw-server-table td{{font-size:11.5px;vertical-align:middle}}
+.fw-server-table .fw-pytorch td{{background:#EBF3FB}}
+.fw-server-table .fw-jax td{{background:#E8F5E9}}
 </style>
 </head>
 <body>
@@ -835,6 +945,7 @@ footer{{background:var(--amd-dark);color:#888;text-align:center;padding:16px;fon
   <a href="#components">Components</a>
   <a href="#frameworks">Frameworks</a>
   <a href="#wheels">Wheels</a>
+  <a href="#server-counts">Server Counts</a>
   <a href="#runners">Runners</a>
   <span class="nav-divider"></span>
   <span class="nav-section-label" style="color:#CE93D8">InferenceMAX CI</span>
@@ -996,6 +1107,7 @@ footer{{background:var(--amd-dark);color:#888;text-align:center;padding:16px;fon
   <span><span class="legend-dot" style="background:#E65100"></span>CI Nightly</span>
   <span style="margin-left:12px;color:#888">Within each tier: Linux gfx &rarr; Linux Runners &rarr; Windows gfx &rarr; Windows Runners &rarr; Test Type</span>
 </div>
+
 <div class="tbl-wrap" style="max-height:80vh;overflow-y:auto"><table id="compTable">
 <thead>
 <tr class="tier1">
@@ -1007,7 +1119,7 @@ footer{{background:var(--amd-dark);color:#888;text-align:center;padding:16px;fon
   <th colspan="5" class="th-pc" style="text-align:center">&#128196; Pre-commit (PR)</th>
   <th colspan="5" class="th-po" style="text-align:center">&#10003; Post-commit (Sub Bump)</th>
   <th colspan="5" class="th-ni" style="text-align:center">&#127769; CI Nightly</th>
-  <th colspan="2" class="th-misc" style="text-align:center">Meta</th>
+  <th colspan="2" class="th-misc" style="text-align:center">Comments</th>
 </tr>
 <tr class="tier2">
   <th class="sub-pc">Linux gfx</th>
@@ -1033,6 +1145,128 @@ footer{{background:var(--amd-dark);color:#888;text-align:center;padding:16px;fon
 {rows_html}
 </tbody>
 </table></div>
+
+<h3 style="margin:20px 0 8px 0;font-size:13px;color:#444;font-weight:600">Component CI Matrix — Unique Server Counts by Tier</h3>
+<div class="tbl-wrap" style="margin-bottom:6px"><table class="fw-table fw-server-table">
+<thead><tr>
+  <th>CI Tier</th>
+  <th>Pool Type</th>
+  <th style="text-align:center">Count</th>
+  <th>Azure Build Pool (no GPU)</th>
+  <th>Physical GPU Machines</th>
+  <th>Runner Labels &amp; Counts</th>
+  <th>Notes</th>
+</tr></thead>
+<tbody>
+
+<!-- Shared Azure Build Pool row -->
+<tr style="background:#FFF9E6">
+  <td rowspan="2" style="font-weight:700;color:#555;vertical-align:middle;text-align:center;border-left:4px solid #F9A825">All Tiers</td>
+  <td>Azure Build Pool<br><span style="font-weight:400;font-size:10px;color:#777">cloud VMs, no GPU — compile &amp; package only</span></td>
+  <td style="text-align:center"><b>{_build_vms}</b><br><span style="font-weight:400;font-size:10px;color:#777">VMs (snapshot)</span></td>
+  <td style="text-align:center"><b>{_runner_counts.get('azure-linux-scale-rocm',0)}</b> Linux VMs<br>+<br><b>{_runner_counts.get('azure-windows-scale-rocm',0)}</b> Windows VMs</td>
+  <td style="text-align:center;color:#aaa">&mdash;</td>
+  <td><code>azure-linux-scale-rocm</code> = <b>{_runner_counts.get('azure-linux-scale-rocm',0)}</b> &bull; <code>azure-windows-scale-rocm</code> = <b>{_runner_counts.get('azure-windows-scale-rocm',0)}</b></td>
+  <td style="font-size:11px;color:#555">Shared across all tiers; elastic — can scale beyond snapshot count under queue pressure</td>
+</tr>
+<tr style="font-weight:700;background:#F5F0D8">
+  <td>Build Subtotal</td>
+  <td style="text-align:center;font-size:13px"><b>{_build_vms}</b></td>
+  <td style="text-align:center;font-weight:400;font-size:11px">{_build_vms} VMs total</td>
+  <td style="text-align:center;color:#aaa">&mdash;</td>
+  <td colspan="2" style="color:#555;font-size:11px">{_runner_counts.get('azure-linux-scale-rocm',0)} Linux + {_runner_counts.get('azure-windows-scale-rocm',0)} Windows Azure VMs — no GPU hardware involved</td>
+</tr>
+
+<!-- Pre-commit rows -->
+<tr style="background:#EBF3FB">
+  <td rowspan="2" style="font-weight:700;color:#1565C0;vertical-align:middle;text-align:center;border-left:4px solid #1565C0">&#128196; Pre-commit<br>(PR)</td>
+  <td>GPU Test Pool<br><span style="font-weight:400;font-size:10px;color:#777">2 physical runner types</span></td>
+  <td style="text-align:center"><b>{_pc_gpu_nodes}</b><br><span style="font-weight:400;font-size:10px;color:#777">physical</span></td>
+  <td style="text-align:center;color:#aaa">&mdash;</td>
+  <td style="text-align:center"><b>{_pc_gpu_nodes}</b> unique nodes</td>
+  <td style="font-size:10.5px;line-height:1.7">
+    <code>linux-gfx942-1gpu-ossci-rocm</code> (gfx94X) = <b>{_runner_counts.get('linux-gfx942-1gpu-ossci-rocm',0)}</b><br>
+    <code>windows-gfx1151-gpu-rocm</code> (gfx1151, build-only) = <b>{_runner_counts.get('windows-gfx1151-gpu-rocm',0)}</b>
+  </td>
+  <td style="font-size:11px;color:#555">gfx94X: Build + Test &bull; gfx1151 Win: Build-only (nightly_check_only)</td>
+</tr>
+<tr style="font-weight:700;background:#D0E8F8">
+  <td>Pre-commit Subtotal</td>
+  <td style="text-align:center;font-size:13px;color:#1565C0"><b>{_pc_gpu_nodes}</b></td>
+  <td style="text-align:center;font-weight:400;font-size:11px">{_build_vms} shared build VMs</td>
+  <td style="text-align:center;font-weight:400;font-size:11px">{_pc_gpu_nodes} physical GPU</td>
+  <td colspan="2" style="color:#555;font-size:11px">{_build_vms} Azure build VMs + <b>{_pc_gpu_nodes}</b> physical GPU machines = <b>{_build_vms + _pc_gpu_nodes}</b> total</td>
+</tr>
+
+<!-- Post-commit rows -->
+<tr style="background:#EBF5EB">
+  <td rowspan="2" style="font-weight:700;color:#2E7D32;vertical-align:middle;text-align:center;border-left:4px solid #2E7D32">&#10003; Post-commit<br>(Sub Bump)</td>
+  <td>GPU Test Pool<br><span style="font-weight:400;font-size:10px;color:#777">3 physical runner types</span></td>
+  <td style="text-align:center"><b>{_po_gpu_nodes}</b><br><span style="font-weight:400;font-size:10px;color:#777">physical</span></td>
+  <td style="text-align:center;color:#aaa">&mdash;</td>
+  <td style="text-align:center"><b>{_po_gpu_nodes}</b> unique nodes</td>
+  <td style="font-size:10.5px;line-height:1.7">
+    <code>linux-gfx942-1gpu-ossci-rocm</code> (gfx94X) = <b>{_runner_counts.get('linux-gfx942-1gpu-ossci-rocm',0)}</b><br>
+    <code>linux-mi355-1gpu-ossci-rocm</code> (gfx950 / MI355X) = <b>{_runner_counts.get('linux-mi355-1gpu-ossci-rocm',0)}</b><br>
+    <code>windows-gfx1151-gpu-rocm</code> (gfx1151, build-only) = <b>{_runner_counts.get('windows-gfx1151-gpu-rocm',0)}</b>
+  </td>
+  <td style="font-size:11px;color:#555">Adds gfx950 (MI355X) vs Pre-commit; gfx1151 Win remains build-only</td>
+</tr>
+<tr style="font-weight:700;background:#C8E6C9">
+  <td>Post-commit Subtotal</td>
+  <td style="text-align:center;font-size:13px;color:#2E7D32"><b>{_po_gpu_nodes}</b></td>
+  <td style="text-align:center;font-weight:400;font-size:11px">{_build_vms} shared build VMs</td>
+  <td style="text-align:center;font-weight:400;font-size:11px">{_po_gpu_nodes} physical GPU</td>
+  <td colspan="2" style="color:#555;font-size:11px">{_build_vms} Azure build VMs + <b>{_po_gpu_nodes}</b> physical GPU machines = <b>{_build_vms + _po_gpu_nodes}</b> total</td>
+</tr>
+
+<!-- Nightly rows -->
+<tr style="background:#FFF3E0">
+  <td rowspan="2" style="font-weight:700;color:#E65100;vertical-align:middle;text-align:center;border-left:4px solid #E65100">&#127769; CI Nightly</td>
+  <td>GPU Test Pool<br><span style="font-weight:400;font-size:10px;color:#777">{_ni_runner_types} physical runner types</span></td>
+  <td style="text-align:center"><b>{_ni_gpu_nodes}</b><br><span style="font-weight:400;font-size:10px;color:#777">physical</span></td>
+  <td style="text-align:center;color:#aaa">&mdash;</td>
+  <td style="text-align:center"><b>{_ni_gpu_nodes}</b> unique nodes</td>
+  <td style="font-size:10.5px;line-height:1.7">
+    <code>linux-gfx942-1gpu-ossci-rocm</code> (gfx94X) = <b>{_runner_counts.get('linux-gfx942-1gpu-ossci-rocm',0)}</b> &bull;
+    <code>linux-gfx942-8gpu-ossci-rocm</code> (gfx94X 8-GPU) = <b>{_runner_counts.get('linux-gfx942-8gpu-ossci-rocm',0)}</b><br>
+    <code>linux-mi355-1gpu-ossci-rocm</code> (gfx950) = <b>{_runner_counts.get('linux-mi355-1gpu-ossci-rocm',0)}</b> &bull;
+    <code>linux-gfx90a-gpu-rocm</code> (gfx90a) = <b>{_runner_counts.get('linux-gfx90a-gpu-rocm',0)}</b><br>
+    <code>linux-gfx1030-gpu-rocm</code> (gfx103X) = <b>{_runner_counts.get('linux-gfx1030-gpu-rocm',0)}</b> &bull;
+    <code>linux-gfx110X-gpu-rocm</code> (gfx110X) = <b>{_runner_counts.get('linux-gfx110X-gpu-rocm',0)}</b> &bull;
+    <code>windows-gfx110X-gpu-rocm</code> = <b>{_runner_counts.get('windows-gfx110X-gpu-rocm',0)}</b><br>
+    <code>linux-gfx1150-gpu-rocm</code> (gfx1150) = <b>{_runner_counts.get('linux-gfx1150-gpu-rocm',0)}</b> &bull;
+    <code>linux-gfx1151-gpu-rocm</code> (gfx1151 L) = <b>{_runner_counts.get('linux-gfx1151-gpu-rocm',0)}</b> &bull;
+    <code>windows-gfx1151-gpu-rocm</code> (gfx1151 W) = <b>{_runner_counts.get('windows-gfx1151-gpu-rocm',0)}</b><br>
+    <code>linux-gfx1153-gpu-rocm</code> (gfx1153) = <b>{_runner_counts.get('linux-gfx1153-gpu-rocm',0)}</b> &bull;
+    <code>linux-gfx120X-gpu-rocm</code> (gfx120X) = <b>{_runner_counts.get('linux-gfx120X-gpu-rocm',0)}</b> &bull;
+    <code>windows-gfx1030-gpu-rocm</code> (gfx103X W) = <b>{_runner_counts.get('windows-gfx1030-gpu-rocm',0)}</b>
+  </td>
+  <td style="font-size:11px;color:#555">Full GPU family coverage; all unique physical machines, each counted once</td>
+</tr>
+<tr style="font-weight:700;background:#FFE0B2">
+  <td>Nightly Subtotal</td>
+  <td style="text-align:center;font-size:13px;color:#E65100"><b>{_ni_gpu_nodes}</b></td>
+  <td style="text-align:center;font-weight:400;font-size:11px">{_build_vms} shared build VMs</td>
+  <td style="text-align:center;font-weight:400;font-size:11px">{_ni_gpu_nodes} physical GPU</td>
+  <td colspan="2" style="color:#555;font-size:11px">{_build_vms} Azure build VMs + <b>{_ni_gpu_nodes}</b> physical GPU machines = <b>{_build_vms + _ni_gpu_nodes}</b> total</td>
+</tr>
+
+<!-- Grand Total -->
+<tr style="font-weight:700;background:#37474F;color:#fff">
+  <td colspan="2" style="text-align:center;font-size:13px;letter-spacing:0.3px">Grand Total (all tiers, unique)</td>
+  <td style="text-align:center;font-size:13px"><b>{_build_vms + _ni_gpu_nodes}</b></td>
+  <td style="text-align:center;font-size:12px">{_build_vms} VMs<br><span style="font-weight:400;font-size:10px;opacity:0.85">(Azure, no GPU)</span></td>
+  <td style="text-align:center;font-size:12px"><b>{_ni_gpu_nodes}</b> physical<br><span style="font-weight:400;font-size:10px;opacity:0.85">unique GPU machines</span></td>
+  <td colspan="2" style="font-size:11px;opacity:0.9">{_build_vms} Azure build VMs (cloud, no GPU) + {_ni_gpu_nodes} unique physical GPU machines = <b>{_build_vms + _ni_gpu_nodes}</b> &nbsp;&bull;&nbsp; <span style="font-weight:400">GPU node counts cumulative across tiers — each physical machine counted once</span></td>
+</tr>
+
+</tbody>
+</table></div>
+<p style="font-size:10.5px;color:#777;margin:4px 0 16px 4px">
+  <b>Azure Build Pool</b>: Cloud-managed VMs with no GPU — used exclusively for compile, package, and artifact jobs. VM counts are point-in-time snapshots; elastic pools can provision beyond this number under load.<br>
+  <b>Physical GPU counts</b>: Unique machines counted once regardless of how many tiers use them. Pre-commit uses {_pc_gpu_nodes}, Post-commit adds MI355X for {_po_gpu_nodes}, Nightly expands to all {_ni_gpu_nodes} GPU machines across {_ni_runner_types} runner types.
+</p>
 </div>
 
 <!-- ═══════════════════════════════════════════════════════════════════
@@ -1040,34 +1274,7 @@ footer{{background:var(--amd-dark);color:#888;text-align:center;padding:16px;fon
 ════════════════════════════════════════════════════════════════════ -->
 <div class="section" id="frameworks">
 <h2>Framework Build &amp; Test Detail</h2>
-<div class="fw-summary-bar">
-  <div class="fw-summary-chip">
-    <span class="chip-label">&#128268; PyTorch — Total Servers</span>
-    <span class="chip-detail"><b>{_pt_total_servers}</b> machines ({_pt_build_servers} build + {_pt_gpu_total} GPU test)</span>
-    <span class="chip-detail">{_pt_combinations}</span>
-  </div>
-  <div class="fw-summary-chip">
-    <span class="chip-label">&#128268; PyTorch — Build Pool</span>
-    <span class="chip-detail"><b>{_runner_counts.get("azure-linux-scale-rocm", 0)}</b> Linux + <b>{_runner_counts.get("azure-windows-scale-rocm", 0)}</b> Windows elastic build runners</span>
-    <span class="chip-detail">azure-linux-scale-rocm &bull; azure-windows-scale-rocm</span>
-  </div>
-  <div class="fw-summary-chip">
-    <span class="chip-label">&#128268; PyTorch — GPU Test Pool</span>
-    <span class="chip-detail"><b>{_pt_gpu_total}</b> GPU machines across {len(_pt_gpu_runners)} runner types</span>
-    <span class="chip-detail">gfx94X (84) · gfx94X-8GPU (4) · gfx950 (3) · gfx90a (12) · and more</span>
-  </div>
-  <div class="fw-summary-chip jax">
-    <span class="chip-label">&#9881; JAX — Total Servers</span>
-    <span class="chip-detail"><b>{_jax_total_servers}</b> machines ({_jax_build_servers} build + {_jax_gpu_servers} GPU test)</span>
-    <span class="chip-detail">{_jax_combinations}</span>
-  </div>
-  <div class="fw-summary-chip jax">
-    <span class="chip-label">&#9881; JAX — GPU Test Pool</span>
-    <span class="chip-detail"><b>{_jax_gpu_servers}</b> machines (gfx94X only — MI300X/MI325X)</span>
-    <span class="chip-detail">linux-gfx942-1gpu-ossci-rocm &bull; gfx94X Build + Test; all others build-only</span>
-  </div>
-</div>
-<div class="tbl-wrap"><table>
+<div class="tbl-wrap"><table class="fw-table">
 <thead><tr>
   <th>Framework</th><th>Version</th><th>Python Vers</th>
   <th>Distro</th>
@@ -1214,7 +1421,7 @@ footer{{background:var(--amd-dark);color:#888;text-align:center;padding:16px;fon
 ════════════════════════════════════════════════════════════════════ -->
 <div class="section" id="wheels">
 <h2>Wheel Artifact Publishing</h2>
-<div class="tbl-wrap"><table>
+<div class="tbl-wrap"><table class="fw-table">
 <thead><tr>
   <th>Framework</th><th>Version</th><th>Python Vers</th>
   <th>Distro</th>
@@ -1332,10 +1539,101 @@ footer{{background:var(--amd-dark);color:#888;text-align:center;padding:16px;fon
 </div>
 
 <!-- ═══════════════════════════════════════════════════════════════════
+     SERVER COUNT DETAILS
+════════════════════════════════════════════════════════════════════ -->
+<div class="section" id="server-counts">
+<h2>Framework Runner &amp; Server Count Details</h2>
+<div class="tbl-wrap" style="margin-bottom:18px"><table class="fw-table fw-server-table">
+<thead><tr>
+  <th>Framework</th>
+  <th>Pool</th>
+  <th>Count</th>
+  <th>Build (VMs)</th>
+  <th>GPU Test (Physical)</th>
+  <th>Runner Labels &amp; Counts</th>
+  <th>Coverage</th>
+</tr></thead>
+<tbody>
+<tr class="fw-pytorch">
+  <td rowspan="3" style="font-weight:700;color:#1F4E79;vertical-align:middle;text-align:center">PyTorch</td>
+  <td>Build Pool<br><span style="font-weight:400;font-size:10px;color:#777">2 VM pools, no GPU</span></td>
+  <td style="text-align:center"><b>{_pt_build_servers}</b> VMs<br><span style="font-weight:400;font-size:10px;color:#777">(snapshot)</span></td>
+  <td style="text-align:center"><b>{_runner_counts.get("azure-linux-scale-rocm", 0)}</b> Linux VMs<br>+<br><b>{_runner_counts.get("azure-windows-scale-rocm", 0)}</b> Windows VMs</td>
+  <td style="text-align:center;color:#aaa">&mdash;</td>
+  <td><code>azure-linux-scale-rocm</code> = <b>{_runner_counts.get("azure-linux-scale-rocm", 0)}</b> VMs &bull; <code>azure-windows-scale-rocm</code> = <b>{_runner_counts.get("azure-windows-scale-rocm", 0)}</b> VMs</td>
+  <td>2 elastic VM pools (no GPU); auto-scales beyond snapshot count when queue builds up</td>
+</tr>
+<tr class="fw-pytorch">
+  <td>GPU Test Pool<br><span style="font-weight:400;font-size:10px;color:#777">13 physical runner types</span></td>
+  <td style="text-align:center"><b>{_pt_gpu_total}</b> physical</td>
+  <td style="text-align:center;color:#aaa">&mdash;</td>
+  <td style="text-align:center"><b>{_pt_gpu_total}</b> across {len(_pt_gpu_runners)} runner types</td>
+  <td style="font-size:10.5px;line-height:1.6">{_pt_gpu_runner_breakdown}</td>
+  <td>{_pt_combinations}</td>
+</tr>
+<tr class="fw-pytorch" style="font-weight:700;background:#D0E8F8">
+  <td>Total</td>
+  <td style="text-align:center;color:#1F4E79"><b>{_pt_total_servers}</b></td>
+  <td style="text-align:center;font-weight:400;font-size:11px">{_pt_build_servers} VMs (build)</td>
+  <td style="text-align:center;font-weight:400;font-size:11px">{_pt_gpu_total} physical (GPU test)</td>
+  <td colspan="2" style="color:#555;font-size:11px">{_pt_build_servers} build VMs + {_pt_gpu_total} physical GPU machines = <b>{_pt_total_servers}</b> &nbsp;(mixed: VMs + physical)</td>
+</tr>
+<tr class="fw-jax">
+  <td rowspan="2" style="font-weight:700;color:#2E7D32;vertical-align:middle;text-align:center">JAX</td>
+  <td>Build + Test<br><span style="font-weight:400;font-size:10px;color:#777">shared build VM pool</span></td>
+  <td style="text-align:center"><b>{_jax_gpu_servers}</b> physical<br><span style="font-weight:400;font-size:10px;color:#777">(dedicated GPU)</span></td>
+  <td style="color:#777;font-size:10.5px">Shared with PyTorch<br><code style="font-size:10px">azure-linux-scale-rocm</code><br><span style="font-size:10px">(VMs, not counted separately)</span></td>
+  <td style="text-align:center"><b>{_jax_gpu_servers}</b> physical<br><span style="font-size:10px">(gfx94X only)</span></td>
+  <td><code>linux-gfx942-1gpu-ossci-rocm</code> = <b>{_jax_gpu_servers}</b> physical &nbsp;<span style="color:#888;font-size:10.5px">| Build: shared <code>azure-linux-scale-rocm</code> VMs</span></td>
+  <td>{_jax_combinations}</td>
+</tr>
+<tr class="fw-jax" style="font-weight:700;background:#C8E6C9">
+  <td>Total</td>
+  <td style="text-align:center;color:#2E7D32"><b>{_jax_gpu_servers}</b><br><span style="font-weight:400;font-size:10px">physical only</span></td>
+  <td style="font-weight:400;font-size:10.5px;color:#555">Build VMs shared with PyTorch — not counted separately</td>
+  <td style="text-align:center;font-weight:400;font-size:11px">{_jax_gpu_servers} physical</td>
+  <td colspan="2" style="color:#555;font-size:11px"><b>{_jax_gpu_servers}</b> dedicated physical GPU machines + shared build VM pool (counted under PyTorch)</td>
+</tr>
+<tr style="font-weight:700;background:#37474F;color:#fff">
+  <td colspan="2" style="text-align:center;font-size:13px;letter-spacing:0.3px">Grand Total (PyTorch + JAX)</td>
+  <td style="text-align:center;font-size:13px"><b>{_grand_total}</b></td>
+  <td style="text-align:center;font-size:12px">{_pt_build_servers} VMs<br><span style="font-weight:400;font-size:10px;opacity:0.85">(shared build pool)</span></td>
+  <td style="text-align:center;font-size:12px"><b>{_grand_physical}</b> physical<br><span style="font-weight:400;font-size:10px;opacity:0.85">unique GPU machines<br>JAX shares PyTorch pool</span></td>
+  <td colspan="2" style="font-size:11px;opacity:0.9">{_pt_build_servers} shared build VMs + {_grand_physical} unique physical GPU machines = <b>{_grand_total}</b> &nbsp;&bull;&nbsp; <span style="font-weight:400">JAX reuses <code>linux-gfx942-1gpu-ossci-rocm</code> from PyTorch&apos;s pool — not counted separately</span></td>
+</tr>
+</tbody>
+</table>
+<p style="font-size:10.5px;color:#777;margin:4px 0 16px 4px">
+  <b>Count</b>: VM instance counts are point-in-time snapshots from the runner fleet; elastic pools can provision beyond this number under load.<br>
+  <b>Build VMs</b>: Azure-managed virtual machines with no GPU — 2 pools total (<code>azure-linux-scale-rocm</code>, <code>azure-windows-scale-rocm</code>). Physical server count underneath is managed by Azure and not exposed.
+</p>
+</div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════
      RUNNER INVENTORY
 ════════════════════════════════════════════════════════════════════ -->
 <div class="section" id="runners">
 <h2>Runner Inventory (All Known Runners) <a href="https://therock-runner-health.com/" target="_blank" rel="noopener" style="font-size:13px;font-weight:400;vertical-align:middle;margin-left:10px;color:#1565C0;text-decoration:none;border:1px solid #1565C0;padding:2px 8px;border-radius:4px">&#128279; Runner Health Dashboard</a></h2>
+<h3 style="margin:0 0 8px 0;font-size:13px;color:#444;font-weight:600">Physical GPU Machines by Location</h3>
+<div class="tbl-wrap" style="margin-bottom:6px"><table class="fw-table">
+<thead><tr>
+  <th>Location</th>
+  <th style="text-align:center">Physical Machines</th>
+  <th style="text-align:center">Linux</th>
+  <th style="text-align:center">Windows</th>
+  <th style="text-align:center">Share</th>
+  <th>Runner Labels</th>
+</tr></thead>
+<tbody>
+{_loc_summary_rows}
+</tbody>
+</table></div>
+<p style="font-size:10.5px;color:#777;margin:4px 0 18px 4px">
+  <b>{_loc_total} unique physical GPU machines</b> across all runner pools — each machine counted once.
+  The Framework section shows <b>{_grand_physical}</b> GPU machines (PyTorch&apos;s pool, which JAX also shares) + <b>{_pt_build_servers}</b> shared build VMs = <b>{_grand_total}</b>.
+  The additional {_loc_total - _grand_physical} machines here (<code>linux-strix-halo-gpu-rocm-oem</code>, <code>nova-linux-slurm-scale-runner</code>, <code>rocm-asan-mi325-sandbox</code>) are not part of the PyTorch/JAX framework CI runner lists.
+</p>
 <div class="tbl-wrap"><table>
 <thead><tr>
   <th style="text-align:center">#</th><th>Runner Label</th><th>Platform</th><th>OS / Distro</th>
@@ -1362,13 +1660,13 @@ footer{{background:var(--amd-dark);color:#888;text-align:center;padding:16px;fon
   <div class="card"><h3>AMD Configs</h3><div class="num" style="color:#4A148C">{_imax_count}</div><div class="sub">benchmark configurations</div></div>
   <div class="card"><h3>GPU Runner Types</h3><div class="num" style="color:#4A148C">{_imax_gpus}</div><div class="sub">distinct GPU types (mi300x / mi325x / mi355x)</div></div>
   <div class="card"><h3>Total Servers</h3><div class="num" style="color:#4A148C">{_imax_server_total if _imax_server_total else "—"}</div><div class="sub">physical nodes across all AMD runner pools</div></div>
-  <div class="card"><h3>Frameworks</h3><div class="num" style="color:#4A148C">{_imax_fws}</div><div class="sub">inference frameworks (atom / sglang / vllm)</div></div>
+  <div class="card"><h3>Frameworks</h3><div class="num" style="color:#4A148C">{_imax_fws}</div><div class="sub">inference frameworks (atom / sglang / sglang-disagg / vllm)</div></div>
   <div class="card"><h3>Multi-Node</h3><div class="num" style="color:#4A148C">{_imax_multi}</div><div class="sub">multi-node configs</div></div>
 </div>
-<div class="tbl-wrap"><table>
+<div class="tbl-wrap"><table style="width:100%">
 <thead><tr class="hdr-imax">
   <th>Config Name</th><th>Model</th><th>Model Prefix</th><th>GPU Runner</th>
-  <th>Precision</th><th>Framework</th><th>Multi-Node</th><th>Pinned Docker Image</th>
+  <th style="text-align:center">Precision</th><th style="text-align:center">Framework</th><th style="text-align:center">Multi-Node</th><th>Pinned Docker Image</th>
 </tr></thead>
 <tbody>{_imax_rows}</tbody>
 </table></div>
@@ -1382,8 +1680,8 @@ footer{{background:var(--amd-dark);color:#888;text-align:center;padding:16px;fon
 <p class="inf-source">AMD runner pools (ROCm/InferenceMAX_rocm)</p>
 <div class="tbl-wrap"><table>
 <thead><tr class="hdr-infr">
-  <th>Ecosystem</th><th>GPU Type</th><th>Runner Label (preview)</th>
-  <th>Node Count</th><th>Cluster Type</th>
+  <th style="vertical-align:middle">Ecosystem</th><th style="vertical-align:middle">GPU Type</th><th style="vertical-align:middle">Runner Labels</th>
+  <th style="vertical-align:middle;text-align:center">Node Count</th><th style="vertical-align:middle">Cluster Type</th>
 </tr></thead>
 <tbody>{_inf_run_rows_html}</tbody>
 </table></div>

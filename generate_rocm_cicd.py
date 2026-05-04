@@ -366,6 +366,154 @@ for rec in COMPONENTS:
 
 ws1.autofilter(1, 0, row-1, TOTAL_COLS-1)
 
+# ── Server count summary table below component data (mirrors HTML section) ────
+_sc_gap = 2   # blank rows between matrix and summary
+_sc_start = row + _sc_gap
+
+# Title banner
+ws1.merge_range(_sc_start, 0, _sc_start, TOTAL_COLS-1,
+                "Component CI Matrix — Unique Server Counts by Tier",
+                _f(bold=True, font_color=WHITE, bg_color=BASE_BG, font_size=11))
+
+_sc_hdr_labels = ["CI Tier", "Pool Type", "Count", "Azure Build Pool (no GPU)",
+                  "Physical GPU Machines", "Runner Labels & Counts", "Notes"]
+_sc_hdr_fmt = _f(bold=True, font_color=WHITE, bg_color=BASE_BG, font_size=10)
+_sc_col_w   = [18, 22, 10, 28, 22, 60, 40]
+for ci, w in enumerate(_sc_col_w):
+    ws1.set_column(ci, ci, max(COL_WIDTHS[ci] if ci < len(COL_WIDTHS) else w, w))
+
+_sc_r = _sc_start + 1
+for ci, h in enumerate(_sc_hdr_labels):
+    ws1.write(_sc_r, ci, h, _sc_hdr_fmt)
+_sc_r += 1
+
+# Re-derive counts (same logic as HTML generator)
+import re as _re
+def _psc(s):
+    m = _re.match(r'\s*~?\s*(\d+)', str(s))
+    return int(m.group(1)) if m else 0
+_rc = {rec[0]: _psc(rec[4]) for rec in RUNNER_DATA}
+_build_vms_x   = _rc.get("azure-linux-scale-rocm", 0) + _rc.get("azure-windows-scale-rocm", 0)
+_pc_gpu_x      = _rc.get("linux-gfx942-1gpu-ossci-rocm", 0) + _rc.get("windows-gfx1151-gpu-rocm", 0)
+_po_gpu_x      = _pc_gpu_x + _rc.get("linux-mi355-1gpu-ossci-rocm", 0)
+_ni_gpu_labels = [
+    ("linux-gfx942-1gpu-ossci-rocm","gfx94X"),("linux-gfx942-8gpu-ossci-rocm","gfx94X 8-GPU"),
+    ("linux-mi355-1gpu-ossci-rocm","gfx950"),("linux-gfx90a-gpu-rocm","gfx90a"),
+    ("linux-gfx1030-gpu-rocm","gfx103X L"),("linux-gfx110X-gpu-rocm","gfx110X L"),
+    ("linux-gfx1150-gpu-rocm","gfx1150"),("linux-gfx1151-gpu-rocm","gfx1151 L"),
+    ("linux-gfx1153-gpu-rocm","gfx1153"),("linux-gfx120X-gpu-rocm","gfx120X"),
+    ("windows-gfx1151-gpu-rocm","gfx1151 W"),("windows-gfx110X-gpu-rocm","gfx110X W"),
+    ("windows-gfx1030-gpu-rocm","gfx103X W"),
+]
+_ni_gpu_x = sum(_rc.get(lbl,0) for lbl,_ in _ni_gpu_labels)
+
+_tier_yellow = "#FFF9E6"
+_tier_blue   = "#EBF3FB"
+_tier_green  = "#EBF5EB"
+_tier_orange = "#FFF3E0"
+_subtot_blue = "#D0E8F8"
+_subtot_grn  = "#C8E6C9"
+_subtot_org  = "#FFE0B2"
+_grand_bg    = BASE_BG
+
+def _sc_fmt(bg, bold=False, color="#1A1A1A"):
+    return _f(bg_color=bg, bold=bold, font_color=color, align="left", font_size=10)
+def _sc_num(bg, bold=False, color="#1A1A1A"):
+    return _f(bg_color=bg, bold=bold, font_color=color, align="center", font_size=12)
+
+# All Tiers — Azure Build Pool
+ws1.merge_range(_sc_r, 0, _sc_r+1, 0, "All Tiers", _sc_fmt(_tier_yellow, bold=True, color="#555555"))
+ws1.write(_sc_r, 1, "Azure Build Pool\n(cloud VMs, no GPU — compile & package only)", _sc_fmt(_tier_yellow))
+ws1.write(_sc_r, 2, _build_vms_x, _sc_num(_tier_yellow))
+ws1.write(_sc_r, 3, f"Linux VMs: {_rc.get('azure-linux-scale-rocm',0)}\nWindows VMs: {_rc.get('azure-windows-scale-rocm',0)}", _sc_fmt(_tier_yellow))
+ws1.write(_sc_r, 4, "— (no GPU)", _sc_fmt(_tier_yellow, color="#999"))
+ws1.write(_sc_r, 5, f"azure-linux-scale-rocm = {_rc.get('azure-linux-scale-rocm',0)}  •  azure-windows-scale-rocm = {_rc.get('azure-windows-scale-rocm',0)}", _sc_fmt(_tier_yellow))
+ws1.write(_sc_r, 6, "Shared across all tiers; elastic — can scale beyond snapshot count under load", _sc_fmt(_tier_yellow, color="#555"))
+ws1.set_row(_sc_r, 30)
+_sc_r += 1
+ws1.write(_sc_r, 1, "Build Subtotal", _sc_fmt(_tier_yellow, bold=True))
+ws1.write(_sc_r, 2, _build_vms_x, _sc_num(_tier_yellow, bold=True))
+ws1.write(_sc_r, 3, f"{_build_vms_x} VMs total ({_rc.get('azure-linux-scale-rocm',0)} Linux + {_rc.get('azure-windows-scale-rocm',0)} Windows)", _sc_fmt(_tier_yellow))
+ws1.write(_sc_r, 4, "No GPU hardware", _sc_fmt(_tier_yellow, color="#999"))
+ws1.write(_sc_r, 5, "", _sc_fmt(_tier_yellow))
+ws1.write(_sc_r, 6, "Azure-managed; no physical server count exposed", _sc_fmt(_tier_yellow, color="#555"))
+ws1.set_row(_sc_r, 22)
+_sc_r += 1
+
+# Pre-commit
+ws1.merge_range(_sc_r, 0, _sc_r+1, 0, "Pre-commit\n(PR)", _sc_fmt(_tier_blue, bold=True, color=PC_BG))
+ws1.write(_sc_r, 1, "GPU Test Pool\n(2 physical runner types)", _sc_fmt(_tier_blue))
+ws1.write(_sc_r, 2, _pc_gpu_x, _sc_num(_tier_blue, bold=True, color=PC_BG))
+ws1.write(_sc_r, 3, f"Build VMs: {_build_vms_x} (shared)", _sc_fmt(_tier_blue, color="#555"))
+ws1.write(_sc_r, 4, f"{_pc_gpu_x} unique nodes", _sc_fmt(_tier_blue))
+_pc_breakdown = (f"linux-gfx942-1gpu-ossci-rocm (gfx94X) = {_rc.get('linux-gfx942-1gpu-ossci-rocm',0)}\n"
+                 f"windows-gfx1151-gpu-rocm (gfx1151, build-only) = {_rc.get('windows-gfx1151-gpu-rocm',0)}")
+ws1.write(_sc_r, 5, _pc_breakdown, _sc_fmt(_tier_blue))
+ws1.write(_sc_r, 6, "gfx94X: Build + Test  •  gfx1151 Win: Build-only (nightly_check_only)", _sc_fmt(_tier_blue, color="#555"))
+ws1.set_row(_sc_r, 30)
+_sc_r += 1
+ws1.write(_sc_r, 1, "Pre-commit Subtotal", _sc_fmt(_subtot_blue, bold=True))
+ws1.write(_sc_r, 2, _pc_gpu_x, _sc_num(_subtot_blue, bold=True, color=PC_BG))
+ws1.write(_sc_r, 3, f"{_build_vms_x} shared build VMs", _sc_fmt(_subtot_blue, color="#555"))
+ws1.write(_sc_r, 4, f"{_pc_gpu_x} physical GPU", _sc_fmt(_subtot_blue))
+ws1.write(_sc_r, 5, f"{_build_vms_x} Azure VMs  +  {_pc_gpu_x} GPU machines  =  {_build_vms_x + _pc_gpu_x} total", _sc_fmt(_subtot_blue))
+ws1.write(_sc_r, 6, "", _sc_fmt(_subtot_blue))
+ws1.set_row(_sc_r, 22)
+_sc_r += 1
+
+# Post-commit
+ws1.merge_range(_sc_r, 0, _sc_r+1, 0, "Post-commit\n(Sub Bump)", _sc_fmt(_tier_green, bold=True, color=PO_BG))
+ws1.write(_sc_r, 1, "GPU Test Pool\n(3 physical runner types)", _sc_fmt(_tier_green))
+ws1.write(_sc_r, 2, _po_gpu_x, _sc_num(_tier_green, bold=True, color=PO_BG))
+ws1.write(_sc_r, 3, f"Build VMs: {_build_vms_x} (shared)", _sc_fmt(_tier_green, color="#555"))
+ws1.write(_sc_r, 4, f"{_po_gpu_x} unique nodes", _sc_fmt(_tier_green))
+_po_breakdown = (f"linux-gfx942-1gpu-ossci-rocm (gfx94X) = {_rc.get('linux-gfx942-1gpu-ossci-rocm',0)}\n"
+                 f"linux-mi355-1gpu-ossci-rocm (gfx950/MI355X) = {_rc.get('linux-mi355-1gpu-ossci-rocm',0)}\n"
+                 f"windows-gfx1151-gpu-rocm (gfx1151, build-only) = {_rc.get('windows-gfx1151-gpu-rocm',0)}")
+ws1.write(_sc_r, 5, _po_breakdown, _sc_fmt(_tier_green))
+ws1.write(_sc_r, 6, "Adds gfx950 (MI355X) vs Pre-commit; gfx1151 Win remains build-only", _sc_fmt(_tier_green, color="#555"))
+ws1.set_row(_sc_r, 40)
+_sc_r += 1
+ws1.write(_sc_r, 1, "Post-commit Subtotal", _sc_fmt(_subtot_grn, bold=True))
+ws1.write(_sc_r, 2, _po_gpu_x, _sc_num(_subtot_grn, bold=True, color=PO_BG))
+ws1.write(_sc_r, 3, f"{_build_vms_x} shared build VMs", _sc_fmt(_subtot_grn, color="#555"))
+ws1.write(_sc_r, 4, f"{_po_gpu_x} physical GPU", _sc_fmt(_subtot_grn))
+ws1.write(_sc_r, 5, f"{_build_vms_x} Azure VMs  +  {_po_gpu_x} GPU machines  =  {_build_vms_x + _po_gpu_x} total", _sc_fmt(_subtot_grn))
+ws1.write(_sc_r, 6, "", _sc_fmt(_subtot_grn))
+ws1.set_row(_sc_r, 22)
+_sc_r += 1
+
+# Nightly
+_ni_breakdown = "  •  ".join(f"{desc} ({lbl}) = {_rc.get(lbl,0)}" for lbl, desc in _ni_gpu_labels)
+ws1.merge_range(_sc_r, 0, _sc_r+1, 0, "CI Nightly", _sc_fmt(_tier_orange, bold=True, color=NI_BG))
+ws1.write(_sc_r, 1, f"GPU Test Pool\n({len(_ni_gpu_labels)} physical runner types)", _sc_fmt(_tier_orange))
+ws1.write(_sc_r, 2, _ni_gpu_x, _sc_num(_tier_orange, bold=True, color=NI_BG))
+ws1.write(_sc_r, 3, f"Build VMs: {_build_vms_x} (shared)", _sc_fmt(_tier_orange, color="#555"))
+ws1.write(_sc_r, 4, f"{_ni_gpu_x} unique nodes", _sc_fmt(_tier_orange))
+ws1.write(_sc_r, 5, "\n".join(f"{lbl} ({desc}) = {_rc.get(lbl,0)}" for lbl, desc in _ni_gpu_labels), _sc_fmt(_tier_orange))
+ws1.write(_sc_r, 6, "Full GPU family coverage — all unique physical machines, each counted once", _sc_fmt(_tier_orange, color="#555"))
+ws1.set_row(_sc_r, 30)
+_sc_r += 1
+ws1.write(_sc_r, 1, "Nightly Subtotal", _sc_fmt(_subtot_org, bold=True))
+ws1.write(_sc_r, 2, _ni_gpu_x, _sc_num(_subtot_org, bold=True, color=NI_BG))
+ws1.write(_sc_r, 3, f"{_build_vms_x} shared build VMs", _sc_fmt(_subtot_org, color="#555"))
+ws1.write(_sc_r, 4, f"{_ni_gpu_x} physical GPU", _sc_fmt(_subtot_org))
+ws1.write(_sc_r, 5, f"{_build_vms_x} Azure VMs  +  {_ni_gpu_x} GPU machines  =  {_build_vms_x + _ni_gpu_x} total", _sc_fmt(_subtot_org))
+ws1.write(_sc_r, 6, "", _sc_fmt(_subtot_org))
+ws1.set_row(_sc_r, 22)
+_sc_r += 1
+
+# Grand total
+_sc_grand_fmt     = _f(bold=True, font_color=WHITE, bg_color=BASE_BG, font_size=11, align="center")
+_sc_grand_sub_fmt = _f(bold=False, font_color=WHITE, bg_color=BASE_BG, font_size=10, align="left")
+ws1.merge_range(_sc_r, 0, _sc_r, 1, "Grand Total (all tiers, unique)", _sc_grand_fmt)
+ws1.write(_sc_r, 2, _build_vms_x + _ni_gpu_x, _sc_grand_fmt)
+ws1.write(_sc_r, 3, f"{_build_vms_x} VMs (Azure, no GPU)", _sc_grand_sub_fmt)
+ws1.write(_sc_r, 4, f"{_ni_gpu_x} physical (unique GPU)", _sc_grand_sub_fmt)
+ws1.write(_sc_r, 5, f"{_build_vms_x} Azure build VMs  +  {_ni_gpu_x} unique GPU machines  =  {_build_vms_x + _ni_gpu_x}   (each GPU machine counted once regardless of how many tiers use it)", _sc_grand_sub_fmt)
+ws1.write(_sc_r, 6, "", _sc_grand_sub_fmt)
+ws1.set_row(_sc_r, 28)
+
 # ─── Sheet 2: CI Tiers ────────────────────────────────────────────────────────
 TIER_HEADERS = ["CI Tier","Trigger","Schedule","Test Type",
                 "Linux GPU Families","Windows GPU Families",
@@ -439,8 +587,84 @@ for ci, w in enumerate(R_COL_W):
 for ci, h in enumerate(RUNNER_HEADERS):
     ws4.write(0, ci, h, hdr_base)
 
+# ── Location summary (Physical GPU Machines by Location) ─────────────────────
+from collections import defaultdict as _ddict
+_loc_sum = _ddict(lambda: {"count": 0, "linux": 0, "windows": 0, "runners": []})
+for _rec in RUNNER_DATA:
+    # RUNNER_DATA has 11 fields in generate_rocm_html.py but only 10 in rocm_ci_data.py
+    if len(_rec) == 11:
+        _lbl, _plat, _os, _loc, _phys, _gpu_fam, _isa, _cnt, _used, _notes, _cls = _rec
+    else:
+        _lbl, _plat, _os, _loc, _phys, _gpu_fam, _isa, _cnt, _used, _notes = _rec
+        _cls = "runner-linux" if _plat == "Linux" else "runner-windows" if _plat == "Windows" else "runner-build"
+    if _cls in ("runner-linux", "runner-windows"):
+        _n = _psc(_phys)
+        if _n > 0:
+            _lk = "On-Prem" if _loc.startswith("On-Prem") else _loc
+            _loc_sum[_lk]["count"] += _n
+            _loc_sum[_lk]["runners"].append(_lbl)
+            if _cls == "runner-linux":
+                _loc_sum[_lk]["linux"] += _n
+            else:
+                _loc_sum[_lk]["windows"] += _n
+_loc_tot = sum(v["count"] for v in _loc_sum.values())
+
+_loc_hdr_labels = ["Location", "Physical Machines", "Linux", "Windows", "Share %", "Runner Labels"]
+_loc_hdr_fmt    = _f(bold=True, font_color=WHITE, bg_color=BASE_BG, font_size=10)
+_loc_colors     = {"OSSCI": "#1565C0", "On-Prem": "#2E7D32", "GitHub-hosted": "#555555"}
+_loc_col_w      = [14, 18, 10, 10, 10, 80]
+for ci, w in enumerate(_loc_col_w):
+    ws4.set_column(ci, ci, max(R_COL_W[ci] if ci < len(R_COL_W) else w, w))
+
+# Title
+ws4.merge_range(0, 0, 0, len(RUNNER_HEADERS)-1,
+                "Physical GPU Machines by Location", _f(bold=True, font_color=WHITE, bg_color=BASE_BG, font_size=11))
+ws4.set_row(0, 26)
+
+# Location summary header
+_ls_r = 1
+for ci, h in enumerate(_loc_hdr_labels):
+    ws4.write(_ls_r, ci, h, _loc_hdr_fmt)
+ws4.set_row(_ls_r, 22)
+_ls_r += 1
+
+for _lk, _data in sorted(_loc_sum.items()):
+    _pct = round(_data["count"] / _loc_tot * 100) if _loc_tot else 0
+    _lc  = _loc_colors.get(_lk, "#555555")
+    _row_fmt = _f(bg_color="#EBF3FB" if _lk == "OSSCI" else "#EBF5EB", align="left", font_size=10)
+    _num_fmt = _f(bg_color="#EBF3FB" if _lk == "OSSCI" else "#EBF5EB", align="center", font_size=10)
+    ws4.write(_ls_r, 0, _lk, _f(bg_color=_lc, bold=True, font_color=WHITE, align="center", font_size=10))
+    ws4.write(_ls_r, 1, _data["count"], _num_fmt)
+    ws4.write(_ls_r, 2, _data["linux"] if _data["linux"] else "—", _num_fmt)
+    ws4.write(_ls_r, 3, _data["windows"] if _data["windows"] else "—", _num_fmt)
+    ws4.write(_ls_r, 4, f"{_pct}%", _num_fmt)
+    ws4.write(_ls_r, 5, ", ".join(_data["runners"]), _row_fmt)
+    ws4.set_row(_ls_r, auto_row_h([", ".join(_data["runners"])]))
+    _ls_r += 1
+
+# Total row
+_tot_fmt = _f(bold=True, font_color=WHITE, bg_color=BASE_BG, font_size=10)
+ws4.merge_range(_ls_r, 0, _ls_r, 0, "Total", _tot_fmt)
+ws4.write(_ls_r, 1, _loc_tot, _tot_fmt)
+ws4.write(_ls_r, 2, sum(v["linux"] for v in _loc_sum.values()), _tot_fmt)
+ws4.write(_ls_r, 3, sum(v["windows"] for v in _loc_sum.values()), _tot_fmt)
+ws4.write(_ls_r, 4, "100%", _tot_fmt)
+ws4.write(_ls_r, 5, "All physical GPU runners", _tot_fmt)
+ws4.set_row(_ls_r, 22)
+_ls_r += 1
+
+# Blank separator row
+_ls_r += 1
+
+# Runner inventory header
+_inv_hdr_row = _ls_r
+for ci, h in enumerate(RUNNER_HEADERS):
+    ws4.write(_inv_hdr_row, ci, h, _f(bold=True, font_color=WHITE, bg_color=BASE_BG, font_size=10))
+ws4.set_row(_inv_hdr_row, 22)
+_ls_r += 1
+
 plat_colors = {"Linux": "#EBF3FB", "Windows": "#EBF5EB"}
-row = 1
+row = _ls_r
 for _ri, rec in enumerate(RUNNER_DATA, 1):
     bg = plat_colors.get(rec[1], WHITE)
     f  = _f(bg_color=bg)
@@ -450,7 +674,7 @@ for _ri, rec in enumerate(RUNNER_DATA, 1):
         ws4.write(row, ci2+1, v, f)
     row += 1
 
-ws4.autofilter(0, 0, row-1, len(RUNNER_HEADERS)-1)
+ws4.autofilter(_inv_hdr_row, 0, row-1, len(RUNNER_HEADERS)-1)
 
 # ─── Sheet 5: Wheel Artifact Publishing ───────────────────────────────────────
 WH_HEADERS = [
@@ -646,28 +870,54 @@ ws7.set_zoom(85)
 ws7.freeze_panes(1, 0)
 ws7.set_row(0, 30)
 
-# Collect AMD runner rows
+# Collect AMD runner rows — all node labels, no truncation
 _inf_run_rows: list[tuple] = []
-for _gpu_type, _nodes in sorted((INFERENCE_RUNNERS.get("amd") or {}).items()):
+_amd_runners = INFERENCE_RUNNERS.get("amd") or {}
+for _gpu_type, _nodes in sorted(_amd_runners.items()):
     _cluster = "SLURM" if "slurm" in " ".join(_nodes).lower() or "amds" in " ".join(_nodes).lower() else "Docker/Self-hosted"
-    _inf_run_rows.append(("AMD", _gpu_type, ", ".join(_nodes[:2]) + (" ..." if len(_nodes) > 2 else ""),
-                          "\n".join(_nodes), str(len(_nodes)), _cluster))
+    _inf_run_rows.append(("AMD", _gpu_type,
+                          ", ".join(_nodes),          # all labels, no truncation
+                          len(_nodes),                # node count as integer
+                          _cluster))
 
-_inf_run_col_w = auto_col_w(INF_RUN_HEADERS, [list(r) for r in _inf_run_rows])
+# Updated headers — removed redundant "Node Instances" col, added cleaner layout
+INF_RUN_HEADERS = ["Ecosystem", "GPU Type", "Runner Labels (all nodes)", "Node Count", "Cluster Type"]
+
+_inf_run_col_w = [12, 16, 70, 12, 20]
 for ci, w in enumerate(_inf_run_col_w):
-    ws7.set_column(ci, ci, max(w, 12))
+    ws7.set_column(ci, ci, w)
 for ci, h in enumerate(INF_RUN_HEADERS):
     ws7.write(0, ci, h, hdr_infr)
+ws7.set_row(0, 26)
 
-_amd_row_fmt = _f(bg_color=IMAX_ROW_AMD)
+_amd_row_fmt  = _f(bg_color=IMAX_ROW_AMD, align="left", font_size=10)
+_amd_num_fmt  = _f(bg_color=IMAX_ROW_AMD, align="center", font_size=12, bold=True)
+_amd_ctr_fmt  = _f(bg_color=IMAX_ROW_AMD, align="center", font_size=10)
 _run_row = 1
 for rec in _inf_run_rows:
-    ws7.set_row(_run_row, auto_row_h(list(rec)))
-    for ci, v in enumerate(rec):
-        ws7.write(_run_row, ci, v, _amd_row_fmt)
+    eco, gpu_type, labels, count, cluster = rec
+    ws7.set_row(_run_row, auto_row_h([labels]))
+    ws7.write(_run_row, 0, eco,       _amd_ctr_fmt)
+    ws7.write(_run_row, 1, gpu_type,  _amd_ctr_fmt)
+    ws7.write(_run_row, 2, labels,    _amd_row_fmt)
+    ws7.write(_run_row, 3, count,     _amd_num_fmt)
+    ws7.write(_run_row, 4, cluster,   _amd_ctr_fmt)
     _run_row += 1
 
-ws7.autofilter(0, 0, max(_run_row - 1, 1), len(INF_RUN_HEADERS) - 1)
+# Grand total row
+_grand_node_total = sum(r[3] for r in _inf_run_rows)
+_tot_imax_fmt = _f(bold=True, font_color=WHITE, bg_color=IMAX_PURPLE, font_size=11, align="center")
+_tot_imax_sub = _f(bold=False, font_color=WHITE, bg_color=IMAX_PURPLE, font_size=10, align="left")
+ws7.merge_range(_run_row, 0, _run_row, 1, "Total AMD Inference Nodes", _tot_imax_fmt)
+ws7.write(_run_row, 2,
+          "  •  ".join(f"{r[1]}: {r[3]}" for r in _inf_run_rows),
+          _tot_imax_sub)
+ws7.write(_run_row, 3, _grand_node_total, _tot_imax_fmt)
+ws7.write(_run_row, 4, f"{len(_inf_run_rows)} GPU pool types", _tot_imax_fmt)
+ws7.set_row(_run_row, 28)
+_run_row += 1
+
+ws7.autofilter(0, 0, max(_run_row - 2, 1), len(INF_RUN_HEADERS) - 1)
 
 # ── Sheet 8: InferenceMAX Workflows ──────────────────────────────────────────
 # Static data derived from .github/workflows/ in ROCm/InferenceMAX_rocm
