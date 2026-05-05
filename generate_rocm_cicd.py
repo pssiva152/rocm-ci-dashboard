@@ -8,10 +8,17 @@ _HERE = _Path(__file__).parent
 OUT = str(_HERE / "ROCm_CICD_Comprehensive.xlsx")
 
 # ─── Reuse all constants + COMPONENTS from the HTML generator ────────────────
-# Exec through line 530 to include the live-data override block (after COMPONENTS])
+# Exec through the live-data override block (includes COMPONENTS + rocm_ci_data.py load).
+# Line count: find the boundary dynamically so adding lines to generate_rocm_html.py
+# doesn't break this exec slice.
 _src_lines = open(_HERE / "generate_rocm_html.py", encoding="utf-8").readlines()
 _xlsx_out = OUT   # save our output path before exec overwrites OUT
-exec("".join(_src_lines[:530]))
+# Find the first line of "Summary counts" section — exec everything before it
+_exec_end = next(
+    (i for i, l in enumerate(_src_lines) if "─── Summary counts" in l),
+    560,  # fallback if marker moves
+)
+exec("".join(_src_lines[:_exec_end]))
 OUT = _xlsx_out   # restore
 
 # ── Live data override for RUNNER_DATA / TIER_DATA (Excel-only data) ─────────
@@ -429,7 +436,7 @@ ws1.write(_sc_r, 3, f"Linux VMs: {_rc.get('azure-linux-scale-rocm',0)}\nWindows 
 ws1.write(_sc_r, 4, "— (no GPU)", _sc_fmt(_tier_yellow, color="#999"))
 ws1.write(_sc_r, 5, f"azure-linux-scale-rocm = {_rc.get('azure-linux-scale-rocm',0)}  •  azure-windows-scale-rocm = {_rc.get('azure-windows-scale-rocm',0)}", _sc_fmt(_tier_yellow))
 ws1.write(_sc_r, 6, "Shared across all tiers; elastic — can scale beyond snapshot count under load", _sc_fmt(_tier_yellow, color="#555"))
-ws1.set_row(_sc_r, 30)
+ws1.set_row(_sc_r, auto_row_h([f"azure-linux-scale-rocm = {_rc.get('azure-linux-scale-rocm',0)}  •  azure-windows-scale-rocm = {_rc.get('azure-windows-scale-rocm',0)}", "Azure Build Pool\n(cloud VMs, no GPU — compile & package only)"]))
 _sc_r += 1
 ws1.write(_sc_r, 1, "Build Subtotal", _sc_fmt(_tier_yellow, bold=True))
 ws1.write(_sc_r, 2, _build_vms_x, _sc_num(_tier_yellow, bold=True))
@@ -450,7 +457,7 @@ _pc_breakdown = (f"linux-gfx942-1gpu-ossci-rocm (gfx94X) = {_rc.get('linux-gfx94
                  f"windows-gfx1151-gpu-rocm (gfx1151, build-only) = {_rc.get('windows-gfx1151-gpu-rocm',0)}")
 ws1.write(_sc_r, 5, _pc_breakdown, _sc_fmt(_tier_blue))
 ws1.write(_sc_r, 6, "gfx94X: Build + Test  •  gfx1151 Win: Build-only (nightly_check_only)", _sc_fmt(_tier_blue, color="#555"))
-ws1.set_row(_sc_r, 30)
+ws1.set_row(_sc_r, auto_row_h([_pc_breakdown]))
 _sc_r += 1
 ws1.write(_sc_r, 1, "Pre-commit Subtotal", _sc_fmt(_subtot_blue, bold=True))
 ws1.write(_sc_r, 2, _pc_gpu_x, _sc_num(_subtot_blue, bold=True, color=PC_BG))
@@ -472,7 +479,7 @@ _po_breakdown = (f"linux-gfx942-1gpu-ossci-rocm (gfx94X) = {_rc.get('linux-gfx94
                  f"windows-gfx1151-gpu-rocm (gfx1151, build-only) = {_rc.get('windows-gfx1151-gpu-rocm',0)}")
 ws1.write(_sc_r, 5, _po_breakdown, _sc_fmt(_tier_green))
 ws1.write(_sc_r, 6, "Adds gfx950 (MI355X) vs Pre-commit; gfx1151 Win remains build-only", _sc_fmt(_tier_green, color="#555"))
-ws1.set_row(_sc_r, 40)
+ws1.set_row(_sc_r, auto_row_h([_po_breakdown]))
 _sc_r += 1
 ws1.write(_sc_r, 1, "Post-commit Subtotal", _sc_fmt(_subtot_grn, bold=True))
 ws1.write(_sc_r, 2, _po_gpu_x, _sc_num(_subtot_grn, bold=True, color=PO_BG))
@@ -492,7 +499,7 @@ ws1.write(_sc_r, 3, f"Build VMs: {_build_vms_x} (shared)", _sc_fmt(_tier_orange,
 ws1.write(_sc_r, 4, f"{_ni_gpu_x} unique nodes", _sc_fmt(_tier_orange))
 ws1.write(_sc_r, 5, "\n".join(f"{lbl} ({desc}) = {_rc.get(lbl,0)}" for lbl, desc in _ni_gpu_labels), _sc_fmt(_tier_orange))
 ws1.write(_sc_r, 6, "Full GPU family coverage — all unique physical machines, each counted once", _sc_fmt(_tier_orange, color="#555"))
-ws1.set_row(_sc_r, 30)
+ws1.set_row(_sc_r, auto_row_h(["\n".join(f"{lbl} ({desc}) = {_rc.get(lbl,0)}" for lbl, desc in _ni_gpu_labels)]))
 _sc_r += 1
 ws1.write(_sc_r, 1, "Nightly Subtotal", _sc_fmt(_subtot_org, bold=True))
 ws1.write(_sc_r, 2, _ni_gpu_x, _sc_num(_subtot_org, bold=True, color=NI_BG))
@@ -609,10 +616,10 @@ for _rec in RUNNER_DATA:
                 _loc_sum[_lk]["windows"] += _n
 _loc_tot = sum(v["count"] for v in _loc_sum.values())
 
-_loc_hdr_labels = ["Location", "Physical Machines", "Linux", "Windows", "Share %", "Runner Labels"]
+_loc_hdr_labels = ["Location", "Physical Machines", "Linux", "Windows", "Share %"]
 _loc_hdr_fmt    = _f(bold=True, font_color=WHITE, bg_color=BASE_BG, font_size=10)
 _loc_colors     = {"OSSCI": "#1565C0", "On-Prem": "#2E7D32", "GitHub-hosted": "#555555"}
-_loc_col_w      = [14, 18, 10, 10, 10, 80]
+_loc_col_w      = [14, 18, 10, 10, 10]
 for ci, w in enumerate(_loc_col_w):
     ws4.set_column(ci, ci, max(R_COL_W[ci] if ci < len(R_COL_W) else w, w))
 
@@ -631,25 +638,22 @@ _ls_r += 1
 for _lk, _data in sorted(_loc_sum.items()):
     _pct = round(_data["count"] / _loc_tot * 100) if _loc_tot else 0
     _lc  = _loc_colors.get(_lk, "#555555")
-    _row_fmt = _f(bg_color="#EBF3FB" if _lk == "OSSCI" else "#EBF5EB", align="left", font_size=10)
     _num_fmt = _f(bg_color="#EBF3FB" if _lk == "OSSCI" else "#EBF5EB", align="center", font_size=10)
     ws4.write(_ls_r, 0, _lk, _f(bg_color=_lc, bold=True, font_color=WHITE, align="center", font_size=10))
     ws4.write(_ls_r, 1, _data["count"], _num_fmt)
     ws4.write(_ls_r, 2, _data["linux"] if _data["linux"] else "—", _num_fmt)
     ws4.write(_ls_r, 3, _data["windows"] if _data["windows"] else "—", _num_fmt)
     ws4.write(_ls_r, 4, f"{_pct}%", _num_fmt)
-    ws4.write(_ls_r, 5, ", ".join(_data["runners"]), _row_fmt)
-    ws4.set_row(_ls_r, auto_row_h([", ".join(_data["runners"])]))
+    ws4.set_row(_ls_r, 18)
     _ls_r += 1
 
 # Total row
 _tot_fmt = _f(bold=True, font_color=WHITE, bg_color=BASE_BG, font_size=10)
-ws4.merge_range(_ls_r, 0, _ls_r, 0, "Total", _tot_fmt)
+ws4.write(_ls_r, 0, "Total", _tot_fmt)
 ws4.write(_ls_r, 1, _loc_tot, _tot_fmt)
 ws4.write(_ls_r, 2, sum(v["linux"] for v in _loc_sum.values()), _tot_fmt)
 ws4.write(_ls_r, 3, sum(v["windows"] for v in _loc_sum.values()), _tot_fmt)
 ws4.write(_ls_r, 4, "100%", _tot_fmt)
-ws4.write(_ls_r, 5, "All physical GPU runners", _tot_fmt)
 ws4.set_row(_ls_r, 22)
 _ls_r += 1
 
@@ -675,6 +679,112 @@ for _ri, rec in enumerate(RUNNER_DATA, 1):
     row += 1
 
 ws4.autofilter(_inv_hdr_row, 0, row-1, len(RUNNER_HEADERS)-1)
+
+# ── Framework Runner & Server Count Details ───────────────────────────────────
+_fw_sc_r = row + 2   # blank gap after runner inventory
+
+# Section banner
+ws4.merge_range(_fw_sc_r, 0, _fw_sc_r, len(RUNNER_HEADERS)-1,
+                "Framework Runner & Server Count Details",
+                _f(bold=True, font_color=WHITE, bg_color=BASE_BG, font_size=11))
+ws4.set_row(_fw_sc_r, 26)
+_fw_sc_r += 1
+
+# Column headers
+_fw_sc_cols = ["Framework", "Pool", "Count", "Build (VMs)", "GPU Test (Physical)",
+               "Runner Labels & Counts", "Coverage"]
+_fw_sc_col_w = [12, 28, 10, 22, 22, 55, 35]
+for ci, w in enumerate(_fw_sc_col_w):
+    ws4.set_column(ci, ci, max(R_COL_W[ci] if ci < len(R_COL_W) else w, w))
+for ci, h in enumerate(_fw_sc_cols):
+    ws4.write(_fw_sc_r, ci, h, _f(bold=True, font_color=WHITE, bg_color="#37474F", font_size=10))
+ws4.set_row(_fw_sc_r, 22)
+_fw_sc_r += 1
+
+# Re-use counts already derived for Sheet 1
+_pt_build_lin  = _rc.get("azure-linux-scale-rocm", 0)
+_pt_build_win  = _rc.get("azure-windows-scale-rocm", 0)
+_pt_build_tot  = _pt_build_lin + _pt_build_win
+_pt_gpu_total  = _ni_gpu_x   # same unique set
+_pt_total      = _pt_build_tot + _pt_gpu_total
+_jax_gpu       = _rc.get("linux-gfx942-1gpu-ossci-rocm", 0)
+
+_pt_bg   = "#E3F2FD"
+_pt_sub  = "#D0E8F8"
+_jax_bg  = "#E8F5E9"
+_jax_sub = "#C8E6C9"
+_grand_row_fmt = _f(bold=True, font_color=WHITE, bg_color=BASE_BG, font_size=10)
+
+def _fsc(bg, bold=False, color="#1A1A1A"):
+    return _f(bg_color=bg, bold=bold, font_color=color, align="left", font_size=10)
+def _fsc_c(bg, bold=False, color="#1A1A1A"):
+    return _f(bg_color=bg, bold=bold, font_color=color, align="center", font_size=10)
+
+# PyTorch — Build Pool
+ws4.merge_range(_fw_sc_r, 0, _fw_sc_r+2, 0, "PyTorch",
+                _f(bold=True, font_color="#1F4E79", bg_color=_pt_bg, align="center", font_size=11))
+ws4.write(_fw_sc_r, 1, "Build Pool (2 VM pools, no GPU)", _fsc(_pt_bg))
+ws4.write(_fw_sc_r, 2, _pt_build_tot, _fsc_c(_pt_bg, bold=True))
+ws4.write(_fw_sc_r, 3, f"Linux VMs: {_pt_build_lin}\nWindows VMs: {_pt_build_win}", _fsc(_pt_bg))
+ws4.write(_fw_sc_r, 4, "— (no GPU)", _fsc(_pt_bg, color="#999"))
+ws4.write(_fw_sc_r, 5, f"azure-linux-scale-rocm = {_pt_build_lin} VMs  •  azure-windows-scale-rocm = {_pt_build_win} VMs", _fsc(_pt_bg))
+ws4.write(_fw_sc_r, 6, "Elastic; auto-scales under load; used for all compile/package jobs", _fsc(_pt_bg, color="#555"))
+ws4.set_row(_fw_sc_r, 30)
+_fw_sc_r += 1
+
+# PyTorch — GPU Test Pool
+_gpu_breakdown = "  •  ".join(f"{lbl} = {_rc.get(lbl,0)}" for lbl, _ in _ni_gpu_labels)
+ws4.write(_fw_sc_r, 1, f"GPU Test Pool ({len(_ni_gpu_labels)} physical runner types)", _fsc(_pt_bg))
+ws4.write(_fw_sc_r, 2, _pt_gpu_total, _fsc_c(_pt_bg, bold=True))
+ws4.write(_fw_sc_r, 3, "— (no build VMs here)", _fsc(_pt_bg, color="#999"))
+ws4.write(_fw_sc_r, 4, f"{_pt_gpu_total} unique physical machines", _fsc_c(_pt_bg))
+ws4.write(_fw_sc_r, 5, _gpu_breakdown, _fsc(_pt_bg))
+ws4.write(_fw_sc_r, 6, f"5 PyTorch versions × 5 Python vers × {len(_ni_gpu_labels)} GPU runner types", _fsc(_pt_bg, color="#555"))
+ws4.set_row(_fw_sc_r, 30)
+_fw_sc_r += 1
+
+# PyTorch — Subtotal
+ws4.write(_fw_sc_r, 1, "PyTorch Total", _fsc(_pt_sub, bold=True))
+ws4.write(_fw_sc_r, 2, _pt_total, _fsc_c(_pt_sub, bold=True, color="#1F4E79"))
+ws4.write(_fw_sc_r, 3, f"{_pt_build_tot} build VMs", _fsc(_pt_sub))
+ws4.write(_fw_sc_r, 4, f"{_pt_gpu_total} physical GPU", _fsc(_pt_sub))
+ws4.write(_fw_sc_r, 5, f"{_pt_build_tot} build VMs + {_pt_gpu_total} physical GPU machines = {_pt_total}", _fsc(_pt_sub))
+ws4.write(_fw_sc_r, 6, "Mixed: VMs + physical", _fsc(_pt_sub, color="#555"))
+ws4.set_row(_fw_sc_r, 22)
+_fw_sc_r += 1
+
+# JAX — Build + Test
+ws4.merge_range(_fw_sc_r, 0, _fw_sc_r+1, 0, "JAX",
+                _f(bold=True, font_color="#2E7D32", bg_color=_jax_bg, align="center", font_size=11))
+ws4.write(_fw_sc_r, 1, "Build + Test (shared build VM pool)", _fsc(_jax_bg))
+ws4.write(_fw_sc_r, 2, _jax_gpu, _fsc_c(_jax_bg, bold=True))
+ws4.write(_fw_sc_r, 3, "Shared with PyTorch — azure-linux-scale-rocm (not counted separately)", _fsc(_jax_bg, color="#777"))
+ws4.write(_fw_sc_r, 4, f"{_jax_gpu} physical (gfx94X only)", _fsc_c(_jax_bg))
+ws4.write(_fw_sc_r, 5, f"linux-gfx942-1gpu-ossci-rocm = {_jax_gpu} physical  |  Build: shared azure-linux-scale-rocm VMs", _fsc(_jax_bg))
+ws4.write(_fw_sc_r, 6, "4 JAX versions × 4 Python vers × 1 GPU runner type", _fsc(_jax_bg, color="#555"))
+ws4.set_row(_fw_sc_r, 30)
+_fw_sc_r += 1
+
+# JAX — Subtotal
+ws4.write(_fw_sc_r, 1, "JAX Total", _fsc(_jax_sub, bold=True))
+ws4.write(_fw_sc_r, 2, _jax_gpu, _fsc_c(_jax_sub, bold=True, color="#2E7D32"))
+ws4.write(_fw_sc_r, 3, "Build VMs shared with PyTorch — not counted separately", _fsc(_jax_sub, color="#555"))
+ws4.write(_fw_sc_r, 4, f"{_jax_gpu} physical only", _fsc_c(_jax_sub))
+ws4.write(_fw_sc_r, 5, f"{_jax_gpu} dedicated physical GPU machines + shared build VM pool (counted under PyTorch)", _fsc(_jax_sub, color="#555"))
+ws4.write(_fw_sc_r, 6, "JAX reuses linux-gfx942-1gpu-ossci-rocm from PyTorch pool", _fsc(_jax_sub, color="#555"))
+ws4.set_row(_fw_sc_r, 22)
+_fw_sc_r += 1
+
+# Grand Total
+_grand_total = _pt_build_tot + _pt_gpu_total
+ws4.merge_range(_fw_sc_r, 0, _fw_sc_r, 1, "Grand Total (PyTorch + JAX)", _grand_row_fmt)
+ws4.write(_fw_sc_r, 2, _grand_total, _f(bold=True, font_color=WHITE, bg_color=BASE_BG, align="center", font_size=11))
+ws4.write(_fw_sc_r, 3, f"{_pt_build_tot} VMs (shared build pool)", _f(font_color=WHITE, bg_color=BASE_BG, font_size=10))
+ws4.write(_fw_sc_r, 4, f"{_pt_gpu_total} physical (unique GPU machines; JAX shares PyTorch pool)", _f(font_color=WHITE, bg_color=BASE_BG, font_size=10))
+ws4.merge_range(_fw_sc_r, 5, _fw_sc_r, 6,
+                f"{_pt_build_tot} shared build VMs + {_pt_gpu_total} unique physical GPU machines = {_grand_total}   |   GPU node counts per tier — each physical machine counted once",
+                _f(font_color=WHITE, bg_color=BASE_BG, font_size=10))
+ws4.set_row(_fw_sc_r, 26)
 
 # ─── Sheet 5: Wheel Artifact Publishing ───────────────────────────────────────
 WH_HEADERS = [
@@ -789,8 +899,10 @@ _inf_ns: dict = {}
 _inf_data_file = _HERE / "rocm_ci_data.py"
 if _inf_data_file.exists():
     exec(_inf_data_file.read_text(encoding="utf-8"), _inf_ns)  # noqa: S102
-INFERENCEMAX_DATA = _inf_ns.get("INFERENCEMAX_DATA", [])
-INFERENCE_RUNNERS = _inf_ns.get("INFERENCE_RUNNERS",  {})
+INFERENCEMAX_DATA    = _inf_ns.get("INFERENCEMAX_DATA",    [])
+INFERENCE_RUNNERS    = _inf_ns.get("INFERENCE_RUNNERS",    {})
+IMAX_SNAPSHOT_TS     = _inf_ns.get("IMAX_SNAPSHOT_TS",     None)
+THEROCK_SNAPSHOT_TS  = _inf_ns.get("THEROCK_SNAPSHOT_TS",  None)
 
 # Colour themes for inference sheets (distinct from TheRock palette)
 IMAX_PURPLE       = "#4A148C"   # InferenceMAX AMD header
@@ -841,9 +953,9 @@ def _write_inference_sheet(ws, data: list[tuple], hdr_fmt, row_bg: str, section_
     for rec in data:
         (name, model, model_prefix, runner, precision, framework,
          multinode, docker_image) = rec
-        ws.set_row(data_row, 16)
         vals = [name, model, model_prefix, runner, precision, framework,
                 _bool_str(multinode), docker_image or "—"]
+        ws.set_row(data_row, auto_row_h(vals))
         for ci, v in enumerate(vals):
             if ci == 6:  # multinode boolean col
                 f = bool_yes_fmt if v == "Yes" else bool_no_fmt
@@ -855,11 +967,33 @@ def _write_inference_sheet(ws, data: list[tuple], hdr_fmt, row_bg: str, section_
     ws.autofilter(1, 0, max(data_row - 1, 2), len(_INF_HEADERS) - 1)
 
 
+# ── Snapshot notice rows (written to Sheet 1 when cached data was used) ───────
+if THEROCK_SNAPSHOT_TS or IMAX_SNAPSHOT_TS:
+    _notice_fmt = fmt(wb, font_name="Arial", font_size=10, bold=True,
+                      bg_color="#FFF8E1", font_color="#b26000",
+                      border=1, text_wrap=True, valign="vcenter")
+    if THEROCK_SNAPSHOT_TS:
+        ws1.write(_sc_r + 2, 0,
+                  f"⚠ TheRock CI data from cached snapshot ({THEROCK_SNAPSHOT_TS}) "
+                  f"— GitHub was unreachable or hit rate limits at report generation time.",
+                  _notice_fmt)
+        ws1.merge_range(_sc_r + 2, 0, _sc_r + 2, 6, "")  # extend across columns
+    if IMAX_SNAPSHOT_TS:
+        _imax_notice_row = _sc_r + (3 if THEROCK_SNAPSHOT_TS else 2)
+        ws1.write(_imax_notice_row, 0,
+                  f"⚠ InferenceMAX data from cached snapshot ({IMAX_SNAPSHOT_TS}) "
+                  f"— all live sources were unavailable at report generation time.",
+                  _notice_fmt)
+        ws1.merge_range(_imax_notice_row, 0, _imax_notice_row, 6, "")
+
 # ── Sheet 6: InferenceMAX — AMD Benchmarks ───────────────────────────────────
 ws6 = wb.add_worksheet("InferenceMAX — AMD Benchmarks")
+_imax_sheet_title = "InferenceMAX CI — AMD GPU Inference Benchmarks (ROCm/InferenceMAX_rocm)"
+if IMAX_SNAPSHOT_TS:
+    _imax_sheet_title += f"  ⚠ Cached snapshot from {IMAX_SNAPSHOT_TS} (all live sources were unavailable)"
 _write_inference_sheet(
     ws6, INFERENCEMAX_DATA, hdr_imax, IMAX_ROW_AMD,
-    "InferenceMAX CI — AMD GPU Inference Benchmarks (ROCm/InferenceMAX_rocm)",
+    _imax_sheet_title,
 )
 
 # ── Sheet 7: Inference Runners ────────────────────────────────────────────────
@@ -1096,14 +1230,15 @@ ws8.autofilter(1, 0, max(_wf_row - 1, 2), len(IMAX_WF_HEADERS) - 1)
 ws9 = wb.add_worksheet("Data Sources")
 ws9.set_zoom(90)
 ws9.freeze_panes(2, 0)
-ws9.set_tab_color("#37474F")
+_DS_HDR_GREY = "#78909C"   # medium blue-grey for Data Sources headers
+ws9.set_tab_color(_DS_HDR_GREY)
 
 _DS_BLUE   = "#1565C0"
 _DS_GREEN  = "#2E7D32"
 _DS_ORANGE = "#E65100"
 _DS_PURPLE = "#4A148C"
 
-_src_hdr_fmt  = _f(bold=True, font_color=WHITE, bg_color="#37474F", font_size=11)
+_src_hdr_fmt  = _f(bold=True, font_color=WHITE, bg_color=_DS_HDR_GREY, font_size=11)
 _src_title_fmt = lambda color: _f(bold=True, font_color=WHITE, bg_color=color, font_size=10)
 _src_key_fmt  = _f(bold=True, bg_color="#F5F5F5", font_size=10)
 _src_val_fmt  = _f(bg_color="#FFFFFF", font_size=10)
@@ -1182,7 +1317,7 @@ _DS_ROWS = [
 _ds_row = 2
 _last_source = ""
 for src_label, color, fname, desc, url in _DS_ROWS:
-    ws9.set_row(_ds_row, 22)
+    ws9.set_row(_ds_row, auto_row_h([desc]))
     title_fmt = _src_title_fmt(color)
     label = src_label if src_label else _last_source
     if src_label:

@@ -1,0 +1,10 @@
+{
+  "timestamp": "2026-05-05 10:35 AM PDT",
+  "_note": "Data sourced from static generate_rocm_html.py defaults via create_snapshots.py. Run fetch_rocm_data.py with GITHUB_TOKEN for live data.",
+  "matrix_src": "",
+  "topology_src": "",
+  "gitmodules_src": "",
+  "nightly_yml": "",
+  "lib_projects": [],
+  "sys_projects": []
+}

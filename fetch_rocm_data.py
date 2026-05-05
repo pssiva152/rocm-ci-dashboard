@@ -15,9 +15,13 @@ Outputs (written to project folder alongside this script):
 """
 
 import base64
+import datetime
 import json
 import os
+import shutil
+import subprocess
 import sys
+import tempfile
 import textwrap
 import tomllib
 import urllib.error
@@ -28,6 +32,20 @@ sys.stdout.reconfigure(encoding="utf-8")
 
 HERE = Path(__file__).parent
 TOKEN = os.environ.get("GITHUB_TOKEN", "")
+
+# ── Snapshot files ─────────────────────────────────────────────────────────────
+# Written after every successful fetch so future runs have cached data when
+# GitHub is unavailable or hits rate limits.
+
+# TheRock CI snapshot — caches the raw GitHub API responses (matrix, topology,
+# gitmodules, project lists, nightly yml).
+THEROCK_SNAPSHOT = HERE / "therock_ci_snapshot.json"
+
+# InferenceMAX snapshot — caches parsed benchmark configs and runner pool.
+IMAX_SNAPSHOT = HERE / "inferencemax_snapshot.json"
+
+# SSH clone URL for InferenceMAX_rocm (used when API token is unavailable)
+IMAX_SSH_URL = "git@github.com:ROCm/InferenceMAX_rocm.git"
 
 
 # ── GitHub API helpers ────────────────────────────────────────────────────────
@@ -97,6 +115,48 @@ def fetch_all() -> dict:
         sys_projects=sys_projects,
         nightly_yml=nightly_yml,
     )
+
+
+def _raw_is_empty(raw: dict) -> bool:
+    """Return True when all 6 GitHub fetch results came back empty."""
+    return (
+        not raw.get("matrix_src")
+        and not raw.get("topology_src")
+        and not raw.get("gitmodules_src")
+        and not raw.get("lib_projects")
+        and not raw.get("sys_projects")
+        and not raw.get("nightly_yml")
+    )
+
+
+def save_therock_snapshot(raw: dict) -> None:
+    """Persist the raw GitHub API responses to THEROCK_SNAPSHOT."""
+    try:
+        import zoneinfo
+        _pt = zoneinfo.ZoneInfo("America/Los_Angeles")
+    except ImportError:
+        _pt = datetime.timezone(datetime.timedelta(hours=-7))
+    ts = datetime.datetime.now(_pt).strftime("%Y-%m-%d %I:%M %p %Z")
+    snap = {"timestamp": ts, **raw}
+    THEROCK_SNAPSHOT.write_text(json.dumps(snap, indent=2, ensure_ascii=False), encoding="utf-8")
+    print(f"  [TheRock] Snapshot saved → {THEROCK_SNAPSHOT.name} (captured: {ts})")
+
+
+def load_therock_snapshot() -> tuple[dict | None, str | None]:
+    """
+    Load raw GitHub API responses from THEROCK_SNAPSHOT.
+    Returns (raw_dict, timestamp_str) or (None, None) if unavailable.
+    """
+    if not THEROCK_SNAPSHOT.exists():
+        return None, None
+    try:
+        snap = json.loads(THEROCK_SNAPSHOT.read_text(encoding="utf-8"))
+        ts = snap.pop("timestamp", "unknown")
+        print(f"  [TheRock] Loaded CI snapshot (captured: {ts})")
+        return snap, ts
+    except Exception as e:
+        print(f"  [TheRock] Could not read snapshot: {e}")
+        return None, None
 
 
 # ── Phase 2: Parse GPU family matrix ─────────────────────────────────────────
@@ -337,15 +397,37 @@ def build_tier_data(matrices: dict, nightly_yml: str) -> list[tuple]:
                     + "\n" + ", ".join(ni_linux_build) + " — Build-only (no HW runners)")
     ni_win_str   = ", ".join(sorted(set(ni_win))) + " — Build + Test" if ni_win else "—"
 
+    def _utc_cron_to_pt(utc_hour: int, utc_min: int = 0) -> str:
+        """Return 'HH:MM UTC (X:XX PM PDT / X:XX PM PST)' string."""
+        try:
+            from zoneinfo import ZoneInfo as _ZI
+            _pt_tz = _ZI("America/Los_Angeles")
+        except ImportError:
+            _pt_tz = datetime.timezone(datetime.timedelta(hours=-7))
+        _pdt = datetime.datetime(2025, 7, 1, utc_hour, utc_min,
+                                 tzinfo=datetime.timezone.utc).astimezone(_pt_tz)
+        _pst = datetime.datetime(2025, 1, 1, utc_hour, utc_min,
+                                 tzinfo=datetime.timezone.utc).astimezone(_pt_tz)
+        def _fmt(t: datetime.datetime) -> str:
+            return t.strftime("%I:%M %p").lstrip("0")
+        utc_str = f"{utc_hour:02d}:{utc_min:02d} UTC"
+        return f"{utc_str} ({_fmt(_pdt)} PDT / {_fmt(_pst)} PST)"
+
     # Extract nightly schedule from YAML (look for cron line)
-    nightly_schedule = "02:00 UTC daily"
+    nightly_schedule = _utc_cron_to_pt(2)  # default: 02:00 UTC
     for line in nightly_yml.splitlines():
         if "cron" in line and "*" in line:
             parts = line.split("'")
             if len(parts) >= 2:
                 cron = parts[1].strip()
-                # cron "0 2 * * *" → 02:00 UTC daily
-                nightly_schedule = f"cron: {cron} (approx. 02:00 UTC daily)"
+                # Parse hour from cron expression "M H * * *"
+                cron_parts = cron.split()
+                try:
+                    utc_h = int(cron_parts[1]) if len(cron_parts) >= 2 else 2
+                    utc_m = int(cron_parts[0]) if len(cron_parts) >= 1 else 0
+                    nightly_schedule = f"cron: {cron} ({_utc_cron_to_pt(utc_h, utc_m)})"
+                except (ValueError, IndexError):
+                    nightly_schedule = f"cron: {cron} (approx. {_utc_cron_to_pt(2)})"
             break
 
     return [
@@ -365,13 +447,13 @@ def build_tier_data(matrices: dict, nightly_yml: str) -> list[tuple]:
          "Ubuntu 22.04 LTS", "Windows 11"),
         ("CI Nightly",
          "ci_nightly.yml + ci_nightly_pytorch_full_test.yml (schedule)",
-         nightly_schedule + "\n12:00 UTC daily (PyTorch full)",
+         nightly_schedule + f"\n{_utc_cron_to_pt(12)} daily (PyTorch full)",
          "comprehensive = full + integration (ROCm)\nfull = complete suite (PyTorch)",
          ni_linux_str, ni_win_str,
          "PyTorch: all 5 versions × all Pythons × all families\nJAX: all 4 versions × 4 Pythons\nTriton + Apex (Linux)",
          "Ubuntu 22.04 LTS", "Windows 11"),
         ("ASAN / TSAN",
-         "ci_asan.yml / ci_tsan.yml (schedule)", "02:00 UTC daily",
+         "ci_asan.yml / ci_tsan.yml (schedule)", _utc_cron_to_pt(2) + " daily",
          "quick = smoke/sanity only\n(same suite as Post-commit but with sanitizer build)",
          "gfx94X-dcgpu, gfx950-dcgpu — Build + Test", "—",
          "None (sanitizer build validation only)",
@@ -782,6 +864,8 @@ def write_data_module(
     wh_data_src: str,
     imax_data: list[tuple] | None = None,
     inference_runners: dict | None = None,
+    imax_snapshot_ts: str | None = None,
+    therock_snapshot_ts: str | None = None,
 ) -> Path:
     """Write rocm_ci_data.py with all live data structures."""
     out = HERE / "rocm_ci_data.py"
@@ -818,6 +902,12 @@ def write_data_module(
     lines.append("")
     # INFERENCE_RUNNERS: {"amd": {runner_type: [node_labels]}}
     lines.append("INFERENCE_RUNNERS = " + repr(inference_runners or {}))
+    lines.append("")
+    # IMAX_SNAPSHOT_TS: non-None only when InferenceMAX data came from JSON snapshot.
+    # THEROCK_SNAPSHOT_TS: non-None only when TheRock CI data came from JSON snapshot.
+    # The HTML/Excel generators use these to flag data age in "Last updated:".
+    lines.append("IMAX_SNAPSHOT_TS = " + repr(imax_snapshot_ts))
+    lines.append("THEROCK_SNAPSHOT_TS = " + repr(therock_snapshot_ts))
     lines.append("")
 
     out.write_text("\n".join(lines), encoding="utf-8")
@@ -859,26 +949,113 @@ def _read_local_inferencemax(file_rel: str) -> str:
     return ""
 
 
+def _git_clone_inferencemax() -> str:
+    """
+    Try to clone InferenceMAX_rocm via SSH into a temp dir and read the
+    required YAML files. Returns the amd-master.yaml content, or "" on failure.
+    Sets module-level _cloned_runners_yaml as a side effect.
+    """
+    global _cloned_runners_yaml
+    _cloned_runners_yaml = ""
+    tmp = Path(tempfile.mkdtemp(prefix="imax_clone_"))
+    try:
+        print("  [InferenceMAX] Trying SSH clone (git@github.com:ROCm/InferenceMAX_rocm.git)...")
+        result = subprocess.run(
+            ["git", "clone", "--depth=1", "--quiet", IMAX_SSH_URL, str(tmp / "repo")],
+            capture_output=True, text=True, timeout=120,
+        )
+        if result.returncode != 0:
+            print(f"  [InferenceMAX] SSH clone failed: {result.stderr.strip()}")
+            return ""
+        repo = tmp / "repo"
+        amd_path     = repo / ".github" / "configs" / "amd-master.yaml"
+        runners_path = repo / ".github" / "configs" / "runners.yaml"
+        if not amd_path.exists():
+            print("  [InferenceMAX] SSH clone succeeded but amd-master.yaml not found")
+            return ""
+        print("  [InferenceMAX] SSH clone succeeded.")
+        _cloned_runners_yaml = runners_path.read_text(encoding="utf-8") if runners_path.exists() else ""
+        return amd_path.read_text(encoding="utf-8")
+    except (FileNotFoundError, subprocess.TimeoutExpired) as e:
+        print(f"  [InferenceMAX] SSH clone unavailable: {e}")
+        return ""
+    finally:
+        shutil.rmtree(tmp, ignore_errors=True)
+
+_cloned_runners_yaml: str = ""  # set as side-effect of _git_clone_inferencemax()
+
+
+def _load_imax_snapshot() -> tuple[list[tuple], dict] | tuple[None, None]:
+    """
+    Load INFERENCEMAX_DATA and INFERENCE_RUNNERS from the JSON snapshot file.
+    Returns (None, None) if the snapshot doesn't exist or is unreadable.
+    """
+    if not IMAX_SNAPSHOT.exists():
+        return None, None
+    try:
+        snap = json.loads(IMAX_SNAPSHOT.read_text(encoding="utf-8"))
+        data    = [tuple(row) for row in snap["inferencemax_data"]]
+        runners = snap["inference_runners"]
+        ts      = snap.get("timestamp", "unknown")
+        print(f"  [InferenceMAX] Loaded JSON snapshot (captured: {ts})")
+        return data, runners
+    except Exception as e:
+        print(f"  [InferenceMAX] Could not read snapshot: {e}")
+        return None, None
+
+
+def save_imax_snapshot(imax_data: list[tuple], inference_runners: dict) -> None:
+    """Write INFERENCEMAX_DATA and INFERENCE_RUNNERS to the JSON snapshot file."""
+    try:
+        import zoneinfo
+        _pt = zoneinfo.ZoneInfo("America/Los_Angeles")
+    except ImportError:
+        _pt = datetime.timezone(datetime.timedelta(hours=-7))
+    ts = datetime.datetime.now(_pt).strftime("%Y-%m-%d %I:%M %p %Z")
+    snap = {
+        "timestamp": ts,
+        "inferencemax_data": [list(row) for row in imax_data],
+        "inference_runners": inference_runners,
+    }
+    IMAX_SNAPSHOT.write_text(json.dumps(snap, indent=2, ensure_ascii=False), encoding="utf-8")
+    print(f"  [InferenceMAX] Snapshot saved → {IMAX_SNAPSHOT.name} (captured: {ts})")
+
+
 def fetch_inferencemax() -> tuple[str, str]:
     """
-    Fetch InferenceMAX_rocm AMD configs and runner pool.
-    Priority: GitHub API (if TOKEN set) → local clone.
-    Returns: (amd_yaml, runners_yaml) — empty strings on failure.
+    Fetch InferenceMAX_rocm AMD configs and runner pool YAML.
+    Priority order:
+      1. GitHub API (if GITHUB_TOKEN set and has access)
+      2. Local InferenceMAX_rocm/ folder (already cloned in working dir)
+      3. SSH git clone (git@github.com:ROCm/InferenceMAX_rocm.git)
+      4. JSON snapshot (inferencemax_snapshot.json) — see return note below
+
+    Returns: (amd_yaml, runners_yaml) — both empty strings if all YAML sources
+    fail. The caller checks for empty amd_yaml and switches to JSON fallback.
     """
+    global _cloned_runners_yaml
     amd_yaml = runners_yaml = ""
 
+    # ── 1. GitHub API ──────────────────────────────────────────────────────────
     if TOKEN:
         print("  [InferenceMAX] Fetching from GitHub API (ROCm/InferenceMAX_rocm)...")
         amd_yaml     = gh_file("ROCm", "InferenceMAX_rocm", ".github/configs/amd-master.yaml")
         runners_yaml = gh_file("ROCm", "InferenceMAX_rocm", ".github/configs/runners.yaml")
 
+    # ── 2. Local InferenceMAX_rocm/ folder ────────────────────────────────────
     if not amd_yaml:
-        print("  [InferenceMAX] Falling back to local clone...")
+        print("  [InferenceMAX] Trying local InferenceMAX_rocm/ folder...")
         amd_yaml     = _read_local_inferencemax(".github/configs/amd-master.yaml")
         runners_yaml = _read_local_inferencemax(".github/configs/runners.yaml")
+        if amd_yaml:
+            print("  [InferenceMAX] Local folder found.")
 
+    # ── 3. SSH git clone ───────────────────────────────────────────────────────
     if not amd_yaml:
-        print("  WARN: InferenceMAX data not available (no token + no local clone)")
+        amd_yaml = _git_clone_inferencemax()
+        if amd_yaml:
+            runners_yaml = _cloned_runners_yaml
+
     return amd_yaml, runners_yaml
 
 
@@ -1034,7 +1211,21 @@ def main() -> None:
     if not TOKEN:
         print("  NOTE: GITHUB_TOKEN not set — using unauthenticated API (60 req/hr limit)")
 
-    raw      = fetch_all()
+    raw = fetch_all()
+    therock_snapshot_ts = None  # non-None only when snapshot fallback is used
+
+    if _raw_is_empty(raw):
+        print("  WARN: All GitHub fetches failed — trying TheRock CI snapshot...")
+        snap_raw, therock_snapshot_ts = load_therock_snapshot()
+        if snap_raw is not None:
+            raw = snap_raw
+            print("  [TheRock] Using cached snapshot for component/runner/tier data.")
+        else:
+            print("  WARN: No TheRock snapshot available — falling back to static defaults in generate_rocm_html.py.")
+    else:
+        # At least some data came back from GitHub — save a fresh snapshot
+        save_therock_snapshot(raw)
+
     matrices = parse_matrix(raw["matrix_src"])
     _topology = parse_topology(raw["topology_src"])  # available for future use
 
@@ -1085,21 +1276,40 @@ def main() -> None:
     wh_block = wh_preamble + "\n" + wh_block
 
     # Fetch InferenceMAX AMD data
+    # Priority: GitHub API → local folder → SSH clone → JSON snapshot
     print("\nFetching InferenceMAX data...")
     amd_yaml, runners_yaml = fetch_inferencemax()
 
-    amd_configs = parse_benchmark_yaml(amd_yaml)
-    amd_runners = parse_runners_yaml(runners_yaml)
-
-    print(f"  AMD benchmark configs: {len(amd_configs)}")
-    print(f"  AMD runner pools     : {len(amd_runners)}")
-
-    imax_data, inference_runners = build_inference_data(amd_configs, amd_runners)
+    imax_snapshot_ts = None  # non-None only when JSON fallback is used
+    if amd_yaml:
+        # ── Parsed from a live YAML source — build and save a fresh snapshot ──
+        amd_configs = parse_benchmark_yaml(amd_yaml)
+        amd_runners = parse_runners_yaml(runners_yaml)
+        print(f"  AMD benchmark configs: {len(amd_configs)}")
+        print(f"  AMD runner pools     : {len(amd_runners)}")
+        imax_data, inference_runners = build_inference_data(amd_configs, amd_runners)
+        # Always persist a fresh snapshot so future offline runs can fall back to it
+        save_imax_snapshot(imax_data, inference_runners)
+    else:
+        # ── 4. JSON snapshot fallback ─────────────────────────────────────────
+        print("  [InferenceMAX] All live sources failed — trying JSON snapshot...")
+        snap_data, snap_runners = _load_imax_snapshot()
+        if snap_data is not None:
+            imax_data, inference_runners = snap_data, snap_runners
+            # Read timestamp from snapshot to surface in HTML
+            snap_meta = json.loads(IMAX_SNAPSHOT.read_text(encoding="utf-8"))
+            imax_snapshot_ts = snap_meta.get("timestamp", "unknown")
+            print(f"  AMD benchmark configs (snapshot): {len(imax_data)}")
+        else:
+            print("  WARN: No InferenceMAX data available from any source.")
+            imax_data, inference_runners = [], {}
 
     print("\nWriting rocm_ci_data.py...")
     write_data_module(
         components, runner_data, tier_data, fw_block, wh_block,
         imax_data=imax_data, inference_runners=inference_runners,
+        imax_snapshot_ts=imax_snapshot_ts,
+        therock_snapshot_ts=therock_snapshot_ts,
     )
 
     generate_outputs()
