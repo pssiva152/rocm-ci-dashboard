@@ -857,8 +857,9 @@ def _inf_runner_rows_html(runners_dict: dict, ecosystem: str, badge_color: str) 
     return rows
 
 _imax_rows  = _inf_rows_html(INFERENCEMAX_DATA, "imax-row") if INFERENCEMAX_DATA else "<tr><td colspan='8' style='color:#999;text-align:center'>No InferenceMAX data available — run fetch_rocm_data.py with GITHUB_TOKEN or local clone</td></tr>"
-_amd_run_rows = _inf_runner_rows_html(INFERENCE_RUNNERS.get("amd", {}), "AMD", "#4A148C")
-_inf_run_rows_html = _amd_run_rows if _amd_run_rows else "<tr><td colspan='5' style='color:#999;text-align:center'>No runner data available</td></tr>"
+_amd_run_rows = _inf_runner_rows_html(INFERENCE_RUNNERS.get("amd", {}), "AMD", "#CC0000")
+_nv_run_rows  = _inf_runner_rows_html(INFERENCE_RUNNERS.get("nvidia", {}), "NVIDIA", "#76b900")
+_inf_run_rows_html = (_amd_run_rows + _nv_run_rows) if (_amd_run_rows or _nv_run_rows) else "<tr><td colspan='5' style='color:#999;text-align:center'>No runner data available</td></tr>"
 
 _imax_count = len(INFERENCEMAX_DATA)
 _imax_gpus  = len({r[3] for r in INFERENCEMAX_DATA}) if INFERENCEMAX_DATA else 0

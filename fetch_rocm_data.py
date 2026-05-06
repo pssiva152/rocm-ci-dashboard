@@ -1167,12 +1167,10 @@ def build_inference_data(
 
     imax_data = _to_tuples(amd_configs)
 
-    # Keep only AMD runners (mi300x/mi325x/mi355x pools)
-    _amd_keys = {"mi300x", "mi325x", "mi355x", "mi355x-disagg",
-                 "mi300x-multinode", "mi325x-multinode", "mi355x-multinode"}
+    # Split runners by ecosystem: mi* → AMD, everything else (h*, b*, gb*) → NVIDIA
     runners_out = {
-        "amd": {k: v for k, v in amd_runners.items()
-                if k in _amd_keys or any(gpu in k for gpu in ("mi300", "mi325", "mi355"))},
+        "amd":    {k: v for k, v in amd_runners.items() if k.startswith("mi")},
+        "nvidia": {k: v for k, v in amd_runners.items() if not k.startswith("mi")},
     }
 
     return imax_data, runners_out

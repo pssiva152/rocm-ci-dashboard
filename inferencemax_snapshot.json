@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-05-05 10:35 AM PDT",
+  "timestamp": "2026-05-05 09:14 PM PDT",
   "inferencemax_data": [
     [
       "glm5-fp8-mi355x-atom",
@@ -374,6 +374,57 @@
   ],
   "inference_runners": {
     "amd": {
+      "mi300x": [
+        "mi300x-amd_0",
+        "mi300x-amd_1",
+        "mi300x-amd_2",
+        "mi300x-amd_3",
+        "mi300x-amd_4",
+        "mi300x-amds_0",
+        "mi300x-amds_1",
+        "mi300x-amds_2",
+        "mi300x-amds_3"
+      ],
+      "mi325x": [
+        "mi325x-amd_0",
+        "mi325x-amd_1",
+        "mi325x-amd_2",
+        "mi325x-amd_3"
+      ],
+      "mi355x": [
+        "mi355x-amds_0",
+        "mi355x-amds_1",
+        "mi355x-amds_2",
+        "mi355x-amds_3",
+        "mi355x-amds_4",
+        "mi355x-amds_5",
+        "mi355x-amds_6",
+        "mi355x-amds_7",
+        "mi355x-amds_8",
+        "mi355x-amd_p01_g06"
+      ],
+      "mi355x-disagg": [
+        "mi355x-amds_0",
+        "mi355x-amds_1",
+        "mi355x-amds_2"
+      ],
+      "mi355x-tw-sctrl": [
+        "mi355x-amds"
+      ],
+      "mi355x-m15-17": [
+        "mi355x-amd"
+      ],
+      "mi355x-p02-g42": [
+        "mi355x-amd_42"
+      ],
+      "mi355x-p02-g09": [
+        "mi355x-amd_9"
+      ],
+      "mi355x-p02-g17": [
+        "mi355x-amd_17"
+      ]
+    },
+    "nvidia": {
       "h100": [
         "h100-cr_0",
         "h100-cr_1",
@@ -446,40 +497,6 @@
         "b200-dgxc-slurm_7",
         "b200-dgxc-slurm_8"
       ],
-      "mi300x": [
-        "mi300x-amd_0",
-        "mi300x-amd_1",
-        "mi300x-amd_2",
-        "mi300x-amd_3",
-        "mi300x-amd_4",
-        "mi300x-amds_0",
-        "mi300x-amds_1",
-        "mi300x-amds_2",
-        "mi300x-amds_3"
-      ],
-      "mi325x": [
-        "mi325x-amd_0",
-        "mi325x-amd_1",
-        "mi325x-amd_2",
-        "mi325x-amd_3"
-      ],
-      "mi355x": [
-        "mi355x-amds_0",
-        "mi355x-amds_1",
-        "mi355x-amds_2",
-        "mi355x-amds_3",
-        "mi355x-amds_4",
-        "mi355x-amds_5",
-        "mi355x-amds_6",
-        "mi355x-amds_7",
-        "mi355x-amds_8",
-        "mi355x-amd_p01_g06"
-      ],
-      "mi355x-disagg": [
-        "mi355x-amds_0",
-        "mi355x-amds_1",
-        "mi355x-amds_2"
-      ],
       "gb200": [
         "gb200-nv_0",
         "gb200-nv_1",
@@ -494,21 +511,6 @@
         "gb300-nv_0",
         "gb300-nv_1",
         "gb300-nv_2"
-      ],
-      "mi355x-tw-sctrl": [
-        "mi355x-amds"
-      ],
-      "mi355x-m15-17": [
-        "mi355x-amd"
-      ],
-      "mi355x-p02-g42": [
-        "mi355x-amd_42"
-      ],
-      "mi355x-p02-g09": [
-        "mi355x-amd_9"
-      ],
-      "mi355x-p02-g17": [
-        "mi355x-amd_17"
       ]
     }
   }

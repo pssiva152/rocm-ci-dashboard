@@ -231,14 +231,15 @@ def _parse_imax_local(imax_dir: Path) -> tuple[list, dict]:
             entry.get("image", ""),
         ))
 
-    inference_runners: dict = {"amd": {}}
+    inference_runners: dict = {"amd": {}, "nvidia": {}}
     if runners_yaml.exists():
         with runners_yaml.open(encoding="utf-8") as f:
             run_raw = yaml.safe_load(f) or {}
         for pool_name, pool_cfg in run_raw.items():
             nodes = pool_cfg if isinstance(pool_cfg, list) else pool_cfg.get("runners", [])
             if nodes:
-                inference_runners["amd"][pool_name] = nodes
+                eco = "amd" if pool_name.startswith("mi") else "nvidia"
+                inference_runners[eco][pool_name] = nodes
 
     return imax_data, inference_runners
 
