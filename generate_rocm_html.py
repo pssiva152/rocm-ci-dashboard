@@ -1849,8 +1849,10 @@ function resetFilter(){{
 }}
 document.querySelectorAll('nav a').forEach(a=>{{
   a.addEventListener('click',e=>{{
+    const href=a.getAttribute('href');
+    if(href&&href.startsWith('http'))return; // external links open normally
     e.preventDefault();
-    const id=a.getAttribute('href').slice(1);
+    const id=href.slice(1);
     document.getElementById(id)?.scrollIntoView({{behavior:'smooth'}});
     document.querySelectorAll('nav a').forEach(x=>x.classList.remove('active'));
     a.classList.add('active');

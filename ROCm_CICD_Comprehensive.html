@@ -113,7 +113,7 @@ footer{background:var(--amd-dark);color:#888;text-align:center;padding:16px;font
 <div class="page-header">
   <h1>ROCm CI/CD Matrix &mdash; TheRock &amp; InferenceMAX Ecosystems</h1>
   <p>Two distinct CI ecosystems in one view: <b>TheRock CI</b> (component builds, frameworks, runners) and <b>InferenceMAX CI</b> (AMD GPU inference benchmarking).</p>
-  <p style="margin-top:6px;opacity:.6;font-size:12px">&#128337; Last updated: May 05, 2026 11:11 AM PDT</p>
+  <p style="margin-top:6px;opacity:.6;font-size:12px">&#128337; Last updated: May 05, 2026 09:07 PM PDT</p>
   
 </div>
 <div class="ecosystem-banner therock">
@@ -3301,7 +3301,7 @@ footer{background:var(--amd-dark);color:#888;text-align:center;padding:16px;font
 
 </div>
 
-<footer>ROCm CI/CD Matrix &mdash; Last updated: May 05, 2026 11:11 AM PDT &bull; AMD Advanced Micro Devices &bull; Data sourced from TheRock/.github/workflows &amp; amdgpu_family_matrix.py</footer>
+<footer>ROCm CI/CD Matrix &mdash; Last updated: May 05, 2026 09:07 PM PDT &bull; AMD Advanced Micro Devices &bull; Data sourced from TheRock/.github/workflows &amp; amdgpu_family_matrix.py</footer>
 
 <script>
 function filterTable(){
@@ -3324,8 +3324,10 @@ function resetFilter(){
 }
 document.querySelectorAll('nav a').forEach(a=>{
   a.addEventListener('click',e=>{
+    const href=a.getAttribute('href');
+    if(href&&href.startsWith('http'))return; // external links open normally
     e.preventDefault();
-    const id=a.getAttribute('href').slice(1);
+    const id=href.slice(1);
     document.getElementById(id)?.scrollIntoView({behavior:'smooth'});
     document.querySelectorAll('nav a').forEach(x=>x.classList.remove('active'));
     a.classList.add('active');
