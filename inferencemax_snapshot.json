@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-05-05 09:14 PM PDT",
+  "timestamp": "2026-05-12 03:31 AM PDT",
   "inferencemax_data": [
     [
       "glm5-fp8-mi355x-atom",
@@ -80,36 +80,6 @@
       "atom",
       false,
       "rocm/atom:rocm7.1.1-ubuntu24.04-pytorch2.9-atom0.1.1-MI350x"
-    ],
-    [
-      "dsv4-fp8-mi355x-sglang",
-      "sgl-project/DeepSeek-V4-Pro-FP8",
-      "dsv4",
-      "mi355x",
-      "fp8",
-      "sglang",
-      false,
-      "rocm/sgl-dev:rocm720-deepseek-v4-mi35x"
-    ],
-    [
-      "dsv4-fp4-mi355x-sglang",
-      "deepseek-ai/DeepSeek-V4-Pro",
-      "dsv4",
-      "mi355x",
-      "fp4",
-      "sglang",
-      false,
-      "rocm/sgl-dev:rocm720-deepseek-v4-mi35x"
-    ],
-    [
-      "dsv4-fp4-mi355x-vllm",
-      "deepseek-ai/DeepSeek-V4-Pro",
-      "dsv4",
-      "mi355x-p02-g57",
-      "fp4",
-      "vllm",
-      false,
-      "rocm/pytorch-private:dsv4_dsv4_adapt_upstream_0430"
     ],
     [
       "dsr1-fp4-mi355x-sglang",
@@ -245,7 +215,7 @@
       "kimik2.5-int4-mi355x-vllm",
       "moonshotai/Kimi-K2.5",
       "kimik2.5",
-      "mi355x_srok",
+      "mi355x-p02-g57",
       "int4",
       "vllm",
       false,
@@ -392,16 +362,12 @@
         "mi325x-amd_3"
       ],
       "mi355x": [
-        "mi355x-amds_0",
-        "mi355x-amds_1",
-        "mi355x-amds_2",
-        "mi355x-amds_3",
-        "mi355x-amds_4",
-        "mi355x-amds_5",
-        "mi355x-amds_6",
-        "mi355x-amds_7",
-        "mi355x-amds_8",
-        "mi355x-amd_p01_g06"
+        "mi355x-amd_p02g32",
+        "mi355x-amd_p02g42",
+        "mi355x-amd_p02g57",
+        "mi355x-amd_p02g44",
+        "mi355x-amd_p01g06",
+        "mi355x-amd_p01g07"
       ],
       "mi355x-disagg": [
         "mi355x-amds_0",

@@ -8,19 +8,31 @@ and data files next to this file, so any edits to generate_rocm_html.py,
 generate_rocm_cicd.py, fetch_rocm_data.py, or rocm_ci_data.py are
 automatically picked up.
 
+Two modes:
+
+    LIVE     — selected by default when fetch_rocm_data.py exists alongside
+               this script. Performs anonymous git clones of the public ROCm
+               repos and an SSH clone of ROCm/InferenceMAX_rocm. Falls back
+               automatically to the JSON snapshots on any clone failure.
+
+    SNAPSHOT — selected when fetch_rocm_data.py is absent (or `--snapshot`
+               is passed). Skips all network access and uses the committed
+               rocm_ci_data.py / *.json snapshot files only.
+
 Usage:
     pip install xlsxwriter
+    python rocm_report_bundle.py              # LIVE (clones), falls back to snapshot
+    python rocm_report_bundle.py --snapshot   # snapshot-only, no network access
 
-    # Use local snapshot data (rocm_ci_data.py if present, else static defaults):
-    python rocm_report_bundle.py
-
-    # Fetch live data from GitHub (requires GITHUB_TOKEN):
-    export GITHUB_TOKEN=ghp_...
-    python rocm_report_bundle.py
+Prerequisites for LIVE mode:
+    git installed and on PATH
+    SSH key registered with GitHub (only needed for the InferenceMAX_rocm clone)
 
 Outputs (written next to this script):
     ROCm_CICD_Comprehensive.html
     ROCm_CICD_Comprehensive.xlsx
+    therock_ci_snapshot.json     (refreshed when LIVE clones succeed)
+    inferencemax_snapshot.json   (refreshed when LIVE clones succeed)
 """
 import os
 import sys
@@ -57,20 +69,22 @@ def _check_required() -> None:
 
 
 def main() -> None:
-    token = os.environ.get("GITHUB_TOKEN", "").strip()
+    snapshot_only = ("--snapshot" in sys.argv) or ("-s" in sys.argv)
 
     _check_required()
 
+    has_fetch = (HERE / "fetch_rocm_data.py").exists()
+    has_data  = (HERE / "rocm_ci_data.py").exists()
+
     print("=" * 60)
     print("  ROCm CI/CD Report Generator")
-    if token:
-        print("  Mode: LIVE (GITHUB_TOKEN detected)")
+    if snapshot_only:
+        print("  Mode: SNAPSHOT-ONLY (--snapshot flag; skipping all clones)")
+    elif has_fetch:
+        print("  Mode: LIVE (anonymous git clones; SSH for InferenceMAX_rocm)")
+        print("        falls back to JSON snapshots on any clone failure")
     else:
-        if (HERE / "rocm_ci_data.py").exists():
-            print("  Mode: LOCAL SNAPSHOT (rocm_ci_data.py found)")
-        else:
-            print("  Mode: STATIC DEFAULTS (no rocm_ci_data.py)")
-        print("  Tip: set GITHUB_TOKEN to fetch live data instead.")
+        print("  Mode: SNAPSHOT (fetch_rocm_data.py not found alongside)")
     print("=" * 60)
 
     tmp = Path(tempfile.mkdtemp(prefix="rocm_bundle_"))
@@ -96,37 +110,24 @@ def main() -> None:
             print(f"\n  Using local InferenceMAX_rocm/ folder for inference data.")
 
         fetch_script = tmp / "fetch_rocm_data.py"
-        has_fetch = fetch_script.exists()
-        has_data  = (tmp / "rocm_ci_data.py").exists()
-        has_imax  = (tmp / "InferenceMAX_rocm").is_dir()
 
-        if token:
-            # ── Live path: fetch_rocm_data.py fetches from GitHub (with local
-            # InferenceMAX_rocm as fallback), then calls both generators itself.
-            if not has_fetch:
-                print("ERROR: fetch_rocm_data.py not found — cannot run in live mode.", file=sys.stderr)
-                sys.exit(1)
-            print("\nFetching live data from GitHub...")
+        run_live = has_fetch and not snapshot_only
+        if run_live:
+            # ── LIVE: fetch_rocm_data.py performs the clones, parses the YAMLs,
+            # writes a fresh rocm_ci_data.py + snapshots, and calls both
+            # generators itself. Snapshots are used automatically as fallback
+            # if any clone fails.
+            print("\nFetching live data via git clones...")
             subprocess.run(
                 [sys.executable, str(fetch_script)],
                 check=True,
                 cwd=str(tmp),
                 env={**os.environ},
             )
-        elif has_fetch and has_imax and not has_data:
-            # ── No token, no pre-built rocm_ci_data.py, but local InferenceMAX_rocm
-            # is present: run fetch_rocm_data.py without a token so it skips
-            # GitHub and falls back to the local clone for InferenceMAX data.
-            print("\n  No rocm_ci_data.py found — building from local InferenceMAX_rocm/ clone...")
-            subprocess.run(
-                [sys.executable, str(fetch_script)],
-                check=True,
-                cwd=str(tmp),
-                env={k: v for k, v in os.environ.items() if k != "GITHUB_TOKEN"},
-            )
         else:
-            # ── Snapshot/static path: rocm_ci_data.py already present (or no
-            # fetch script available) — run generators directly.
+            # ── SNAPSHOT-only: skip the fetcher entirely, run generators
+            # directly against the committed rocm_ci_data.py (or static
+            # defaults baked into the generators if rocm_ci_data.py is absent).
             print("\nGenerating HTML report...")
             subprocess.run(
                 [sys.executable, str(tmp / "generate_rocm_html.py")],

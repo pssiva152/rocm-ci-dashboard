@@ -1,415 +1,344 @@
 # ROCm CI/CD Comprehensive Report
 
-An automated documentation generator for AMD ROCm's CI/CD ecosystem. It produces an interactive HTML report and a 9-sheet Excel workbook that map every component, runner, framework, and inference benchmark across the entire TheRock + InferenceMAX pipeline.
+An automated documentation generator for AMD ROCm's CI/CD ecosystem. It produces an interactive HTML report and a 9-sheet Excel workbook that map every component, runner, framework, and inference benchmark across the entire **TheRock + InferenceMAX** pipeline.
+
+---
+
+## Why this project changed (Nov 2026)
+
+ROCm-org repos now **block classic GitHub Personal Access Tokens** — only fine-grained tokens are accepted, and those typically require admin approval. This project no longer relies on the GitHub API.
+
+Instead, it now uses **anonymous `git clone`** for the public repos and **SSH `git clone`** for the private one:
+
+| Repo | Visibility | Method | Auth needed |
+|---|---|---|---|
+| `ROCm/TheRock` | public | `git clone` (HTTPS, sparse) | none |
+| `ROCm/rocm-libraries` | public | `git clone` (HTTPS, metadata only) | none |
+| `ROCm/rocm-systems` | public | `git clone` (HTTPS, metadata only) | none |
+| `ROCm/InferenceMAX_rocm` | private | `git clone` (SSH, sparse) | SSH key registered with GitHub |
+
+If any clone fails (no network, git missing, SSH key not configured, repo unreachable), the fetcher transparently falls back to the **last good JSON snapshot** committed alongside the script.
 
 ---
 
 ## Requirements
 
-```bash
-pip install xlsxwriter        # required — Excel workbook generation
-pip install pyyaml            # required only if using create_snapshots.py with a local InferenceMAX_rocm clone
-```
-
-Python 3.11+ is required (`tomllib` is used for TOML parsing in `fetch_rocm_data.py`).
+| Requirement | Why |
+|---|---|
+| **Python 3.11+** | `tomllib` is part of the stdlib from 3.11 onwards — used to parse `BUILD_TOPOLOGY.toml` |
+| **`git`** on `PATH` | All live data fetching goes through `git clone` |
+| `pip install xlsxwriter` | Required for the Excel workbook |
+| `pip install pyyaml` *(optional)* | Only needed by `create_snapshots.py` if you build snapshots from a local `InferenceMAX_rocm/` clone |
+| **SSH key registered with GitHub** *(optional)* | Only needed for live `ROCm/InferenceMAX_rocm` data; without it the fetcher falls back to the local clone or the JSON snapshot |
 
 ---
 
-## Quick Start — `rocm_report_bundle.py`
-
-**`rocm_report_bundle.py` is the recommended entry point.** It is fully self-contained — all source files must exist alongside it in the same folder; no extra setup or GitHub token required.
+## Quick Start — `rocm_report_bundle.py` (recommended)
 
 ```bash
 pip install xlsxwriter
-python rocm_report_bundle.py
+python rocm_report_bundle.py              # LIVE (clones), falls back to snapshot
+python rocm_report_bundle.py --snapshot   # snapshot-only, skip all clones
 ```
 
-Produces two output files next to the script:
+Outputs (written next to the script):
+
 - `ROCm_CICD_Comprehensive.html` — interactive report
 - `ROCm_CICD_Comprehensive.xlsx` — 9-sheet Excel workbook
 
-> **Note:** `create_bundle.py` is a developer tool used only to _rebuild_ the bundle from source. Do not run it unless you are updating the source files.
+The bundle is just a thin entry point — it copies the source files into a temp folder and invokes either `fetch_rocm_data.py` (LIVE) or the two generators directly (SNAPSHOT). All real logic lives in the source files in this folder.
 
 ---
 
-## Data Modes
+## Two run modes
 
-The report can be generated in three modes depending on what data sources are available:
+### LIVE mode (default)
 
-### Mode 1 — Snapshot (no token, no internet required)
-
-Uses the pre-built `rocm_ci_data.py` committed alongside the scripts. This is the **fastest and most portable** mode — no internet access needed.
+Performs anonymous git clones of the public ROCm repos and a sparse SSH clone of `ROCm/InferenceMAX_rocm`, parses the YAML / Python / TOML configs from the working tree, regenerates `rocm_ci_data.py` and the JSON snapshots, and finally renders the HTML + Excel reports.
 
 ```bash
-pip install xlsxwriter
 python rocm_report_bundle.py
 ```
 
-Data comes from: `rocm_ci_data.py` (committed snapshot, see [Snapshot Files](#snapshot-files)).
-
----
-
-### Mode 2 — Live fetch from GitHub
-
-When `GITHUB_TOKEN` is set, `fetch_rocm_data.py` fetches fresh data from all four GitHub repos, regenerates `rocm_ci_data.py`, and then runs both generators.
-
-**Linux / macOS:**
-```bash
-export GITHUB_TOKEN=ghp_xxxxxxxxxxxxxxxxxxxx
-pip install xlsxwriter
-python rocm_report_bundle.py
-```
-
-**Windows PowerShell:**
-```powershell
-$env:GITHUB_TOKEN = "ghp_xxxxxxxxxxxxxxxxxxxx"
-pip install xlsxwriter
-python rocm_report_bundle.py
-```
-
-**Windows Command Prompt:**
-```cmd
-set GITHUB_TOKEN=ghp_xxxxxxxxxxxxxxxxxxxx
-pip install xlsxwriter
-python rocm_report_bundle.py
-```
-
-> **Token tip:** A classic GitHub Personal Access Token (PAT) with no scopes (read-only public access) is enough. Raises the GitHub API rate limit from 60 → 5000 requests/hour and enables access to private repos (`ROCm/InferenceMAX_rocm`). Generate one at: GitHub → Settings → Developer settings → Personal access tokens → Fine-grained tokens.
-
----
-
-### Mode 3 — Local InferenceMAX_rocm clone (no token needed for InferenceMAX data)
-
-If you have a local clone of `ROCm/InferenceMAX_rocm` placed at `InferenceMAX_rocm/` next to the scripts, the fetcher will parse its YAML config files directly — bypassing the GitHub API for InferenceMAX data entirely.
+Internally this calls `python fetch_rocm_data.py`. Run it directly if you want to see the fetcher logs in isolation:
 
 ```bash
-# Clone once (SSH — requires GitHub access):
-git clone git@github.com:ROCm/InferenceMAX_rocm.git
-
-pip install xlsxwriter pyyaml
-python rocm_report_bundle.py
+python fetch_rocm_data.py
 ```
 
-TheRock CI data (components, runners, GPU families) still comes from `rocm_ci_data.py` or GitHub depending on whether `GITHUB_TOKEN` is set.
+The fetcher uses `--depth=1 --filter=blob:none --sparse` clones, so each repo only downloads metadata + the handful of files we actually read. End-to-end the whole live run completes in **~60 seconds** on a normal connection.
+
+### SNAPSHOT mode
+
+Skips all network access and renders the report straight from the committed `rocm_ci_data.py` plus the two JSON snapshots.
+
+```bash
+python rocm_report_bundle.py --snapshot
+```
+
+Use this when:
+
+- You don't have `git` installed
+- You're offline
+- You want a fully reproducible build from a known commit
+- You just want to render the report quickly without any clones
 
 ---
 
-## How to Refresh Snapshots (`create_snapshots.py`)
+## Fallback behaviour (built-in resilience)
 
-Run this to rebuild all three snapshot files from the static data in the generator scripts and the local `InferenceMAX_rocm/` clone:
+```
+┌─ Public repos (TheRock / rocm-libraries / rocm-systems) ─────────────┐
+│  ① anonymous git clone (HTTPS, sparse, --depth=1)                    │
+│       ↓ fails (no git / no network / repo down) ↓                    │
+│  ② therock_ci_snapshot.json   ← committed to repo                    │
+└──────────────────────────────────────────────────────────────────────┘
+
+┌─ Private repo (InferenceMAX_rocm) ───────────────────────────────────┐
+│  ① local clone at  ./InferenceMAX_rocm/  or  ../InferenceMAX_rocm/   │
+│       ↓ not present ↓                                                │
+│  ② SSH clone via git@github.com:ROCm/InferenceMAX_rocm.git           │
+│       ↓ fails (no SSH key / no access) ↓                             │
+│  ③ inferencemax_snapshot.json   ← committed to repo                  │
+└──────────────────────────────────────────────────────────────────────┘
+```
+
+The fetcher prints exactly which path was used at every step, so you can always tell whether the report is built from live data or a cached snapshot.
+
+---
+
+## File layout & data flow
+
+```
+TheRock_CI-CD/
+├── generate_rocm_html.py        # HTML report generator — owns COMPONENTS, RUNNER_DATA
+├── generate_rocm_cicd.py        # Excel workbook generator — owns TIER_DATA, FW_DATA, WH_DATA
+├── fetch_rocm_data.py           # Live fetcher (sparse git clones); writes rocm_ci_data.py
+├── rocm_report_bundle.py        # Single entry point — LIVE or --snapshot
+├── create_snapshots.py          # Dev tool: rebuild snapshots from static defaults + local InferenceMAX clone
+├── create_bundle.py             # Dev tool: rebuild rocm_report_bundle.py from sources
+├── runner_health_parser.py      # Parses TheRock Runner Health.mhtml for live online/busy data
+│
+├── rocm_ci_data.py              # COMMITTED snapshot — full COMPONENTS / RUNNER_DATA / TIER_DATA / etc.
+├── therock_ci_snapshot.json     # COMMITTED snapshot — raw text of TheRock files (matrix, topology, …)
+├── inferencemax_snapshot.json   # COMMITTED snapshot — parsed InferenceMAX configs + runner pools
+├── TheRock Runner Health.mhtml  # Manual snapshot of the internal runner-health dashboard
+│
+├── InferenceMAX_rocm/           # OPTIONAL local clone (`git clone git@github.com:ROCm/InferenceMAX_rocm.git`)
+└── README.md
+```
+
+```
+                ┌─────────────────────────────────────────┐
+                │             Data Sources                │
+                │                                         │
+                │  ROCm/TheRock          (public, HTTPS)  │
+                │  ROCm/rocm-libraries   (public, HTTPS)  │
+                │  ROCm/rocm-systems     (public, HTTPS)  │
+                │  ROCm/InferenceMAX_rocm (private, SSH)  │
+                │                                         │
+                │  ── if clone fails: JSON snapshot ──    │
+                └────────────────────┬────────────────────┘
+                                     ▼
+                          fetch_rocm_data.py
+                                     │
+                                     ▼
+                            rocm_ci_data.py
+                                     │
+                       ┌─────────────┴─────────────┐
+                       ▼                           ▼
+            generate_rocm_html.py       generate_rocm_cicd.py
+                       │                           │
+                       ▼                           ▼
+            ROCm_CICD_                  ROCm_CICD_
+            Comprehensive.html          Comprehensive.xlsx
+```
+
+> **Canonical data rule**: `generate_rocm_html.py` owns `COMPONENTS` and `RUNNER_DATA`. `generate_rocm_cicd.py` re-uses them via `exec()` of the HTML script's data block. When `rocm_ci_data.py` is present in the working directory, both generators load all data from it instead of their hardcoded baseline.
+
+---
+
+## What the live fetcher actually clones
+
+### `ROCm/TheRock` — sparse clone of these 4 paths only
+
+| Path | Purpose |
+|---|---|
+| `build_tools/github_actions/amdgpu_family_matrix.py` | Runner labels per GPU family, `nightly_check_only_for_family` flags |
+| `BUILD_TOPOLOGY.toml` | Component → super-repo mapping (`rocm-libraries` / `rocm-systems` / TheRock direct) |
+| `.gitmodules` | Direct TheRock submodules (components tested inside TheRock) |
+| `.github/workflows/ci_nightly.yml` | Nightly cron schedule |
+
+Everything else in TheRock is filtered out via `--filter=blob:none`, so this clone weighs only a few hundred KB regardless of TheRock's actual size.
+
+### `ROCm/rocm-libraries` — directory listing only
+
+We only need the names of `projects/*` subdirectories. The fetcher uses `git ls-tree -d --name-only HEAD projects/` against a `--no-checkout` clone, so **no blobs** are downloaded at all.
+
+### `ROCm/rocm-systems` — directory listing only
+
+Same approach as `rocm-libraries`.
+
+### `ROCm/InferenceMAX_rocm` — sparse SSH clone of these 2 files
+
+| Path | Purpose |
+|---|---|
+| `.github/configs/amd-master.yaml` | All AMD inference benchmark configurations |
+| `.github/configs/runners.yaml` | AMD GPU runner pool definitions |
+
+---
+
+## Setting up SSH for InferenceMAX (one-time, optional)
+
+Skip this section if you're happy to rely on the JSON snapshot for InferenceMAX data.
+
+```bash
+# 1. Generate a key (if you don't already have one)
+ssh-keygen -t ed25519 -C "you@amd.com"
+
+# 2. Add the public key to GitHub: Settings → SSH and GPG keys → New SSH key
+cat ~/.ssh/id_ed25519.pub          # macOS / Linux
+type %USERPROFILE%\.ssh\id_ed25519.pub   # Windows cmd
+
+# 3. Verify the key works
+ssh -T git@github.com
+#  → "Hi <your-username>! You've successfully authenticated, ..."
+
+# 4. Confirm you have access to the private repo
+git ls-remote git@github.com:ROCm/InferenceMAX_rocm.git HEAD
+```
+
+If step 4 fails with "Repository not found", request access from the InferenceMAX maintainers.
+
+Once SSH is set up, every `python fetch_rocm_data.py` run will pick up the latest InferenceMAX configs automatically.
+
+> **Tip**: If you already have a local clone of `InferenceMAX_rocm/` next to this folder, the fetcher reads from that first (faster, offline-friendly). It pulls the file content from `origin/main` via `git show`, so even a stale or feature-branch checkout is fine.
+
+---
+
+## How to refresh snapshots (dev workflow)
+
+After a successful live run, the fetcher always writes the latest `rocm_ci_data.py`, `therock_ci_snapshot.json`, and `inferencemax_snapshot.json`. To update the committed snapshots:
+
+```bash
+python fetch_rocm_data.py
+git add rocm_ci_data.py therock_ci_snapshot.json inferencemax_snapshot.json
+git commit -m "chore: refresh CI / inference snapshots"
+git push
+```
+
+`create_snapshots.py` is an alternative path that builds snapshots from the **static defaults** baked into the generator scripts (no live fetch). Use it only when you want to commit a known-baseline snapshot independent of GitHub state:
 
 ```bash
 pip install xlsxwriter pyyaml
 python create_snapshots.py
 ```
 
-This writes:
-- `rocm_ci_data.py` — full data module with all components, runners, tiers, frameworks, and InferenceMAX benchmarks
-- `inferencemax_snapshot.json` — InferenceMAX benchmark configs + runner pools (timestamped)
-- `therock_ci_snapshot.json` — marker file (actual data is in `rocm_ci_data.py`)
-
-Then verify and commit:
-```bash
-# Verify both outputs are generated correctly (already done by create_snapshots.py):
-python generate_rocm_html.py
-python generate_rocm_cicd.py
-
-git add rocm_ci_data.py inferencemax_snapshot.json therock_ci_snapshot.json
-git commit -m "chore: refresh CI/inference snapshots"
-git push
-```
-
-> `create_snapshots.py` requires a local `InferenceMAX_rocm/` clone to parse InferenceMAX benchmark data. Without it, the script re-uses the existing `inferencemax_snapshot.json` if one is present. `pyyaml` is only needed when the local clone is present.
-
 ---
 
-## Complete Data Flow
+## Snapshot files reference
 
-```
-┌─────────────────────────────────────────────────────────┐
-│                    Data Sources                         │
-│                                                         │
-│  GitHub API (live)       Local clone / Snapshots        │
-│  ROCm/TheRock            InferenceMAX_rocm/             │
-│  ROCm/rocm-libraries     rocm_ci_data.py   ◄── (Mode 1) │
-│  ROCm/rocm-systems       inferencemax_snapshot.json     │
-│  ROCm/InferenceMAX_rocm                                 │
-└────────────────┬────────────────────────────────────────┘
-                 │
-                 ▼
-         fetch_rocm_data.py          ← Mode 2 / 3 (needs GITHUB_TOKEN or local clone)
-                 │
-                 ▼
-         rocm_ci_data.py             ← intermediate data module (generated)
-                 │
-         ┌───────┴───────┐
-         ▼               ▼
- generate_rocm_html.py   generate_rocm_cicd.py
-         │               │
-         ▼               ▼
-   ROCm_CICD_         ROCm_CICD_
- Comprehensive.html  Comprehensive.xlsx
-```
-
-**Key design rule:** `generate_rocm_html.py` is the **canonical data source** — all component tuples (`COMPONENTS`), runner configs (`RUNNER_DATA`), and color palettes live there. `generate_rocm_cicd.py` shares that data by executing the first ~890 lines of the HTML generator via Python's `exec()` at startup. When `rocm_ci_data.py` is present in the working directory, both generators load all data from it instead of their hardcoded baseline.
-
----
-
-## Snapshot Files
-
-Three files can be committed to GitHub so others can run the report without a token or local clone:
-
-| File | Contents | Critical? |
+| File | Contents | Loaded by |
 |---|---|---|
-| `rocm_ci_data.py` | **Everything** — COMPONENTS (73), RUNNER_DATA (23), TIER_DATA (5 tiers), FW_DATA (9 rows), WH_DATA (9 rows), INFERENCEMAX_DATA (37 benchmarks), INFERENCE_RUNNERS (19 AMD pools) | **Yes — commit this** |
-| `inferencemax_snapshot.json` | InferenceMAX benchmark configs + runner pools with timestamp | Secondary — used by `fetch_rocm_data.py` as fallback |
-| `therock_ci_snapshot.json` | Marker only — tells `fetch_rocm_data.py` a snapshot exists | Secondary — marker only |
+| `rocm_ci_data.py` | **All structured data** — COMPONENTS, RUNNER_DATA, TIER_DATA, FW_DATA, WH_DATA, INFERENCEMAX_DATA, INFERENCE_RUNNERS | `generate_rocm_html.py`, `generate_rocm_cicd.py` (auto-detected) |
+| `therock_ci_snapshot.json` | Raw text of `amdgpu_family_matrix.py`, `BUILD_TOPOLOGY.toml`, `.gitmodules`, `ci_nightly.yml` + project-name lists | `fetch_rocm_data.py` (fallback when public clones fail) |
+| `inferencemax_snapshot.json` | Parsed InferenceMAX benchmark configs + runner pools | `fetch_rocm_data.py` (fallback when InferenceMAX clone fails) |
 
-> `therock_ci_snapshot.json` contains very little data by design. All the actual CI data (components, runners, tiers, framework rows) lives in `rocm_ci_data.py`. The JSON files are only used by `fetch_rocm_data.py` as fallback caches — the generators (`generate_rocm_html.py`, `generate_rocm_cicd.py`) load directly from `rocm_ci_data.py`.
-
----
-
-## Project Structure
-
-```
-TheRock_CI-CD/
-├── generate_rocm_html.py    # HTML report generator — canonical data source (COMPONENTS, RUNNER_DATA)
-├── generate_rocm_cicd.py    # Excel workbook generator — shares data via exec(); owns TIER_DATA, FW_DATA, WH_DATA
-├── fetch_rocm_data.py       # Live data fetcher — pulls from 4 GitHub repos, writes rocm_ci_data.py
-├── create_snapshots.py      # Snapshot builder — produces rocm_ci_data.py + JSON snapshots from static data
-├── create_bundle.py         # Bundle packager — embeds source into rocm_report_bundle.py (developer tool)
-├── rocm_report_bundle.py    # Main entry point — self-contained runner (source files must be alongside it)
-├── rocm_ci_data.py          # COMMITTED — generated snapshot (all data; run create_snapshots.py to refresh)
-├── inferencemax_snapshot.json # COMMITTED — InferenceMAX benchmark cache (timestamped)
-├── therock_ci_snapshot.json # COMMITTED — marker only; actual data is in rocm_ci_data.py
-├── InferenceMAX_rocm/       # LOCAL ONLY — optional local clone of ROCm/InferenceMAX_rocm
-└── README.md
-```
+All three are committed to git so the report can be regenerated reproducibly with `python rocm_report_bundle.py --snapshot` even with no network access.
 
 ---
 
-## How Data Is Fetched
-
-### TheRock CI Data (`ROCm/TheRock`)
-
-GitHub repo: [https://github.com/ROCm/TheRock](https://github.com/ROCm/TheRock)
-
-| File | What it populates |
-|---|---|
-| [`amdgpu_family_matrix.py`](https://github.com/ROCm/TheRock/blob/main/amdgpu_family_matrix.py) | Runner labels per GPU family, GPU ISA strings (`gfx94X`, `gfx950`, etc.), `nightly_check_only` flags |
-| [`BUILD_TOPOLOGY.toml`](https://github.com/ROCm/TheRock/blob/main/BUILD_TOPOLOGY.toml) | Component → super-repo mapping (`rocm-libraries` / `rocm-systems` / TheRock direct) |
-| [`.gitmodules`](https://github.com/ROCm/TheRock/blob/main/.gitmodules) | Direct TheRock submodules (components tested inside TheRock vs. via sub-repos) |
-| [`.github/workflows/ci_nightly.yml`](https://github.com/ROCm/TheRock/blob/main/.github/workflows/ci_nightly.yml) | Nightly schedule time, GPU family test matrix |
-
-**Workflow files used for `TIER_DATA`:**
-
-| Workflow | Tier |
-|---|---|
-| [`ci.yml`](https://github.com/ROCm/TheRock/blob/main/.github/workflows/ci.yml) | Pre-commit (PR trigger, quick builds) |
-| [`ci_postsubmit.yml`](https://github.com/ROCm/TheRock/blob/main/.github/workflows/ci_postsubmit.yml) | Post-commit (submodule bump trigger) |
-| [`ci_nightly.yml`](https://github.com/ROCm/TheRock/blob/main/.github/workflows/ci_nightly.yml) | Nightly (cron `02:00 UTC`, all GPU families) |
-| [`ci_asan.yml`](https://github.com/ROCm/TheRock/blob/main/.github/workflows/ci_asan.yml) | ASAN sanitizer builds |
-| [`multi_arch_release.yml`](https://github.com/ROCm/TheRock/blob/main/.github/workflows/multi_arch_release.yml) | Release pipeline (`workflow_dispatch`) |
-
----
-
-### Library Components (`ROCm/rocm-libraries`)
-
-GitHub repo: [https://github.com/ROCm/rocm-libraries](https://github.com/ROCm/rocm-libraries)
-
-The `projects/` directory listing ([GitHub API](https://api.github.com/repos/ROCm/rocm-libraries/contents/projects)) is scanned — every subdirectory is treated as an active CI component (rocBLAS, hipBLAS, rocFFT, MIOpen, etc.).
-
----
-
-### System Components (`ROCm/rocm-systems`)
-
-GitHub repo: [https://github.com/ROCm/rocm-systems](https://github.com/ROCm/rocm-systems)
-
-The `projects/` directory listing ([GitHub API](https://api.github.com/repos/ROCm/rocm-systems/contents/projects)) is scanned — every subdirectory is treated as an active CI component (RCCL, rocminfo, ROCm-SMI, etc.).
-
----
-
-### InferenceMAX AMD Benchmark Data (`ROCm/InferenceMAX_rocm`)
-
-GitHub repo: [https://github.com/ROCm/InferenceMAX_rocm](https://github.com/ROCm/InferenceMAX_rocm) (private — requires token or local clone)
-
-**Data source priority (in order):**
-1. **GitHub API** — used when `GITHUB_TOKEN` is set
-2. **Local clone** at `InferenceMAX_rocm/` (relative to the project folder) or `../InferenceMAX_rocm/`
-3. **Existing `inferencemax_snapshot.json`** — used when neither API nor local clone is available
-4. **Skip gracefully** with a warning if none of the above exist
-
-| File | What it populates |
-|---|---|
-| [`.github/configs/amd-master.yaml`](https://github.com/ROCm/InferenceMAX_rocm/blob/main/.github/configs/amd-master.yaml) | All AMD inference benchmark configurations — model, precision, GPU runner, framework, multi-node flag, ISL/OSL |
-| [`.github/configs/runners.yaml`](https://github.com/ROCm/InferenceMAX_rocm/blob/main/.github/configs/runners.yaml) | AMD GPU runner pool definitions — maps logical names (`mi300x`, `mi325x`, `mi355x`) to physical node labels |
-
-**YAML format** — `amd-master.yaml` is a flat dictionary where each top-level key is a named benchmark config:
-
-```yaml
-glm5-fp8-mi355x-atom:            # config name
-  model: zai-org/GLM-5-FP8       # HuggingFace model path
-  model-prefix: glm5             # short display name
-  runner: mi355x                 # target GPU (mi300x / mi325x / mi355x)
-  precision: fp8                 # quantization (fp8 / bf16 / int4)
-  framework: atom                # inference engine (atom / sglang / vllm / sglang-disagg)
-  multinode: false               # true = spans multiple nodes
-  image: rocm/atom:latest        # pinned Docker image
-```
-
-> InferenceMAX_rocm is AMD's fork of [SemiAnalysis/InferenceX](https://github.com/SemiAnalysisAI/InferenceX), adapted for MI300X/MI325X/MI355X hardware.
-
----
-
-## Output Files
+## Output files
 
 | File | Description |
 |---|---|
-| `ROCm_CICD_Comprehensive.html` | Interactive HTML report with filtering, search, and smooth-scroll navigation |
+| `ROCm_CICD_Comprehensive.html` | Interactive HTML — filtering, search, smooth-scroll nav, live runner-health badges |
 | `ROCm_CICD_Comprehensive.xlsx` | 9-sheet Excel workbook with AMD "Internal Only" MIP sensitivity label |
-| `rocm_ci_data.py` | Generated data module — commit this for offline use; delete to revert generators to static baseline |
-| `inferencemax_snapshot.json` | Generated InferenceMAX cache — commit alongside `rocm_ci_data.py` |
-| `therock_ci_snapshot.json` | Generated marker file — commit alongside `rocm_ci_data.py` |
 
 ---
 
-## Excel Workbook Sheets
+## Excel workbook sheets
 
-| # | Sheet Name | Color Theme | Data Source |
-|---|---|---|---|
-| 1 | Component CI Matrix | Blue/Green/Orange per tier | `COMPONENTS` — `generate_rocm_html.py` |
-| 2 | CI Tiers | Alternating pastels | `TIER_DATA` — `generate_rocm_cicd.py` |
-| 3 | Framework Detail | Blue (PyTorch) / Green (JAX) | `FW_DATA` — `generate_rocm_cicd.py` |
-| 4 | Runner Inventory | Blue (Linux) / Green (Windows) / Yellow (Build) | `RUNNER_DATA` — `generate_rocm_html.py` |
-| 5 | Wheel Artifact Publishing | Blue (PyTorch) / Green (JAX) | `WH_DATA` — `generate_rocm_cicd.py` |
-| 6 | InferenceMAX — AMD Benchmarks | Red (`#CC0000`) | [`amd-master.yaml`](https://github.com/ROCm/InferenceMAX_rocm/blob/main/.github/configs/amd-master.yaml) |
-| 7 | Inference Runners | Brown (`#4E342E`) | [`runners.yaml`](https://github.com/ROCm/InferenceMAX_rocm/blob/main/.github/configs/runners.yaml) |
-| 8 | InferenceMAX Workflows | Purple-tinted rows | `.github/workflows/` in `ROCm/InferenceMAX_rocm` — 11 workflow files |
-| 9 | Data Sources | Grey (`#78909C`) | Hardcoded — links to all source repos and files |
-
-Sheets 6–7 are populated from `rocm_ci_data.py` (or live fetch). Sheet 8 (Workflows) is always written since its data is hardcoded in `generate_rocm_cicd.py`. Sheet 9 (Data Sources) is always written.
-
-The workbook is automatically injected with AMD's **"Internal Only"** Microsoft Information Protection (MIP) sensitivity label at write time — no manual labelling needed.
-
----
-
-## HTML Report Sections
-
-### CI Tier Overview (`#tiers`)
-Curated from TheRock workflow files — trigger, schedule, GPU families (Linux + Windows), test type, Python versions, distro.
-
-### Component CI Matrix (`#components`)
-73 components across Libraries, Tools, Compilers, Runtime, Frameworks, and Sysdeps categories. Each row covers pre-commit / post-commit / nightly coverage per GPU family, runner labels, and test type.
-
-### Framework Detail (`#frameworks`)
-**PyTorch** (5 versions: 2.8, 2.9, 2.10, 2.11, nightly) — from [`ROCm/pytorch`](https://github.com/ROCm/pytorch) release branches.  
-**JAX** (4 versions: 0.8.0, 0.8.2, 0.9.0, 0.9.1) — from [`ROCm/rocm-jax`](https://github.com/ROCm/rocm-jax) version branches.
-
-### Framework Runner & Server Count Details (`#framework-runners`)
-Shows VM/physical machine counts broken down by framework and CI pool (PyTorch build, GPU test, JAX build+test, grand total).
-
-### Wheel Artifact Publishing (`#wheels`)
-Which framework+version combinations publish PyPI-ready wheels, which GPU families are included vs. build-only, and smoke test runner.
-
-### Runner Inventory (`#runners`)
-**Source:** `RUNNER_DATA` in `generate_rocm_html.py` — 23 runners covering OSSCI, On-Prem, and GitHub-hosted locations, sorted by location.
-
-Summary table: runner count by location (OSSCI / On-Prem / GitHub-hosted) with Linux/Windows breakdown.
-
-Detailed table: label, platform, OS/distro, location, physical machine count, GPU family, ISA, GPU count, CI tiers using it, notes.
-
-| Runner Label | GPU | Pool Size | Used At |
-|---|---|---|---|
-| `linux-gfx942-1gpu-ossci-rocm` | MI300X/MI325X | 84 nodes | PR · postsubmit · nightly |
-| `linux-gfx942-8gpu-ossci-rocm` | MI300X/MI325X | 4 nodes | Nightly distributed / RCCL |
-| `linux-mi355-1gpu-ossci-rocm` | MI355X | 3 nodes | Postsubmit · nightly |
-| `windows-gfx1151-gpu-rocm` | Strix Halo | 11 nodes | PR (build) · nightly (test) |
-| `azure-linux-scale-rocm` | Build-only (VMs) | ~113 VMs | All tiers (compile jobs) |
-| `nova-linux-slurm-scale-runner` | MI355X multi-node | 1 node | RCCL multi-node (Slurm) |
-
-### InferenceMAX AMD Benchmarks (`#inferencemax`)
-37 benchmark configurations from `amd-master.yaml`. Columns: Config Name, Model, Model Prefix, GPU Runner, Precision, Framework, Multi-Node, Pinned Docker Image.
-
-### Inference Runner Inventory (`#inference-runners`)
-19 AMD GPU runner pools from `runners.yaml`. Maps logical GPU type names to physical node labels.
-
----
-
-## GPU Family Reference
-
-| ISA | Hardware | CI Coverage |
+| # | Sheet | Source |
 |---|---|---|
-| `gfx942` / `gfx94X` | MI300X, MI325X | PR + postsubmit + nightly (primary) |
-| `gfx950` | MI355X | Postsubmit + nightly |
-| `gfx90a` | MI200 | Nightly only (AUS datacenter) |
-| `gfx103X` | RX 6000 (RDNA2) | Nightly only |
-| `gfx110X` | Navi3 / RX 7900 | Nightly only (`nightly_check_only`) |
-| `gfx1150` | Strix Point APU | Nightly only |
-| `gfx1151` | Strix Halo | PR (build) + nightly (test) |
-| `gfx1153` | Krackan Point APU | Nightly (disabled since Feb 2026 — CK instability) |
-| `gfx120X` | Navi4 / RX 9070 | Nightly only (`nightly_check_only`) |
+| 1 | Component CI Matrix | `COMPONENTS` (in `generate_rocm_html.py`) |
+| 2 | CI Tiers | `TIER_DATA` (in `generate_rocm_cicd.py`) |
+| 3 | Framework Detail | `FW_DATA` (in `generate_rocm_cicd.py`) |
+| 4 | Runner Inventory | `RUNNER_DATA` (in `generate_rocm_html.py`) |
+| 5 | Wheel Artifact Publishing | `WH_DATA` (in `generate_rocm_cicd.py`) |
+| 6 | InferenceMAX — AMD Benchmarks | `amd-master.yaml` |
+| 7 | Inference Runners | `runners.yaml` |
+| 8 | InferenceMAX Workflows | hardcoded in `generate_rocm_cicd.py` |
+| 9 | Data Sources | hardcoded — links to source repos |
 
-Families without hardware runners (build-only, no GPU test): `gfx900`, `gfx906`, `gfx908`, `gfx101X`.
-
----
-
-## Adding or Updating Components
-
-When a new component is added to `ROCm/rocm-libraries`, `ROCm/rocm-systems`, or TheRock:
-
-1. **Run `fetch_rocm_data.py`** — auto-discovers new directories in `projects/` and adds baseline entries to `COMPONENTS`
-2. **Check the output** — new components appear with `CI Enabled: Partial` and empty GPU family / runner columns
-3. **Refine in `generate_rocm_html.py`** — add accurate GPU family strings, runner labels, and test type info to the `COMPONENTS` tuple for that component
-
-## Adding New InferenceMAX Benchmarks
-
-InferenceMAX configs are driven entirely by `amd-master.yaml` in `ROCm/InferenceMAX_rocm`. When a new config is added:
-
-1. Pull latest changes to the local `InferenceMAX_rocm/` clone (or ensure `GITHUB_TOKEN` is set)
-2. Run `python create_snapshots.py` to refresh `rocm_ci_data.py` and `inferencemax_snapshot.json`
-3. The new config appears in Excel Sheet 6 and HTML `#inferencemax` automatically
-
-No changes to the generator scripts are needed.
+The workbook is automatically labelled with AMD's **"Internal Only"** Microsoft Information Protection (MIP) sensitivity label at write time.
 
 ---
 
-## Key Repositories
+## HTML report sections (top-nav)
 
-| Repo | Link | Role |
-|---|---|---|
-| `ROCm/TheRock` | [github.com/ROCm/TheRock](https://github.com/ROCm/TheRock) | Super-repo — CI orchestration, GPU family matrix, submodule coordination |
-| `ROCm/rocm-libraries` | [github.com/ROCm/rocm-libraries](https://github.com/ROCm/rocm-libraries) | Super-repo for all ROCm math/communication/ML libraries |
-| `ROCm/rocm-systems` | [github.com/ROCm/rocm-systems](https://github.com/ROCm/rocm-systems) | Super-repo for ROCm system tools (RCCL, rocminfo, ROCm-SMI, etc.) |
-| `ROCm/InferenceMAX_rocm` | [github.com/ROCm/InferenceMAX_rocm](https://github.com/ROCm/InferenceMAX_rocm) | AMD fork of SemiAnalysis InferenceX — AMD GPU inference benchmarking CI |
-| `ROCm/pytorch` | [github.com/ROCm/pytorch](https://github.com/ROCm/pytorch) | AMD's PyTorch fork — 5 release branches tested in CI |
-| `ROCm/rocm-jax` | [github.com/ROCm/rocm-jax](https://github.com/ROCm/rocm-jax) | AMD's JAX fork — 4 release branches tested in CI |
-
----
-
-## Environment Variables
-
-| Variable | Effect |
+| Anchor | Section |
 |---|---|
-| `GITHUB_TOKEN` | GitHub PAT — raises API rate limit 60 → 5000 req/hr, enables private repo access. No scopes needed (read-only public access is sufficient for public repos; a repo-scoped token is needed for `ROCm/InferenceMAX_rocm`). |
+| `#overview` | High-level summary cards |
+| `#tiers` | CI Tier Overview (5 tiers × Linux/Windows family rules) |
+| `#components` | Component CI Matrix (75 components, filterable) |
+| `#frameworks` | Framework Detail (PyTorch / JAX builds) |
+| `#wheels` | Wheel Artifact Publishing |
+| `#server-counts` | Consolidated server counts (Component / Framework / Inference) |
+| `#runners` | Runner Inventory with live online/busy/offline data |
+| `#inferencemax` | InferenceMAX AMD benchmarks |
+| `#inference-runner-inventory` | InferenceMAX runner pools |
+| `#data-sources` | "How Data Is Fetched" |
+| `#appendix-gfx` | AMD GFX ISA → ASIC full lookup table |
 
-**Setting `GITHUB_TOKEN`:**
+---
 
-Linux / macOS:
-```bash
-export GITHUB_TOKEN=ghp_xxxxxxxxxxxxxxxxxxxx
-```
+## Adding or updating components
 
-Windows PowerShell (session):
-```powershell
-$env:GITHUB_TOKEN = "ghp_xxxxxxxxxxxxxxxxxxxx"
-```
+When a new component appears in `ROCm/rocm-libraries`, `ROCm/rocm-systems`, or TheRock:
 
-Windows PowerShell (persist across sessions):
-```powershell
-[System.Environment]::SetEnvironmentVariable("GITHUB_TOKEN", "ghp_xxxxxxxxxxxxxxxxxxxx", "User")
-```
+1. Run `python fetch_rocm_data.py` — auto-discovers new directories under `projects/` and adds baseline entries to `COMPONENTS`.
+2. New components show up with `CI Enabled: Partial` and empty GPU family / runner columns.
+3. Open `generate_rocm_html.py` and refine the new tuple in `COMPONENTS` with accurate GPU family strings, runner labels, and test-type info.
+4. Re-run `python rocm_report_bundle.py` to verify.
 
-Windows Command Prompt:
-```cmd
-set GITHUB_TOKEN=ghp_xxxxxxxxxxxxxxxxxxxx
-```
+## Adding new InferenceMAX benchmarks
+
+Driven entirely by `amd-master.yaml` in `ROCm/InferenceMAX_rocm`. When a new config is added upstream:
+
+1. Either pull latest in your local `InferenceMAX_rocm/` clone, or rely on the SSH clone path.
+2. Run `python fetch_rocm_data.py` — the new config automatically appears in Excel sheet 6 and HTML `#inferencemax`.
+
+No generator changes needed.
+
+---
+
+## Key repositories
+
+| Repo | Role |
+|---|---|
+| [`ROCm/TheRock`](https://github.com/ROCm/TheRock) | Super-repo — CI orchestration, GPU family matrix, submodule coordination |
+| [`ROCm/rocm-libraries`](https://github.com/ROCm/rocm-libraries) | Math/communication/ML libraries |
+| [`ROCm/rocm-systems`](https://github.com/ROCm/rocm-systems) | System tools (RCCL, rocminfo, ROCm-SMI, etc.) |
+| [`ROCm/InferenceMAX_rocm`](https://github.com/ROCm/InferenceMAX_rocm) | AMD fork of SemiAnalysis InferenceX — AMD GPU inference benchmarking |
+| [`ROCm/pytorch`](https://github.com/ROCm/pytorch) | AMD's PyTorch fork — release branches tested in CI |
+| [`ROCm/rocm-jax`](https://github.com/ROCm/rocm-jax) | AMD's JAX fork — release branches tested in CI |
+
+---
+
+## Troubleshooting
+
+**`fatal: unable to access ... Could not resolve host`**
+No network or DNS issue. The fetcher will fall back to `therock_ci_snapshot.json` automatically — the HTML and Excel will still be generated.
+
+**`Permission denied (publickey)` on the InferenceMAX clone**
+Your SSH key isn't registered with GitHub or doesn't have access to the private repo. The fetcher falls back to `inferencemax_snapshot.json`. To enable live data, follow the [SSH setup section](#setting-up-ssh-for-inferencemax-one-time-optional) above.
+
+**`git: command not found` / `'git' is not recognized`**
+Install Git from [git-scm.com/downloads](https://git-scm.com/downloads). The fetcher will skip all clones and use snapshots until git is installed.
+
+**Stale data in the report**
+Either snapshots are out of date (run `python fetch_rocm_data.py` and commit the regenerated files), or you ran in `--snapshot` mode. Run without `--snapshot` to refresh.
+
+**Windows: long-path errors during clone**
+The fetcher already passes `-c core.longpaths=true` to every git command. If you still see issues, enable the Windows long-path policy: `git config --global core.longpaths true`.

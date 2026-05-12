@@ -38,10 +38,10 @@ inferencemax_snapshot.json
   Parsed from local InferenceMAX_rocm/ clone (preferred), or re-stamps the
   existing snapshot if no clone is found.
 
-If you want everything fetched live from GitHub instead, run:
-    export GITHUB_TOKEN=ghp_...
+If you want everything fetched live from GitHub instead (anonymous git clones
+for the public repos, SSH clone for the private InferenceMAX_rocm), run:
     python fetch_rocm_data.py
-That regenerates all three files automatically.
+That regenerates all three files automatically. No GITHUB_TOKEN is required.
 """
 
 import datetime
@@ -333,7 +333,8 @@ def write_therock_snapshot(ts: str) -> Path:
     snap = {
         "timestamp": ts,
         "_note": "Data sourced from static generate_rocm_html.py defaults via create_snapshots.py. "
-                 "Run fetch_rocm_data.py with GITHUB_TOKEN for live data.",
+                 "Run fetch_rocm_data.py for live data (anonymous git clones for public repos; "
+                 "SSH clone for private InferenceMAX_rocm).",
         "matrix_src": "",
         "topology_src": "",
         "gitmodules_src": "",

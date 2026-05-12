@@ -79,8 +79,12 @@ python fetch_rocm_data.py
 - Sheet 7: `InferenceX — NVIDIA Benchmarks` (teal headers, `#006064`)
 - Sheet 8: `Inference Runners` (brown headers, `#4E342E`) — AMD + NVIDIA runner pool inventory
 
-Benchmark config tuple schema (12 fields):
-`(name, model, model_prefix, runner, precision, framework, multinode, disagg, isl, osl, max_tp, spec_decoding)`
+Benchmark config tuple schema (8 fields, sourced from `amd-master.yaml`):
+`(name, model, model_prefix, runner, precision, framework, multinode, image)`
+
+The `image` field is the pinned Docker tag (e.g. `rocm/atom-dev:nightly_202603291522`). Earlier
+docs listed `disagg`/`isl`/`osl`/`max_tp`/`spec_decoding` fields — those keys are not present
+in the current upstream YAML and are not in the snapshot.
 
 ## Key Conventions
 

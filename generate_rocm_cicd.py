@@ -76,21 +76,24 @@ sub_bg_map = {
 # ─── Runner & Tier/Framework data (same as v1 xlsx) ──────────────────────────
 RUNNER_DATA = [
     ("linux-gfx942-1gpu-ossci-rocm",     "Linux",   "Ubuntu 22.04 LTS",  "OSSCI",          "84 (vth9c-*: 83 online + 1 offline)",         "MI300X / MI325X",          "gfx942 / gfx94X",  "1", "PR · postsubmit · nightly",               "Primary Linux GPU runner; largest pool"),
-    ("linux-gfx942-1gpu-ccs-ossci-rocm", "Linux",   "Ubuntu 22.04 LTS",  "OSSCI",          "0 (label not present in fleet)",              "MI300X / MI325X",          "gfx942 / gfx94X",  "1", "PR · postsubmit · nightly",               "Label not assigned to any runner in current fleet; effectively retired"),
-    ("linux-gfx942-8gpu-ossci-rocm",     "Linux",   "Ubuntu 22.04 LTS",  "OSSCI",          "4 (8g2wk-* pool)",                            "MI300X / MI325X",          "gfx942 / gfx94X",  "8", "Nightly · distributed tests · benchmarks", "PyTorch distributed (3 shards); RCCL multi-GPU"),
-    ("linux-mi355-1gpu-ossci-rocm",      "Linux",   "Ubuntu 22.04 LTS",  "OSSCI",          "3 (j5v9z-* pool)",                            "MI355X",                   "gfx950",            "1", "Postsubmit · nightly",                    "gfx950 not tested at PR"),
-    ("linux-gfx90a-gpu-rocm",            "Linux",   "Ubuntu 22.04 LTS",  "On-Prem (AUS)",  "12 GPU slots (3 nodes x 4 GPUs — smci250-ccs)","MI200",                   "gfx90a",            "1", "Nightly only",                            "Supermicro nodes in Australia datacenter"),
-    ("linux-gfx1030-gpu-rocm",           "Linux",   "Ubuntu 22.04 LTS",  "On-Prem",        "2 (linux-rx6950-gpu-rocm-1/2)",               "RX 6000 (RDNA2)",          "gfx1030 / gfx103X", "1", "Nightly only",                            "Consumer GPU (RX 6950 XT)"),
-    ("linux-gfx110X-gpu-rocm",           "Linux",   "Ubuntu 22.04 LTS",  "On-Prem",        "6 (gfx110X-gpu-rocm-1/2/3/4 + labctr-gfx1103 + labxsj-gfx1103)", "Navi3 / RX 7900",          "gfx1100/1101",      "1", "Nightly only",                            "nightly_check_only_for_family=True"),
-    ("linux-gfx1150-gpu-rocm",           "Linux",   "Ubuntu 22.04 LTS",  "On-Prem",        "1-2 (linux-strix-gpu-rocm-2 + labblr)",       "Strix Point",              "gfx1150",           "1", "Nightly only",                            "APU — Strix Point"),
-    ("linux-gfx1151-gpu-rocm",           "Linux",   "Ubuntu 22.04 LTS",  "On-Prem",        "4 (strix-halo-6/7 + shark-strixhalo-17/18; strix-halo-3 lacks gfx1151 label)", "Strix Halo",               "gfx1151",           "1", "Nightly only",                            "nightly_check_only; OEM pool also exists; strix-halo-3 offline and mis-labelled"),
-    ("linux-strix-halo-gpu-rocm-oem",    "Linux",   "Ubuntu 22.04 LTS",  "On-Prem",        "4 (shark-strixhalo-17/18 + strix-halo-6/7)",  "Strix Halo (OEM)",         "gfx1151",           "1", "Nightly only",                            "OEM kernel variant"),
-    ("linux-gfx1153-gpu-rocm",           "Linux",   "Ubuntu 22.04 LTS",  "On-Prem",        "3 (labxsj-linux-u2404-gfx1153-*)",            "Krackan Point (Radeon 820M)","gfx1153",         "1", "Nightly only",                            "APU — Krackan Point; disabled since 7.12.0a20260214 (CK instability)"),
-    ("linux-gfx120X-gpu-rocm",           "Linux",   "Ubuntu 22.04 LTS",  "On-Prem",        "4 (rx9070-1/3/4 + rx9700-1; rx9070-2 lacks gfx120X label)", "Navi4 / RX 9070",          "gfx1200/1201",      "1", "Nightly only",                            "Consumer GPU; nightly_check_only; rx9070-2 mis-labelled"),
-    ("windows-gfx1151-gpu-rocm",         "Windows", "Windows 11",         "On-Prem",        "11 (strix-halo-1/4/6/8/10-16; -7 DO-NOT-ENABLE)", "Strix Halo",               "gfx1151",           "1", "PR · postsubmit · nightly",               "Primary Windows GPU runner; strix-halo-7 excluded (DO-NOT-ENABLE)"),
-    ("windows-gfx110X-gpu-rocm",         "Windows", "Windows 11",         "On-Prem",        "23 (22 online + 1 offline; azure-windows-11-gfx1101-*)", "Navi3 / RX 7900",          "gfx1100/1101",      "1", "Nightly only",                            "nightly_check_only"),
-    ("windows-gfx1030-gpu-rocm",         "Windows", "Windows 11",         "On-Prem",        "2 (azure-windows-11-gfx1030-00/01)",          "RX 6000 (RDNA2)",          "gfx1030",           "1", "Nightly only",                            ""),
-    ("windows-gfx120X-gpu-rocm",         "Windows", "Windows 11",         "On-Prem",        "0 (label doesn't exist; runners use windows-gfx1201-gpu-rocm)", "Navi4 / RX 9070",          "gfx1200/1201",      "1", "Nightly only",                            "Label windows-gfx120X-gpu-rocm not present in fleet; actual label is windows-gfx1201-gpu-rocm"),
+    ("linux-gfx942-1gpu-ccs-ossci-rocm", "Linux",   "Ubuntu 22.04 LTS",  "OSSCI",          "4 (cirrascale)",                              "MI300X / MI325X",          "gfx942 / gfx94X",  "1", "PR · postsubmit · nightly",               "Pre-commit alternate pool, weighted random (0.14); 1-GPU split: 17N vultr + 4N ccs + 8N core42"),
+    ("linux-gfx942-1gpu-core42-ossci-rocm","Linux", "Ubuntu 22.04 LTS",  "OSSCI",          "8 (core42)",                                  "MI300X / MI325X",          "gfx942 / gfx94X",  "1", "PR · postsubmit · nightly",               "Added in PR #4718 (2026-04-22); pre-commit alternate pool, weight 0.27"),
+    ("linux-gfx942-8gpu-ossci-rocm",     "Linux",   "Ubuntu 22.04 LTS",  "OSSCI",          "11 (cirrascale)",                             "MI300X / MI325X",          "gfx942 / gfx94X",  "8", "Nightly · distributed tests · benchmarks", "PyTorch distributed (3 shards); RCCL multi-GPU; 8-GPU split: 11N ccs (0.61) + 7N core42"),
+    ("linux-gfx942-8gpu-core42-ossci-rocm","Linux","Ubuntu 22.04 LTS",  "OSSCI",          "7 (core42)",                                  "MI300X / MI325X",          "gfx942 / gfx94X",  "8", "Nightly · distributed tests · benchmarks", "Added in PR #4718 (2026-04-22); 8-GPU pool alternate (weight 0.39)"),
+    ("linux-gfx950-1gpu-ccs-ossci-rocm", "Linux",   "Ubuntu 22.04 LTS",  "OSSCI",          "3 (j5v9z-* pool)",                            "MI355X",                   "gfx950",            "1", "Postsubmit · nightly",                    "gfx950 single-GPU (CCS host); replaced linux-mi355-1gpu-ossci-rocm in PR #4784 (2026-04-28)"),
+    ("linux-gfx950-8gpu-ccs-ossci-rocm", "Linux",   "Ubuntu 22.04 LTS",  "OSSCI",          "1 (initial onboarding)",                      "MI355X",                   "gfx950",            "8", "Postsubmit · nightly (multi-GPU)",        "Added in PR #4784 (2026-04-28); MI355 8-GPU lane for multi-GPU postsubmit/nightly"),
+    ("linux-gfx90a-gpu-rocm",            "Linux",   "Ubuntu 22.04 LTS",  "On-Prem (AUS)",  "12 GPU slots (3 nodes x 4 GPUs — smci250-ccs)","MI200",                   "gfx90a",            "1", "PR (Build) · postsubmit (Build) · nightly (Build + Test)", "Supermicro nodes in Australia datacenter; nightly_check_only_for_family"),
+    ("linux-gfx1030-gpu-rocm",           "Linux",   "Ubuntu 22.04 LTS",  "On-Prem",        "2 (linux-rx6950-gpu-rocm-1/2)",               "RX 6000 (RDNA2)",          "gfx1030 / gfx103X", "1", "PR (Build) · postsubmit (Build) · nightly (Build + Test)", "Consumer GPU (RX 6950 XT); nightly_check_only_for_family"),
+    ("linux-gfx110X-gpu-rocm",           "Linux",   "Ubuntu 22.04 LTS",  "On-Prem",        "6 (gfx110X-gpu-rocm-1/2/3/4 + labctr-gfx1103 + labxsj-gfx1103)", "Navi3 / RX 7900",          "gfx1100/1101",      "1", "PR (Build) · postsubmit (Build) · nightly (Build + Test)", "nightly_check_only_for_family=True"),
+    ("linux-gfx1150-gpu-rocm",           "Linux",   "Ubuntu 22.04 LTS",  "On-Prem",        "1-2 (linux-strix-gpu-rocm-2 + labblr)",       "Strix Point",              "gfx1150",           "1", "PR (Build) · postsubmit (Build) · nightly (Build + Test)", "APU — Strix Point; nightly_check_only_for_family"),
+    ("linux-gfx1151-gpu-rocm",           "Linux",   "Ubuntu 22.04 LTS",  "On-Prem",        "4 (strix-halo-6/7 + shark-strixhalo-17/18; strix-halo-3 lacks gfx1151 label)", "Strix Halo",               "gfx1151",           "1", "PR (Build) · postsubmit (Build) · nightly (Build + Test)", "nightly_check_only_for_family on Linux; OEM pool also exists; strix-halo-3 offline and mis-labelled"),
+    ("linux-strix-halo-gpu-rocm-oem",    "Linux",   "Ubuntu 22.04 LTS",  "On-Prem",        "4 (shark-strixhalo-17/18 + strix-halo-6/7)",  "Strix Halo (OEM)",         "gfx1151",           "1", "PR (Build) · postsubmit (Build) · nightly (Build + Test on test_runner:oem PR label)", "OEM kernel variant of gfx1151 lane; selected via test_runner:oem PR label"),
+    ("linux-gfx1153-gpu-rocm",           "Linux",   "Ubuntu 22.04 LTS",  "On-Prem",        "3 (labxsj-linux-u2404-gfx1153-*)",            "Krackan Point (Radeon 820M)","gfx1153",         "1", "PR (Build) · postsubmit (Build) · nightly (Build + Test)", "APU — Krackan Point; nightly_check_only_for_family; disabled since 7.12.0a20260214 (CK instability)"),
+    ("linux-gfx120X-gpu-rocm",           "Linux",   "Ubuntu 22.04 LTS",  "On-Prem",        "4 (rx9070-1/3/4 + rx9700-1; rx9070-2 lacks gfx120X label)", "Navi4 / RX 9070",          "gfx1200/1201",      "1", "PR (Build) · postsubmit (Build) · nightly (Build + Test)", "Consumer GPU; nightly_check_only_for_family; rx9070-2 mis-labelled"),
+    ("windows-gfx1151-gpu-rocm",         "Windows", "Windows 11",         "On-Prem",        "11 (strix-halo-1/4/6/8/10-16; -7 DO-NOT-ENABLE)", "Strix Halo",               "gfx1151",           "1", "PR (Build) · postsubmit (Build) · nightly (Build + Test)", "Primary Windows GPU runner; nightly_check_only_for_family on Windows too; strix-halo-7 excluded (DO-NOT-ENABLE)"),
+    ("windows-gfx110X-gpu-rocm",         "Windows", "Windows 11",         "On-Prem",        "23 (22 online + 1 offline; azure-windows-11-gfx1101-*)", "Navi3 / RX 7900",          "gfx1100/1101",      "1", "PR · postsubmit · nightly",               "Tests at all 3 tiers; Windows gfx110X cfg has NO nightly_check_only_for_family flag (unlike Linux side)"),
+    ("windows-gfx1030-gpu-rocm",         "Windows", "Windows 11",         "On-Prem",        "2 (azure-windows-11-gfx1030-00/01)",          "RX 6000 (RDNA2)",          "gfx1030",           "1", "PR (Build) · postsubmit (Build) · nightly (Build + Test)", "nightly_check_only_for_family"),
+    ("windows-gfx120X-gpu-rocm",         "Windows", "Windows 11",         "On-Prem",        "0 (label doesn't exist; runners use windows-gfx1201-gpu-rocm)", "Navi4 / RX 9070",          "gfx1200/1201",      "1", "PR (Build) · postsubmit (Build) · nightly (Build + Test)", "nightly_check_only_for_family; label windows-gfx120X-gpu-rocm not present in fleet; actual label is windows-gfx1201-gpu-rocm"),
     ("azure-linux-scale-rocm",           "Linux",   "Ubuntu 22.04 LTS",  "OSSCI",          "~113 (112 ccqkb-* online + 1 heavy runner)",  "None (build only)",        "—",                 "—", "All tiers (build jobs)",                  "Elastic Azure build pool; no GPU"),
     ("azure-windows-scale-rocm",         "Windows", "Windows Server 2022","OSSCI",          "69 (ckv2f-*: 67 online + 2 offline)",         "None (build only)",        "—",                 "—", "All tiers (build jobs)",                  "Elastic Windows build pool; no GPU"),
     ("nova-linux-slurm-scale-runner",    "Linux",   "Ubuntu 22.04 LTS",  "On-Prem",        "1 (currently offline)",                       "MI355X multi-node",        "gfx950",            "N", "RCCL only (multi-node Slurm)",            "RCCL CI in rocm-systems; Slurm job scheduler; 1 runner offline as of Apr 20 snapshot"),
@@ -102,48 +105,54 @@ RUNNER_DATA = [
 
 TIER_DATA = [
     ("Pre-commit (PR)",
-     "pull_request: opened / synchronized / labeled", "On every PR",
+     "ci.yml\npull_request: opened / synchronized / labeled\n(no push trigger — PR only)",
+     "On every PR",
      "standard = full unit suite\n  → rocm-libraries / rocm-systems component PRs\n\nquick = smoke/sanity only\n  → TheRock infra/build PRs; default when no test:* label",
-     "gfx94X-dcgpu — Build + Test (MI300X/MI325X)\ngfx110X, gfx1151, gfx120X — Build-only (nightly_check_only_for_family)",
-     "gfx1151 — Build-only (nightly_check_only on Windows too)",
+     "Default (no label): gfx94X-dcgpu, gfx110X\n  • gfx94X-dcgpu — Build + Test (MI300X/MI325X)\n  • gfx110X — Build-only (nightly_check_only_for_family)\nOpt-in via labels (gfx1151-linux, gfx120X-linux):\n  • gfx1151, gfx120X — Build-only (nightly_check_only)",
+     "Default (no label): gfx110X — Build + Test (no nightly_check_only on Windows)\nOpt-in via labels:\n  • gfx1151 — Build-only (nightly_check_only)\n  • gfx120X — Build-only (nightly_check_only)",
      "PyTorch torch package only (no wheel upload)\nNo JAX in PR CI",
-     "Ubuntu 22.04 LTS (OSSCI scale pool)", "Windows 11 (azure-windows-11-* runners)"),
-    ("Post-commit (Submodule Bump)",
-     "push to main / release/therock-* branches\nFires on every merged commit incl. submodule bumps",
+     "Ubuntu 22.04 LTS (azure-linux-scale-rocm)",
+     "Windows Server 2022 (azure-windows-scale-rocm)"),
+    ("Post-commit",
+     "multi_arch_ci.yml\npush to main / multi_arch/** / release/therock-*\nFires on every merged commit (incl. submodule-bump merges via bump_submodules.yml — runs every 12 hrs)",
      "Every merged commit",
      "quick = smoke/sanity only",
-     "gfx94X-dcgpu — Build + Test\ngfx950-dcgpu — Build + Test (MI355X; postsubmit matrix only)\ngfx110X, gfx1151, gfx120X — Build-only",
-     "gfx1151 — Build-only",
+     "Build + Test:\n  • gfx94X-dcgpu (MI300X/MI325X)\n  • gfx950-dcgpu (MI355X — postsubmit matrix only)\nBuild-only (nightly_check_only_for_family):\n  • gfx110X, gfx1151, gfx120X",
+     "Build + Test: gfx110X\nBuild-only (nightly_check_only): gfx1151, gfx120X",
      "PyTorch torch package only\nROCm Python wheels (Ubuntu 24.04 + UBI10 smoke)\nNo JAX",
-     "Ubuntu 22.04 LTS", "Windows 11"),
+     "Ubuntu 22.04 LTS", "Windows Server 2022"),
     ("CI Nightly",
-     "ci_nightly.yml + ci_nightly_pytorch_full_test.yml (schedule)",
-     "02:00 UTC daily (ROCm)\n12:00 UTC daily (PyTorch full)",
+     "ci_nightly.yml + ci_nightly_pytorch_full_test.yml\n(schedule + workflow_dispatch)",
+     "02:00 UTC daily (ROCm) — cron: 0 02 * * *\n12:00 UTC daily (PyTorch full) — cron: 0 12 * * *",
      "comprehensive = full + integration (ROCm)\nfull = complete suite (PyTorch)",
-     "gfx94X, gfx950, gfx90a, gfx103X, gfx110X, gfx1150, gfx1151, gfx1153, gfx120X — all Build + Test\ngfx900/906/908/101X — Build-only (no HW runners)",
-     "gfx1151, gfx110X, gfx103X, gfx120X — all Build + Test",
+     "Build + Test (HW runners available):\n  gfx94X, gfx950, gfx90a, gfx103X, gfx110X, gfx1150, gfx1151, gfx1153, gfx120X\nBuild-only (no HW runners — test-runs-on: \"\" in matrix):\n  gfx900, gfx906, gfx908, gfx101X, gfx1152",
+     "Build + Test:\n  gfx110X, gfx103X, gfx1151, gfx120X",
      "PyTorch: all 5 versions × all Pythons × all families\nJAX: all 4 versions × 4 Pythons\nTriton + Apex (Linux)",
-     "Ubuntu 22.04 LTS", "Windows 11"),
+     "Ubuntu 22.04 LTS", "Windows Server 2022"),
     ("ASAN / TSAN",
-     "ci_asan.yml / ci_tsan.yml (schedule)", "02:00 UTC daily",
-     "quick = smoke/sanity only\n(same suite as Post-commit but with sanitizer build)",
-     "gfx94X-dcgpu, gfx950-dcgpu — Build + Test", "—",
+     "ASAN: ci_asan.yml — workflow_dispatch ONLY (no schedule; legacy workflow scheduled for removal)\nTSAN: ci_tsan.yml — schedule + workflow_dispatch",
+     "ASAN: on-demand only\nTSAN: 02:00 UTC daily — cron: 0 02 * * *",
+     "quick = smoke/sanity only\n(asan/tsan variants of ci_linux.yml — sanitizer-instrumented build of post-commit suite)",
+     "Build + Test:\n  gfx94X-dcgpu (presubmit matrix; build_variants: [release, asan, tsan])\n  gfx950-dcgpu (postsubmit matrix; build_variants: [release, asan, tsan])\nASAN tests use rocm-asan-mi325-sandbox via test-runs-on-sandbox",
+     "—",
      "None (sanitizer build validation only)",
-     "Ubuntu 22.04 LTS (rocm-asan-mi325-sandbox)", "—"),
+     "Ubuntu 22.04 LTS (rocm-asan-mi325-sandbox + ramdisk build pool)",
+     "—"),
     ("Release",
-     "workflow_dispatch (rockrel or manual)",
-     "On-demand: dev / nightly / prerelease",
-     "quick / none (tests not yet fully wired in multi_arch_release)",
-     "gfx94X, gfx950, gfx90a, gfx103X, gfx110X, gfx1150, gfx1151, gfx1153, gfx120X — Build + Test (quick)\nBuild-only (no HW runners): gfx900, gfx906, gfx908, gfx101X",
-     "gfx1151, gfx110X, gfx103X, gfx120X — Build + Test (quick)",
+     "Scheduled (nightly portable releases): release_portable_linux_packages.yml, release_windows_packages.yml\nOn-demand: multi_arch_release.yml, release_native_*, JAX/PyTorch wheel releases (rockrel or manual)",
+     "02:00 UTC daily for portable packages — cron: 0 02 * * *\nOn-demand for dev / prerelease / native / wheels",
+     "quick / none (tests not yet fully wired in multi_arch_release; bypass_tests_for_releases: True on most opt-in families)",
+     "Build + Test (quick):\n  gfx94X, gfx950, gfx90a, gfx103X, gfx110X, gfx1150, gfx1151, gfx1153, gfx120X\nBuild-only (no HW runners):\n  gfx900, gfx906, gfx908, gfx101X, gfx1152",
+     "Build + Test (quick):\n  gfx110X, gfx103X, gfx1151, gfx120X",
      "PyTorch all 5 versions × all Pythons\nJAX all 4 versions\nROCm tarballs to S3",
-     "Ubuntu 22.04 LTS + RHEL 8.8/9.5 + SLES 15.6", "Windows 11"),
+     "Ubuntu 22.04 LTS + RHEL 8.8/9.5 + SLES 15.6",
+     "Windows Server 2022"),
 ]
 
 _PT_BUILD_L  = "Linux: azure-linux-scale-rocm"
 _PT_BUILD_LW = "Linux: azure-linux-scale-rocm\nWindows: azure-windows-scale-rocm"
 _PT_TEST_28  = ("Linux: linux-gfx942-1gpu-ossci-rocm (gfx94X)\n"
-                "linux-mi355-1gpu-ossci-rocm (gfx950)\n"
+                "linux-gfx950-1gpu-ccs-ossci-rocm (gfx950)\n"
                 "linux-gfx90a-gpu-rocm (gfx90a)\n"
                 "linux-gfx1030-gpu-rocm (gfx103X)\n"
                 "linux-gfx110X-gpu-rocm (gfx110X)\n"
@@ -153,7 +162,7 @@ _PT_TEST_28  = ("Linux: linux-gfx942-1gpu-ossci-rocm (gfx94X)\n"
                 "linux-gfx942-8gpu-ossci-rocm (distributed, 3 shards)\n"
                 "gfx1153: excluded entirely")
 _PT_TEST_LW  = ("Linux: linux-gfx942-1gpu-ossci-rocm (gfx94X)\n"
-                "linux-mi355-1gpu-ossci-rocm (gfx950)\n"
+                "linux-gfx950-1gpu-ccs-ossci-rocm (gfx950)\n"
                 "linux-gfx90a-gpu-rocm (gfx90a)\n"
                 "linux-gfx1030-gpu-rocm (gfx103X)\n"
                 "linux-gfx110X-gpu-rocm (gfx110X)\n"
@@ -383,7 +392,7 @@ ws1.merge_range(_sc_start, 0, _sc_start, TOTAL_COLS-1,
                 _f(bold=True, font_color=WHITE, bg_color=BASE_BG, font_size=11))
 
 _sc_hdr_labels = ["CI Tier", "Pool Type", "Count", "Azure Build Pool (no GPU)",
-                  "Physical GPU Machines", "Runner Labels & Counts", "Notes"]
+                  "Physical GPU Machines", "Runner Labels & Counts", "Comments"]
 _sc_hdr_fmt = _f(bold=True, font_color=WHITE, bg_color=BASE_BG, font_size=10)
 _sc_col_w   = [18, 22, 10, 28, 22, 60, 40]
 for ci, w in enumerate(_sc_col_w):
@@ -402,10 +411,10 @@ def _psc(s):
 _rc = {rec[0]: _psc(rec[4]) for rec in RUNNER_DATA}
 _build_vms_x   = _rc.get("azure-linux-scale-rocm", 0) + _rc.get("azure-windows-scale-rocm", 0)
 _pc_gpu_x      = _rc.get("linux-gfx942-1gpu-ossci-rocm", 0) + _rc.get("windows-gfx1151-gpu-rocm", 0)
-_po_gpu_x      = _pc_gpu_x + _rc.get("linux-mi355-1gpu-ossci-rocm", 0)
+_po_gpu_x      = _pc_gpu_x + _rc.get("linux-gfx950-1gpu-ccs-ossci-rocm", 0)
 _ni_gpu_labels = [
     ("linux-gfx942-1gpu-ossci-rocm","gfx94X"),("linux-gfx942-8gpu-ossci-rocm","gfx94X 8-GPU"),
-    ("linux-mi355-1gpu-ossci-rocm","gfx950"),("linux-gfx90a-gpu-rocm","gfx90a"),
+    ("linux-gfx950-1gpu-ccs-ossci-rocm","gfx950"),("linux-gfx90a-gpu-rocm","gfx90a"),
     ("linux-gfx1030-gpu-rocm","gfx103X L"),("linux-gfx110X-gpu-rocm","gfx110X L"),
     ("linux-gfx1150-gpu-rocm","gfx1150"),("linux-gfx1151-gpu-rocm","gfx1151 L"),
     ("linux-gfx1153-gpu-rocm","gfx1153"),("linux-gfx120X-gpu-rocm","gfx120X"),
@@ -475,7 +484,7 @@ ws1.write(_sc_r, 2, _po_gpu_x, _sc_num(_tier_green, bold=True, color=PO_BG))
 ws1.write(_sc_r, 3, f"Build VMs: {_build_vms_x} (shared)", _sc_fmt(_tier_green, color="#555"))
 ws1.write(_sc_r, 4, f"{_po_gpu_x} unique nodes", _sc_fmt(_tier_green))
 _po_breakdown = (f"linux-gfx942-1gpu-ossci-rocm (gfx94X) = {_rc.get('linux-gfx942-1gpu-ossci-rocm',0)}\n"
-                 f"linux-mi355-1gpu-ossci-rocm (gfx950/MI355X) = {_rc.get('linux-mi355-1gpu-ossci-rocm',0)}\n"
+                 f"linux-gfx950-1gpu-ccs-ossci-rocm (gfx950/MI355X) = {_rc.get('linux-gfx950-1gpu-ccs-ossci-rocm',0)}\n"
                  f"windows-gfx1151-gpu-rocm (gfx1151, build-only) = {_rc.get('windows-gfx1151-gpu-rocm',0)}")
 ws1.write(_sc_r, 5, _po_breakdown, _sc_fmt(_tier_green))
 ws1.write(_sc_r, 6, "Adds gfx950 (MI355X) vs Pre-commit; gfx1151 Win remains build-only", _sc_fmt(_tier_green, color="#555"))
@@ -692,7 +701,7 @@ _fw_sc_r += 1
 
 # Column headers
 _fw_sc_cols = ["Framework", "Pool", "Count", "Build (VMs)", "GPU Test (Physical)",
-               "Runner Labels & Counts", "Coverage"]
+               "Runner Labels & Counts", "Comments"]
 _fw_sc_col_w = [12, 28, 10, 22, 22, 55, 35]
 for ci, w in enumerate(_fw_sc_col_w):
     ws4.set_column(ci, ci, max(R_COL_W[ci] if ci < len(R_COL_W) else w, w))
@@ -1007,17 +1016,35 @@ ws7.set_row(0, 30)
 # Collect AMD runner rows — all node labels, no truncation
 _inf_run_rows: list[tuple] = []
 _amd_runners = INFERENCE_RUNNERS.get("amd") or {}
+import re as _re
 for _gpu_type, _nodes in sorted(_amd_runners.items()):
     _cluster = "SLURM" if "slurm" in " ".join(_nodes).lower() or "amds" in " ".join(_nodes).lower() else "Docker/Self-hosted"
+    # Build a per-row Comments cell — InferenceMAX runners are NOT in
+    # therock-runner-health.com; explain sub-pool composition + tracking source
+    _n_amds = sum(1 for n in _nodes if "amds" in n)
+    _n_dock = max(0, len(_nodes) - _n_amds)
+    _n_part = sum(1 for n in _nodes if _re.search(r'_p\d+_g\d+', n))
+    _sub = []
+    if _n_amds: _sub.append(f"{_n_amds} AMD-S Slurm (amds_*)")
+    if _n_dock: _sub.append(f"{_n_dock} Docker/self-hosted (amd_*)")
+    if _n_part: _sub.append(f"{_n_part} explicit partition slot")
+    _quirk = []
+    if "disagg"   in _gpu_type: _quirk.append("disaggregated serving")
+    if "spec"     in _gpu_type or "tw-sctrl" in _gpu_type: _quirk.append("spec-decoding / single-controller pool")
+    _track = ("Live online/offline NOT tracked by therock-runner-health.com — "
+              "managed by AMD-S Slurm scheduler" if _cluster == "SLURM"
+              else "Live online/offline NOT tracked by therock-runner-health.com — "
+                   "self-hosted Docker pool managed by InferenceMAX_rocm")
+    _comment = _track + " | Sub-pools: " + " · ".join(_sub) + (" | Quirks: " + "; ".join(_quirk) if _quirk else "")
     _inf_run_rows.append(("AMD", _gpu_type,
-                          ", ".join(_nodes),          # all labels, no truncation
-                          len(_nodes),                # node count as integer
-                          _cluster))
+                          ", ".join(_nodes),
+                          len(_nodes),
+                          _cluster, _comment))
 
-# Updated headers — removed redundant "Node Instances" col, added cleaner layout
-INF_RUN_HEADERS = ["Ecosystem", "GPU Type", "Runner Labels (all nodes)", "Node Count", "Cluster Type"]
+# Updated headers — added Comments column (online/offline tracking info)
+INF_RUN_HEADERS = ["Ecosystem", "GPU Type", "Runner Labels (all nodes)", "Node Count", "Cluster Type", "Comments"]
 
-_inf_run_col_w = [12, 16, 70, 12, 20]
+_inf_run_col_w = [12, 16, 60, 12, 18, 50]
 for ci, w in enumerate(_inf_run_col_w):
     ws7.set_column(ci, ci, w)
 for ci, h in enumerate(INF_RUN_HEADERS):
@@ -1027,15 +1054,17 @@ ws7.set_row(0, 26)
 _amd_row_fmt  = _f(bg_color=IMAX_ROW_AMD, align="left", font_size=10)
 _amd_num_fmt  = _f(bg_color=IMAX_ROW_AMD, align="center", font_size=12, bold=True)
 _amd_ctr_fmt  = _f(bg_color=IMAX_ROW_AMD, align="center", font_size=10)
+_amd_cmt_fmt  = _f(bg_color=IMAX_ROW_AMD, align="left", font_size=9, text_wrap=True)
 _run_row = 1
 for rec in _inf_run_rows:
-    eco, gpu_type, labels, count, cluster = rec
-    ws7.set_row(_run_row, auto_row_h([labels]))
+    eco, gpu_type, labels, count, cluster, comment = rec
+    ws7.set_row(_run_row, auto_row_h([labels, comment]))
     ws7.write(_run_row, 0, eco,       _amd_ctr_fmt)
     ws7.write(_run_row, 1, gpu_type,  _amd_ctr_fmt)
     ws7.write(_run_row, 2, labels,    _amd_row_fmt)
     ws7.write(_run_row, 3, count,     _amd_num_fmt)
     ws7.write(_run_row, 4, cluster,   _amd_ctr_fmt)
+    ws7.write(_run_row, 5, comment,   _amd_cmt_fmt)
     _run_row += 1
 
 # Grand total row
@@ -1048,6 +1077,7 @@ ws7.write(_run_row, 2,
           _tot_imax_sub)
 ws7.write(_run_row, 3, _grand_node_total, _tot_imax_fmt)
 ws7.write(_run_row, 4, f"{len(_inf_run_rows)} GPU pool types", _tot_imax_fmt)
+ws7.write(_run_row, 5, "InferenceMAX runners NOT tracked by therock-runner-health.com (separate Slurm + Docker pools managed in ROCm/InferenceMAX_rocm)", _tot_imax_sub)
 ws7.set_row(_run_row, 28)
 _run_row += 1
 
@@ -1382,7 +1412,6 @@ ci_en = sum(1 for r in COMPONENTS if r[0] != "Frameworks" and r[4] in ("Yes","Pa
 print(f"Excel written: {OUT}")
 print(f"Components: {total} total ({non_fw} non-framework, {fw_rows} framework slots)")
 print(f"CI-Enabled (non-FW): {ci_en}")
-n_inf_sheets = (2 if INFERENCEMAX_DATA else 0) + 1  # +1 for Workflows sheet (always present)
-print(f"Runners: {len(RUNNER_DATA)}  |  Framework rows: {len(FW_DATA)}  |  Sheets: {5 + n_inf_sheets}")
+print(f"Runners: {len(RUNNER_DATA)}  |  Framework rows: {len(FW_DATA)}  |  Sheets: {len(wb.worksheets())}")
 if INFERENCEMAX_DATA:
     print(f"InferenceMAX AMD configs: {len(INFERENCEMAX_DATA)}")

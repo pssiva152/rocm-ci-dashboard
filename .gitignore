@@ -12,3 +12,12 @@ __pycache__/
 # Environment files
 .env
 .env.*
+
+# Local IDE / agent settings (per-user)
+.claude/
+.vscode/
+.idea/
+
+# Snapshot backups (auto-created by save scripts; not part of the committed history)
+*.backup.json
+*.snapshot_backup.py

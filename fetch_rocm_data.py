@@ -2,19 +2,33 @@
 """
 Fetch live CI/CD data from ROCm GitHub repos and regenerate HTML + Excel reports.
 
+Data fetching strategy (no GITHUB_TOKEN needed for public repos):
+
+    Public repos (TheRock, rocm-libraries, rocm-systems):
+        1. Anonymous sparse + shallow git clone over HTTPS    ← preferred
+        2. therock_ci_snapshot.json                            ← fallback if clone fails
+
+    Private repo (ROCm/InferenceMAX_rocm):
+        1. Local clone at ./InferenceMAX_rocm/ (or ../)        ← if you have one
+        2. SSH git clone via git@github.com:ROCm/InferenceMAX_rocm.git  ← needs SSH key
+        3. inferencemax_snapshot.json                          ← fallback if both fail
+
 Usage:
     python fetch_rocm_data.py
 
-Optional env var:
-    GITHUB_TOKEN=ghp_...   Raises API limit from 60 to 5000 requests/hour.
+Prerequisites:
+    git              installed and on PATH (any modern version)
+    pip install xlsxwriter
+    SSH key registered with GitHub  (only needed for live InferenceMAX_rocm data)
 
 Outputs (written to project folder alongside this script):
-    rocm_ci_data.py          — generated Python data module (intermediate)
+    rocm_ci_data.py                — generated Python data module (intermediate)
     ROCm_CICD_Comprehensive.html
-    ROCm_Components_CICD.xlsx
+    ROCm_CICD_Comprehensive.xlsx
+    therock_ci_snapshot.json       — auto-saved after every successful clone
+    inferencemax_snapshot.json     — auto-saved after every successful InferenceMAX fetch
 """
 
-import base64
 import datetime
 import json
 import os
@@ -24,97 +38,201 @@ import sys
 import tempfile
 import textwrap
 import tomllib
-import urllib.error
-import urllib.request
 from pathlib import Path
 
 sys.stdout.reconfigure(encoding="utf-8")
 
 HERE = Path(__file__).parent
-TOKEN = os.environ.get("GITHUB_TOKEN", "")
 
 # ── Snapshot files ─────────────────────────────────────────────────────────────
 # Written after every successful fetch so future runs have cached data when
-# GitHub is unavailable or hits rate limits.
+# GitHub is unreachable or git is unavailable.
 
-# TheRock CI snapshot — caches the raw GitHub API responses (matrix, topology,
-# gitmodules, project lists, nightly yml).
+# TheRock CI snapshot — caches the raw file contents read from the clone (matrix,
+# topology, gitmodules, project lists, nightly yml).
 THEROCK_SNAPSHOT = HERE / "therock_ci_snapshot.json"
 
 # InferenceMAX snapshot — caches parsed benchmark configs and runner pool.
 IMAX_SNAPSHOT = HERE / "inferencemax_snapshot.json"
 
-# SSH clone URL for InferenceMAX_rocm (used when API token is unavailable)
-IMAX_SSH_URL = "git@github.com:ROCm/InferenceMAX_rocm.git"
+# Clone URLs.
+# Public repos use anonymous HTTPS (no auth needed for read).
+# InferenceMAX uses SSH because the repo is private.
+THEROCK_HTTPS_URL    = "https://github.com/ROCm/TheRock.git"
+ROCM_LIB_HTTPS_URL   = "https://github.com/ROCm/rocm-libraries.git"
+ROCM_SYS_HTTPS_URL   = "https://github.com/ROCm/rocm-systems.git"
+IMAX_SSH_URL         = "git@github.com:ROCm/InferenceMAX_rocm.git"
+
+# Default git clone timeout (seconds).  The biggest repo is TheRock and a sparse
+# blob-filtered shallow clone of it completes in well under 30 s on a normal
+# connection — 180 s is generous for slow networks.
+GIT_TIMEOUT = 180
 
 
-# ── GitHub API helpers ────────────────────────────────────────────────────────
+# ── git-clone helpers (replace the old GitHub-API helpers) ───────────────────
 
-def _headers() -> dict:
-    h = {"Accept": "application/vnd.github.v3+json", "User-Agent": "rocm-ci-fetcher/1.0"}
-    if TOKEN:
-        h["Authorization"] = f"Bearer {TOKEN}"
-    return h
-
-
-def gh_file(owner: str, repo: str, path: str) -> str:
-    """Fetch a single file from GitHub and return its decoded text content."""
-    url = f"https://api.github.com/repos/{owner}/{repo}/contents/{path}"
-    req = urllib.request.Request(url, headers=_headers())
+def _git_available() -> bool:
+    """Return True iff `git` is on PATH and runnable."""
     try:
-        with urllib.request.urlopen(req, timeout=30) as r:
-            data = json.loads(r.read())
-        return base64.b64decode(data["content"]).decode("utf-8")
-    except urllib.error.HTTPError as e:
-        print(f"  WARN: could not fetch {owner}/{repo}/{path} — {e.code} {e.reason}")
+        subprocess.run(["git", "--version"], capture_output=True, timeout=5, check=True)
+        return True
+    except (FileNotFoundError, subprocess.CalledProcessError, subprocess.TimeoutExpired):
+        return False
+
+
+def _sparse_clone(url: str, sparse_paths: list[str], label: str) -> Path | None:
+    """
+    Sparse + shallow + blob-filtered anonymous clone of a public GitHub repo.
+
+    Args:
+        url:           https URL of the repo (anonymous read works for public repos).
+        sparse_paths:  list of paths to materialize via `git sparse-checkout set`.
+                       Pass an empty list to fetch only commit/tree metadata
+                       (suitable for `git ls-tree`-only consumers).
+        label:         short human label for log messages.
+
+    Returns:
+        Path to the temporary clone directory on success; None on any failure.
+        Caller is responsible for removing the directory when done.
+    """
+    tmp = Path(tempfile.mkdtemp(prefix=f"{label}_"))
+    try:
+        cmd = [
+            "git",
+            "-c", "core.longpaths=true",       # avoid Windows MAX_PATH issues
+            "clone",
+            "--quiet",
+            "--depth=1",
+            "--filter=blob:none",
+            "--sparse",
+            "--no-checkout",                   # we'll opt-in via sparse-checkout
+            url,
+            str(tmp),
+        ]
+        subprocess.run(cmd, capture_output=True, check=True, timeout=GIT_TIMEOUT)
+
+        if sparse_paths:
+            subprocess.run(
+                ["git", "-C", str(tmp), "sparse-checkout", "set", "--no-cone", *sparse_paths],
+                capture_output=True, check=True, timeout=30,
+            )
+            subprocess.run(
+                ["git", "-C", str(tmp), "checkout", "--quiet"],
+                capture_output=True, check=True, timeout=60,
+            )
+        return tmp
+    except subprocess.CalledProcessError as e:
+        err = (e.stderr or b"").decode("utf-8", "replace").strip().splitlines()[-1:]
+        print(f"  [{label}] ERROR: git clone failed: {err[0] if err else e}")
+    except subprocess.TimeoutExpired:
+        print(f"  [{label}] ERROR: git clone timed out after {GIT_TIMEOUT}s")
+    except FileNotFoundError:
+        print(f"  [{label}] ERROR: `git` not found on PATH")
+
+    shutil.rmtree(tmp, ignore_errors=True)
+    return None
+
+
+def _git_ls_tree_dirs(repo: Path, path: str) -> list[str]:
+    """Return immediate sub-directory names of `path` inside `repo` at HEAD.
+
+    Uses `git ls-tree -d` so no blobs are downloaded — cheap directory listing
+    that works on a `--filter=blob:none --no-checkout` clone.
+    """
+    try:
+        result = subprocess.run(
+            ["git", "-C", str(repo), "ls-tree", "-d", "--name-only", "HEAD", f"{path.rstrip('/')}/"],
+            capture_output=True, text=True, check=True, timeout=30, encoding="utf-8",
+        )
+    except (subprocess.CalledProcessError, subprocess.TimeoutExpired, FileNotFoundError):
+        return []
+    names: list[str] = []
+    prefix = f"{path.rstrip('/')}/"
+    for line in result.stdout.splitlines():
+        line = line.strip()
+        if not line:
+            continue
+        if line.startswith(prefix):
+            line = line[len(prefix):]
+        if line and "/" not in line:           # immediate children only
+            names.append(line)
+    return sorted(names)
+
+
+def _read(repo: Path, rel: str) -> str:
+    """Read a text file from a sparse clone working tree; '' if missing."""
+    p = repo / rel
+    if not p.exists():
+        return ""
+    try:
+        return p.read_text(encoding="utf-8", errors="replace")
+    except OSError:
         return ""
 
 
-def gh_dir(owner: str, repo: str, path: str) -> list[str]:
-    """List directory entries (names only, directories only unless all=True)."""
-    url = f"https://api.github.com/repos/{owner}/{repo}/contents/{path}"
-    req = urllib.request.Request(url, headers=_headers())
-    try:
-        with urllib.request.urlopen(req, timeout=30) as r:
-            items = json.loads(r.read())
-        return [item["name"] for item in items if item["type"] == "dir"]
-    except urllib.error.HTTPError as e:
-        print(f"  WARN: could not list {owner}/{repo}/{path} — {e.code} {e.reason}")
-        return []
-
-
-# ── Phase 1: Fetch raw data ───────────────────────────────────────────────────
+# ── Phase 1: Fetch raw data via clones ───────────────────────────────────────
 
 def fetch_all() -> dict:
-    print("Fetching data from GitHub...")
+    """Clone each public repo sparsely, read what we need, then clean up."""
+    print("Fetching data via anonymous git clones (no GITHUB_TOKEN required)...")
 
-    print("  [1/6] amdgpu_family_matrix.py")
-    matrix_src = gh_file("ROCm", "TheRock",
-                         "build_tools/github_actions/amdgpu_family_matrix.py")
+    if not _git_available():
+        print("  WARN: `git` not found on PATH — skipping live fetch entirely.")
+        return dict(matrix_src="", topology_src="", gitmodules_src="",
+                    lib_projects=[], sys_projects=[], nightly_yml="")
 
-    print("  [2/6] BUILD_TOPOLOGY.toml")
-    topology_src = gh_file("ROCm", "TheRock", "BUILD_TOPOLOGY.toml")
+    raw = dict(matrix_src="", topology_src="", gitmodules_src="",
+               lib_projects=[], sys_projects=[], nightly_yml="")
 
-    print("  [3/6] .gitmodules (TheRock)")
-    gitmodules_src = gh_file("ROCm", "TheRock", ".gitmodules")
-
-    print("  [4/6] rocm-libraries projects/")
-    lib_projects = gh_dir("ROCm", "rocm-libraries", "projects")
-
-    print("  [5/6] rocm-systems projects/")
-    sys_projects = gh_dir("ROCm", "rocm-systems", "projects")
-
-    print("  [6/6] ci_nightly.yml (schedule time)")
-    nightly_yml = gh_file("ROCm", "TheRock", ".github/workflows/ci_nightly.yml")
-
-    return dict(
-        matrix_src=matrix_src,
-        topology_src=topology_src,
-        gitmodules_src=gitmodules_src,
-        lib_projects=lib_projects,
-        sys_projects=sys_projects,
-        nightly_yml=nightly_yml,
+    # ── ROCm/TheRock (we need 4 specific files) ─────────────────────────────
+    print("  [1/3] Cloning ROCm/TheRock (sparse: matrix + topology + workflows)...")
+    therock = _sparse_clone(
+        THEROCK_HTTPS_URL,
+        sparse_paths=[
+            "build_tools/github_actions/amdgpu_family_matrix.py",
+            "BUILD_TOPOLOGY.toml",
+            ".gitmodules",
+            ".github/workflows/ci_nightly.yml",
+        ],
+        label="TheRock",
     )
+    if therock is not None:
+        try:
+            raw["matrix_src"]      = _read(therock, "build_tools/github_actions/amdgpu_family_matrix.py")
+            raw["topology_src"]    = _read(therock, "BUILD_TOPOLOGY.toml")
+            raw["gitmodules_src"]  = _read(therock, ".gitmodules")
+            raw["nightly_yml"]     = _read(therock, ".github/workflows/ci_nightly.yml")
+            sizes = " · ".join(f"{k}={len(v)}B" for k, v in [
+                ("matrix",   raw["matrix_src"]),
+                ("topology", raw["topology_src"]),
+                ("modules",  raw["gitmodules_src"]),
+                ("nightly",  raw["nightly_yml"]),
+            ])
+            print(f"    [TheRock] read 4 files ({sizes})")
+        finally:
+            shutil.rmtree(therock, ignore_errors=True)
+
+    # ── ROCm/rocm-libraries (just need projects/ dir listing — no blobs) ────
+    print("  [2/3] Cloning ROCm/rocm-libraries (metadata only for projects/ listing)...")
+    rl = _sparse_clone(ROCM_LIB_HTTPS_URL, sparse_paths=[], label="rocm-libraries")
+    if rl is not None:
+        try:
+            raw["lib_projects"] = _git_ls_tree_dirs(rl, "projects")
+            print(f"    [rocm-libraries] discovered {len(raw['lib_projects'])} project directories")
+        finally:
+            shutil.rmtree(rl, ignore_errors=True)
+
+    # ── ROCm/rocm-systems (same) ────────────────────────────────────────────
+    print("  [3/3] Cloning ROCm/rocm-systems (metadata only for projects/ listing)...")
+    rs = _sparse_clone(ROCM_SYS_HTTPS_URL, sparse_paths=[], label="rocm-systems")
+    if rs is not None:
+        try:
+            raw["sys_projects"] = _git_ls_tree_dirs(rs, "projects")
+            print(f"    [rocm-systems] discovered {len(raw['sys_projects'])} project directories")
+        finally:
+            shutil.rmtree(rs, ignore_errors=True)
+
+    return raw
 
 
 def _raw_is_empty(raw: dict) -> bool:
@@ -241,7 +359,7 @@ def build_runner_data(matrices: dict) -> list[tuple]:
         "linux-gfx942-1gpu-core42-ossci-rocm":"OSSCI",
         "linux-gfx942-8gpu-ossci-rocm":      "OSSCI",
         "linux-gfx942-8gpu-core42-ossci-rocm":"OSSCI",
-        "linux-mi355-1gpu-ossci-rocm":       "OSSCI",
+        "linux-gfx950-1gpu-ccs-ossci-rocm":       "OSSCI",
         "linux-gfx90a-gpu-rocm":             "On-Prem (AUS)",
         "linux-gfx1030-gpu-rocm":            "On-Prem",
         "linux-gfx110X-gpu-rocm":            "On-Prem",
@@ -672,7 +790,7 @@ def _update_component(comp: tuple, rs: dict) -> tuple:
         # Runner shorthands (PC_L runners multi-line string)
         "linux-gfx942-1gpu-ossci-rocm\n(alternate pool: linux-gfx942-1gpu-ccs-ossci-rocm)":
                                                            rs["PCR_L"],
-        "linux-gfx942-1gpu-ossci-rocm (gfx94X)\nlinux-mi355-1gpu-ossci-rocm (gfx950)":
+        "linux-gfx942-1gpu-ossci-rocm (gfx94X)\nlinux-gfx950-1gpu-ccs-ossci-rocm (gfx950)":
                                                            rs["POR_L"],
         "windows-gfx1151-gpu-rocm (Build-only)":          rs["PCR_W"],
     }
@@ -683,7 +801,7 @@ def _update_component(comp: tuple, rs: dict) -> tuple:
     ] = rs["NL_FULL"]
     replacements[
         "linux-gfx942-1gpu-ossci-rocm (gfx94X)\n"
-        "linux-mi355-1gpu-ossci-rocm (gfx950)\n"
+        "linux-gfx950-1gpu-ccs-ossci-rocm (gfx950)\n"
         "linux-gfx90a-gpu-rocm (gfx90a)\n"
         "linux-gfx1030-gpu-rocm (gfx103X)\n"
         "linux-gfx110X-gpu-rocm (gfx110X)\n"
@@ -788,8 +906,10 @@ def build_components(matrices: dict,
         "clr", "hip", "hipfile", "hipother", "cuid", "hotswap",
         # covered by "ROCr Runtime (HSA)"
         "rocr-runtime",
-        # covered by "ROCm Core"
-        "rocm-core",
+        # NOTE: rocm-core was previously skipped here with comment "covered by 'ROCm Core'",
+        # but no such curated row existed. A real "ROCm Core" component row was added to
+        # generate_rocm_html.py (Runtime category), so rocm-core now matches via that
+        # name and does not need to be skipped.
         # covered by "ROCProfiler (v2)"
         "rocprofiler",
         # covered by "ROCm Compute Profiler"
@@ -938,47 +1058,114 @@ def _extract_block(src: str, var_name: str) -> str:
 # ── Phase 7b: InferenceMAX / InferenceX fetch & parse ────────────────────────
 
 def _read_local_inferencemax(file_rel: str) -> str:
-    """Try to read a file from the local InferenceMAX_rocm clone."""
+    """Read a file from the local InferenceMAX_rocm clone.
+
+    Strategy: prefer the version on `origin/main` if the clone is a git repo
+    (so a stale or feature-branch checkout doesn't yield outdated configs).
+    Fall back to the working-tree file if `origin/main` isn't available.
+    """
     candidates = [
-        HERE / "InferenceMAX_rocm" / file_rel,
-        HERE.parent / "InferenceMAX_rocm" / file_rel,
+        HERE / "InferenceMAX_rocm",
+        HERE.parent / "InferenceMAX_rocm",
     ]
-    for p in candidates:
+    for repo_root in candidates:
+        if not (repo_root / ".git").exists():
+            continue
+        # Try origin/main first; refresh it quietly so we don't ship stale data
+        for ref in ("origin/main", "main", "HEAD"):
+            try:
+                # Best-effort fetch (skip if no network / no remote)
+                if ref == "origin/main":
+                    subprocess.run(
+                        ["git", "-C", str(repo_root), "fetch", "--quiet", "origin", "main"],
+                        capture_output=True, timeout=30,
+                    )
+                result = subprocess.run(
+                    ["git", "-C", str(repo_root), "show", f"{ref}:{file_rel}"],
+                    capture_output=True, text=True, timeout=10, encoding="utf-8",
+                )
+                if result.returncode == 0 and result.stdout.strip():
+                    print(f"  [InferenceMAX] Read {file_rel} from {repo_root.name} @ {ref}")
+                    return result.stdout
+            except (subprocess.TimeoutExpired, FileNotFoundError):
+                continue
+    # Last resort: working-tree file (whatever branch is checked out)
+    for repo_root in candidates:
+        p = repo_root / file_rel
         if p.exists():
+            print(f"  [InferenceMAX] Read {file_rel} from {repo_root.name} working tree (warning: branch may be stale)")
             return p.read_text(encoding="utf-8")
     return ""
 
 
 def _git_clone_inferencemax() -> str:
     """
-    Try to clone InferenceMAX_rocm via SSH into a temp dir and read the
-    required YAML files. Returns the amd-master.yaml content, or "" on failure.
+    Sparse + shallow SSH clone of ROCm/InferenceMAX_rocm into a temp dir;
+    read the two required YAML files. Returns amd-master.yaml content (or "").
     Sets module-level _cloned_runners_yaml as a side effect.
+
+    SSH is required because the repo is private — anonymous HTTPS will not work.
+    The user must have an SSH key registered with GitHub for this to succeed.
     """
     global _cloned_runners_yaml
     _cloned_runners_yaml = ""
+
+    if not _git_available():
+        print("  [InferenceMAX] `git` not on PATH — skipping SSH clone")
+        return ""
+
+    print("  [InferenceMAX] Attempting SSH clone (git@github.com:ROCm/InferenceMAX_rocm.git)...")
     tmp = Path(tempfile.mkdtemp(prefix="imax_clone_"))
     try:
-        print("  [InferenceMAX] Trying SSH clone (git@github.com:ROCm/InferenceMAX_rocm.git)...")
-        result = subprocess.run(
-            ["git", "clone", "--depth=1", "--quiet", IMAX_SSH_URL, str(tmp / "repo")],
-            capture_output=True, text=True, timeout=120,
-        )
-        if result.returncode != 0:
-            print(f"  [InferenceMAX] SSH clone failed: {result.stderr.strip()}")
+        cmd = [
+            "git",
+            "-c", "core.longpaths=true",
+            "clone",
+            "--quiet",
+            "--depth=1",
+            "--filter=blob:none",
+            "--sparse",
+            "--no-checkout",
+            IMAX_SSH_URL,
+            str(tmp / "repo"),
+        ]
+        try:
+            subprocess.run(cmd, capture_output=True, check=True, timeout=GIT_TIMEOUT)
+        except subprocess.CalledProcessError as e:
+            err = (e.stderr or b"").decode("utf-8", "replace").strip().splitlines()[-1:]
+            print(f"  [InferenceMAX] SSH clone failed: {err[0] if err else e}")
+            print(f"  [InferenceMAX] (Hint: ensure your SSH key is registered with GitHub and has access to ROCm/InferenceMAX_rocm)")
             return ""
+        except subprocess.TimeoutExpired:
+            print(f"  [InferenceMAX] SSH clone timed out after {GIT_TIMEOUT}s")
+            return ""
+
         repo = tmp / "repo"
+        # Materialize only the two YAML files we need
+        try:
+            subprocess.run(
+                ["git", "-C", str(repo), "sparse-checkout", "set", "--no-cone",
+                 ".github/configs/amd-master.yaml",
+                 ".github/configs/runners.yaml"],
+                capture_output=True, check=True, timeout=30,
+            )
+            subprocess.run(
+                ["git", "-C", str(repo), "checkout", "--quiet"],
+                capture_output=True, check=True, timeout=60,
+            )
+        except (subprocess.CalledProcessError, subprocess.TimeoutExpired) as e:
+            print(f"  [InferenceMAX] sparse-checkout failed: {e}")
+            return ""
+
         amd_path     = repo / ".github" / "configs" / "amd-master.yaml"
         runners_path = repo / ".github" / "configs" / "runners.yaml"
         if not amd_path.exists():
-            print("  [InferenceMAX] SSH clone succeeded but amd-master.yaml not found")
+            print("  [InferenceMAX] SSH clone succeeded but amd-master.yaml not present in repo")
             return ""
+
         print("  [InferenceMAX] SSH clone succeeded.")
         _cloned_runners_yaml = runners_path.read_text(encoding="utf-8") if runners_path.exists() else ""
         return amd_path.read_text(encoding="utf-8")
-    except (FileNotFoundError, subprocess.TimeoutExpired) as e:
-        print(f"  [InferenceMAX] SSH clone unavailable: {e}")
-        return ""
     finally:
         shutil.rmtree(tmp, ignore_errors=True)
 
@@ -1024,33 +1211,27 @@ def save_imax_snapshot(imax_data: list[tuple], inference_runners: dict) -> None:
 def fetch_inferencemax() -> tuple[str, str]:
     """
     Fetch InferenceMAX_rocm AMD configs and runner pool YAML.
-    Priority order:
-      1. GitHub API (if GITHUB_TOKEN set and has access)
-      2. Local InferenceMAX_rocm/ folder (already cloned in working dir)
-      3. SSH git clone (git@github.com:ROCm/InferenceMAX_rocm.git)
-      4. JSON snapshot (inferencemax_snapshot.json) — see return note below
 
-    Returns: (amd_yaml, runners_yaml) — both empty strings if all YAML sources
-    fail. The caller checks for empty amd_yaml and switches to JSON fallback.
+    Priority order (no GitHub API — the repo is private and PATs are blocked):
+      1. Local clone at ./InferenceMAX_rocm/ (or ../InferenceMAX_rocm/) — instant
+      2. SSH git clone (git@github.com:ROCm/InferenceMAX_rocm.git) — needs SSH key
+      3. JSON snapshot (inferencemax_snapshot.json) — handled by caller
+
+    Returns:
+        (amd_yaml, runners_yaml). If the first element is empty, the caller
+        falls back to the JSON snapshot.
     """
     global _cloned_runners_yaml
     amd_yaml = runners_yaml = ""
 
-    # ── 1. GitHub API ──────────────────────────────────────────────────────────
-    if TOKEN:
-        print("  [InferenceMAX] Fetching from GitHub API (ROCm/InferenceMAX_rocm)...")
-        amd_yaml     = gh_file("ROCm", "InferenceMAX_rocm", ".github/configs/amd-master.yaml")
-        runners_yaml = gh_file("ROCm", "InferenceMAX_rocm", ".github/configs/runners.yaml")
+    # ── 1. Local clone (already on disk) ───────────────────────────────────────
+    print("  [InferenceMAX] Trying local InferenceMAX_rocm/ folder...")
+    amd_yaml     = _read_local_inferencemax(".github/configs/amd-master.yaml")
+    runners_yaml = _read_local_inferencemax(".github/configs/runners.yaml")
+    if amd_yaml:
+        print("  [InferenceMAX] Local clone found and used.")
 
-    # ── 2. Local InferenceMAX_rocm/ folder ────────────────────────────────────
-    if not amd_yaml:
-        print("  [InferenceMAX] Trying local InferenceMAX_rocm/ folder...")
-        amd_yaml     = _read_local_inferencemax(".github/configs/amd-master.yaml")
-        runners_yaml = _read_local_inferencemax(".github/configs/runners.yaml")
-        if amd_yaml:
-            print("  [InferenceMAX] Local folder found.")
-
-    # ── 3. SSH git clone ───────────────────────────────────────────────────────
+    # ── 2. SSH git clone ───────────────────────────────────────────────────────
     if not amd_yaml:
         amd_yaml = _git_clone_inferencemax()
         if amd_yaml:
@@ -1204,10 +1385,10 @@ def generate_outputs() -> None:
 def main() -> None:
     print("=" * 60)
     print("  ROCm CI/CD Data Fetcher")
+    print("  Strategy: anonymous git clones for public repos,")
+    print("            SSH clone for the private InferenceMAX_rocm,")
+    print("            JSON snapshots used as fallback on any failure.")
     print("=" * 60)
-
-    if not TOKEN:
-        print("  NOTE: GITHUB_TOKEN not set — using unauthenticated API (60 req/hr limit)")
 
     raw = fetch_all()
     therock_snapshot_ts = None  # non-None only when snapshot fallback is used

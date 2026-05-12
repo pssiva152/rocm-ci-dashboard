@@ -74,7 +74,7 @@ PCR_L = "linux-gfx942-1gpu-ossci-rocm\n(alternate pool: linux-gfx942-1gpu-ccs-os
 PCR_L_NONE = "—"
 
 # Post-commit Linux runners
-POR_L = "linux-gfx942-1gpu-ossci-rocm (gfx94X)\nlinux-mi355-1gpu-ossci-rocm (gfx950)"
+POR_L = "linux-gfx942-1gpu-ossci-rocm (gfx94X)\nlinux-gfx950-1gpu-ccs-ossci-rocm (gfx950)"
 POR_L_NONE = "—"
 
 # Pre/Post-commit Windows runner
@@ -83,11 +83,11 @@ POR_W = "windows-gfx1151-gpu-rocm (Build-only)"
 
 # Nightly Linux runners — gfx94X + gfx950 only (for components that exclude gfx115X and only support those two families)
 NLR_94_950 = ("linux-gfx942-1gpu-ossci-rocm (gfx94X)\n"
-              "linux-mi355-1gpu-ossci-rocm (gfx950)")
+              "linux-gfx950-1gpu-ccs-ossci-rocm (gfx950)")
 
 # Nightly Linux runners (full set)
 NLR_FULL = ("linux-gfx942-1gpu-ossci-rocm (gfx94X)\n"
-            "linux-mi355-1gpu-ossci-rocm (gfx950)\n"
+            "linux-gfx950-1gpu-ccs-ossci-rocm (gfx950)\n"
             "linux-gfx90a-gpu-rocm (gfx90a)\n"
             "linux-gfx1030-gpu-rocm (gfx103X)\n"
             "linux-gfx110X-gpu-rocm (gfx110X)\n"
@@ -122,6 +122,13 @@ COMPONENTS = [
      NL_FULL, NLR_FULL, NW_FULL, NWR_FULL, "comprehensive",
      "Both",
      "1 Linux shard, 1 Windows shard; expand tracked #2616"),
+
+    ("Libraries","Math","hipblas-common","rocm-libraries","Yes",
+     PC_L_94, PCR_L, PC_W_BUILD, PCR_W, "standard",
+     PO_L_FULL, POR_L, PO_W_BUILD, POR_W, "quick",
+     NL_FULL, NLR_FULL, NW_FULL, NWR_FULL, "comprehensive",
+     "Both",
+     "Shared headers/utilities for hipBLAS family (hipBLAS, hipBLASLt, hipSPARSELt); new project added to rocm-libraries upstream"),
 
     ("Libraries","Math","hipBLASLt","rocm-libraries","Yes",
      PC_L_94, PCR_L, PC_W_BUILD, PCR_W, "standard",
@@ -364,13 +371,13 @@ COMPONENTS = [
      "Own CI (rocprofiler-sdk-continuous_integration.yml); runners: linux-gfx942-1gpu-ossci-rocm (primary) + linux-mi325-8gpu-ossci-rocm-sandbox (sanitizers); multi-OS: Ubuntu 22.04, RHEL 8.8, RHEL 9.5, SLES 15.6; requires SYS_PTRACE cap; sanitizers (ASan/TSan/LSan/UBSan); TheRock also adds full GPU matrix at post-commit and nightly"),
 
     ("Tools","Performance","ROCm Compute Profiler","rocm-systems","Yes",
-     "gfx950 (MI355), gfx94X (MI325), gfx1151 (Strix Halo) — own CI", "linux-mi355-1gpu-ossci-rocm (gfx950)\nlinux-gfx942-1gpu-ossci-rocm (gfx94X)\nlinux-strix-halo-gpu-rocm (gfx1151)", "—", "—", "standard",
+     "gfx950 (MI355), gfx94X (MI325), gfx1151 (Strix Halo) — own CI", "linux-gfx950-1gpu-ccs-ossci-rocm (gfx950)\nlinux-gfx942-1gpu-ossci-rocm (gfx94X)\nlinux-strix-halo-gpu-rocm (gfx1151)", "—", "—", "standard",
      PO_L_FULL, POR_L, PO_W_NONE, "—", "quick",
      NL_FULL, NLR_FULL, NW_NONE, "—", "comprehensive",
      "Linux only", "Own CI (rocprofiler-compute-continuous-integration.yml); ci-matrix.yml: gfx950/gfx94X/gfx1151 × Ubuntu 22.04/24.04 (nightly); gfx950+gfx1151 × Ubuntu 22.04 (CI); ROCm 7.0.0; TheRock adds full GPU matrix at post-commit and nightly; 2 shards"),
 
     ("Tools","Performance","ROCm System Profiler","rocm-systems","Yes",
-     "gfx950 (MI355), gfx94X (MI325) — own CI", "linux-mi355-1gpu-ossci-rocm (gfx950)\nlinux-gfx942-1gpu-ossci-rocm (gfx94X)", "—", "—", "standard",
+     "gfx950 (MI355), gfx94X (MI325) — own CI", "linux-gfx950-1gpu-ccs-ossci-rocm (gfx950)\nlinux-gfx942-1gpu-ossci-rocm (gfx94X)", "—", "—", "standard",
      PO_L_FULL, POR_L, PO_W_NONE, "—", "quick",
      NL_FULL, NLR_FULL, NW_NONE, "—", "comprehensive",
      "Linux only", "Own CI (rocprofiler-systems-continuous-integration.yml); ci-matrix.yml: gfx950+gfx94X × Ubuntu 22.04/24.04 (nightly); gfx950 × Ubuntu 24.04 (CI); ROCm 7.2.0; multi-OS distro matrix (Ubuntu 22.04/24.04, Debian 12, RHEL 8.10/9.x); ROCm versions 6.3–7.2 tested; TheRock adds full GPU matrix at post-commit and nightly"),
@@ -470,6 +477,13 @@ COMPONENTS = [
      NL_FULL, NLR_FULL, NW_FULL, NWR_FULL, "comprehensive",
      "Both",
      "Tested as part of HIP/CLR CI (no standalone workflow); libhipcxx_hipcc: Linux + Windows (1 shard each, 30 min); libhipcxx_hiprtc: Linux only (1 shard, 20 min); hiprtc Linux only"),
+
+    ("Runtime","—","ROCm Core","rocm-systems","Yes",
+     PC_L_94, PCR_L, PC_W_BUILD, PCR_W, "standard",
+     PO_L_FULL, POR_L, PO_W_BUILD, POR_W, "quick",
+     NL_FULL, NLR_FULL, NW_FULL, NWR_FULL, "comprehensive",
+     "Both",
+     "Provides ROCm version metadata + install path API (getROCmVersion, Lmod modules); base package all of ROCm depends on for clean uninstall; rocm-systems/projects/rocm-core"),
 
     # ── iree-libs ──────────────────────────────────────────────────────────────
     ("iree-libs","—","IREE Compiler & Runtime","TheRock (iree-org/iree)","No",
@@ -630,21 +644,24 @@ for rec in COMPONENTS:
 # label, platform, os_distro, location, phys_machines, gpu_family, isa, count, used_at, notes, css_class
 RUNNER_DATA = [
     ("linux-gfx942-1gpu-ossci-rocm","Linux","Ubuntu 22.04 LTS","OSSCI","84 (vth9c-*: 83 online + 1 offline)","MI300X / MI325X","gfx942 / gfx94X","1","PR · postsubmit · nightly","Primary Linux GPU runner (65% weight); gfx94X Build + Test","runner-linux"),
-    ("linux-gfx942-1gpu-ccs-ossci-rocm","Linux","Ubuntu 22.04 LTS","OSSCI","0 (label not present in fleet)","MI300X / MI325X","gfx942 / gfx94X","1","PR · postsubmit · nightly","Label not assigned to any runner in current fleet; effectively retired","runner-linux"),
-    ("linux-gfx942-8gpu-ossci-rocm","Linux","Ubuntu 22.04 LTS","OSSCI","4 (8g2wk-* pool)","MI300X / MI325X","gfx942 / gfx94X","8","Nightly · distributed tests · RCCL","PyTorch distributed (3 shards); RCCL multi-GPU","runner-linux"),
-    ("linux-mi355-1gpu-ossci-rocm","Linux","Ubuntu 22.04 LTS","OSSCI","3 (j5v9z-* pool)","MI355X","gfx950","1","Postsubmit · nightly","gfx950 not tested at PR; postsubmit matrix only","runner-linux"),
-    ("linux-gfx90a-gpu-rocm","Linux","Ubuntu 22.04 LTS","On-Prem (AUS)","12 GPU slots (3 nodes × 4)","MI200","gfx90a","1","Nightly only","Supermicro nodes in Australia datacenter","runner-linux"),
-    ("linux-gfx1030-gpu-rocm","Linux","Ubuntu 22.04 LTS","On-Prem","2","RX 6000 (RDNA2)","gfx1030 / gfx103X","1","Nightly only","Consumer GPU (RX 6950 XT)","runner-linux"),
-    ("linux-gfx110X-gpu-rocm","Linux","Ubuntu 22.04 LTS","On-Prem","6 (gfx110X-gpu-rocm-1/2/3/4 + labctr-gfx1103 + labxsj-gfx1103)","Navi3 / RX 7900","gfx1100/1101","1","Nightly only","nightly_check_only_for_family; Build-only at PR/postsubmit","runner-linux"),
-    ("linux-gfx1150-gpu-rocm","Linux","Ubuntu 22.04 LTS","On-Prem","1–2","Strix Point","gfx1150","1","Nightly only","APU — Strix Point; nightly_check_only","runner-linux"),
-    ("linux-gfx1151-gpu-rocm","Linux","Ubuntu 22.04 LTS","On-Prem","4 (strix-halo-6/7 + shark-strixhalo-17/18; strix-halo-3 mis-labelled)","Strix Halo","gfx1151","1","Nightly only","nightly_check_only; Build-only at PR/postsubmit on Linux; strix-halo-3 offline and lacks gfx1151 label","runner-linux"),
-    ("linux-strix-halo-gpu-rocm-oem","Linux","Ubuntu 22.04 LTS","On-Prem","4","Strix Halo (OEM)","gfx1151","1","Nightly only","OEM kernel variant; selected via test_runner:oem PR label","runner-linux"),
-    ("linux-gfx1153-gpu-rocm","Linux","Ubuntu 22.04 LTS","On-Prem","3","Krackan Point (Radeon 820M)","gfx1153","1","Nightly only","APU — Krackan Point; disabled since 7.12.0a20260214 (CK instability); gfx1152 (Krackan 840M) is a separate ISA target","runner-linux"),
-    ("linux-gfx120X-gpu-rocm","Linux","Ubuntu 22.04 LTS","On-Prem","4 (rx9070-1/3/4 + rx9700-1; rx9070-2 mis-labelled)","Navi4 / RX 9070","gfx1200/1201","1","Nightly only","nightly_check_only_for_family; rx9070-2 lacks gfx120X label","runner-linux"),
-    ("windows-gfx1151-gpu-rocm","Windows","Windows 11","On-Prem","11 (strix-halo-1/4/6/8/10-16; -7 DO-NOT-ENABLE)","Strix Halo","gfx1151","1","PR (Build-only) · postsubmit (Build-only) · nightly (Build + Test)","Primary Windows GPU runner; strix-halo-7 excluded (DO-NOT-ENABLE flag)","runner-windows"),
-    ("windows-gfx110X-gpu-rocm","Windows","Windows 11","On-Prem","23 (22 online + 1 offline; azure-windows-11-gfx1101-*)","Navi3 / RX 7900 (gfx1101)","gfx1100/1101","1","Nightly only","nightly_check_only","runner-windows"),
-    ("windows-gfx1030-gpu-rocm","Windows","Windows 11","On-Prem","2","RX 6000 (RDNA2)","gfx1030","1","Nightly only","","runner-windows"),
-    ("windows-gfx120X-gpu-rocm","Windows","Windows 11","On-Prem","0 (label doesn't exist; use windows-gfx1201-gpu-rocm)","Navi4 / RX 9070","gfx1200/1201","1","Nightly only","Label windows-gfx120X-gpu-rocm not present in fleet; actual label is windows-gfx1201-gpu-rocm","runner-windows"),
+    ("linux-gfx942-1gpu-ccs-ossci-rocm","Linux","Ubuntu 22.04 LTS","OSSCI","4 (cirrascale)","MI300X / MI325X","gfx942 / gfx94X","1","PR · postsubmit · nightly","Pre-commit alternate pool, weighted random selection (weight 0.14)","runner-linux"),
+    ("linux-gfx942-1gpu-core42-ossci-rocm","Linux","Ubuntu 22.04 LTS","OSSCI","22 (core42 ARC autoscale; was 8 base at 2026-04-22 launch — expanded since)","MI300X / MI325X","gfx942 / gfx94X","1","PR · postsubmit · nightly","Added in PR #4718 (2026-04-22); pre-commit alternate pool (weight 0.27); 1-GPU distribution: 17N (vultr) + 4N (ccs) + 22N (core42); ARC autoscaling — count is point-in-time; live count fluctuates with queue pressure","runner-linux"),
+    ("linux-gfx942-8gpu-ossci-rocm","Linux","Ubuntu 22.04 LTS","OSSCI","11 (cirrascale)","MI300X / MI325X","gfx942 / gfx94X","8","Nightly · distributed tests · RCCL","PyTorch distributed (3 shards); RCCL multi-GPU; 8-GPU distribution: 11N (cirrascale, weight 0.61) + 7N (core42)","runner-linux"),
+    ("linux-gfx942-8gpu-core42-ossci-rocm","Linux","Ubuntu 22.04 LTS","OSSCI","7 (core42)","MI300X / MI325X","gfx942 / gfx94X","8","Nightly · distributed tests · RCCL","Added in PR #4718 (2026-04-22); 8-GPU pool alternate (weight 0.39)","runner-linux"),
+    ("linux-gfx950-1gpu-ccs-ossci-rocm","Linux","Ubuntu 22.04 LTS","OSSCI","3 (j5v9z-* pool)","MI355X","gfx950","1","Postsubmit · nightly","gfx950 single-GPU (CCS host); replaced linux-mi355-1gpu-ossci-rocm in PR #4784 (2026-04-28); postsubmit matrix only","runner-linux"),
+    ("linux-gfx950-8gpu-ccs-ossci-rocm","Linux","Ubuntu 22.04 LTS","OSSCI","1 (initial onboarding)","MI355X","gfx950","8","Postsubmit · nightly (multi-GPU)","Added in PR #4784 (2026-04-28); MI355 8-GPU lane for multi-GPU postsubmit/nightly tests","runner-linux"),
+    ("linux-gfx90a-gpu-rocm","Linux","Ubuntu 22.04 LTS","On-Prem (AUS)","12 GPU slots (3 nodes × 4)","MI200","gfx90a","1","PR (Build) · postsubmit (Build) · nightly (Build + Test)","Supermicro nodes in Australia datacenter; nightly_check_only_for_family in nightly matrix","runner-linux"),
+    ("linux-gfx1030-gpu-rocm","Linux","Ubuntu 22.04 LTS","On-Prem","2","RX 6000 (RDNA2)","gfx1030 / gfx103X","1","PR (Build) · postsubmit (Build) · nightly (Build + Test)","Consumer GPU (RX 6950 XT); nightly_check_only_for_family","runner-linux"),
+    ("linux-gfx110X-gpu-rocm","Linux","Ubuntu 22.04 LTS","On-Prem","8 (gfx110X-gpu-rocm-1/2/3/5/6 + labctr-gfx1103 + labxsj-gfx1103 + 1 OrchestrAI Managed: CS-RORDMZ-DT77)","Navi3 / RX 7900","gfx1100/1101","1","PR (Build) · postsubmit (Build) · nightly (Build + Test)","nightly_check_only_for_family; builds at PR/postsubmit, tests only at nightly; -3 registers as 2 GHA runners (one per GPU); -5/-6 added since 2026-04-20 snapshot","runner-linux"),
+    ("linux-gfx1150-gpu-rocm","Linux","Ubuntu 22.04 LTS","On-Prem","2 (labblr-linux-u2404-gfx1150-runner + linux-strix-gpu-rocm-2; both also carry linux-gfx115X-gpu-rocm)","Strix Point","gfx1150","1","PR (Build) · postsubmit (Build) · nightly (Build + Test)","APU — Strix Point; nightly_check_only_for_family","runner-linux"),
+    ("linux-gfx1151-gpu-rocm","Linux","Ubuntu 22.04 LTS","On-Prem","7 (strix-halo-3/5/6/7/8/9 + 1 OrchestrAI Managed: CS-RORDMZ-DT222)","Strix Halo","gfx1151","1","PR (Build) · postsubmit (Build) · nightly (Build + Test)","nightly_check_only_for_family on Linux; strix-halo-3 was previously mis-labelled (now properly registered); shark-strixhalo-17/18 offline; -5/-8/-9 added since 2026-04-20 snapshot; all also carry linux-strix-halo-gpu-rocm-oem + linux-gfx115X-gpu-rocm","runner-linux"),
+    ("linux-strix-halo-gpu-rocm-oem","Linux","Ubuntu 22.04 LTS","On-Prem","6 (strix-halo-3/5/6/7/8/9; same physical hardware as linux-gfx1151-gpu-rocm)","Strix Halo (OEM)","gfx1151","1","PR (Build) · postsubmit (Build) · nightly (Build + Test on test_runner:oem PR label)","OEM kernel variant of gfx1151 lane; selected via test_runner:oem PR label; inherits nightly_check_only_for_family; same physical machines as linux-gfx1151-gpu-rocm — counted ONCE per family in live aggregates","runner-linux"),
+    ("linux-gfx1153-gpu-rocm","Linux","Ubuntu 22.04 LTS","On-Prem","3","Krackan Point (Radeon 820M)","gfx1153","1","PR (Build) · postsubmit (Build) · nightly (Build + Test)","APU — Krackan Point; nightly_check_only_for_family; disabled since 7.12.0a20260214 (CK instability); gfx1152 (Krackan 840M) is a separate ISA target","runner-linux"),
+    ("linux-gfx120X-gpu-rocm","Linux","Ubuntu 22.04 LTS","On-Prem","8 (rx9070-1 [registers as gfx120X-gpu-rocm-1, 2 GHA per machine] + rx9070-4 + rx9700-1 + 4 OrchestrAI Managed: CS-RORDMZ-DT72/81/83/87)","Navi4 / RX 9070","gfx1200/1201","1","PR (Build) · postsubmit (Build) · nightly (Build + Test)","nightly_check_only_for_family; rx9070-2 lacks gfx120X label (offline); rx9070-3 currently offline; OrchestrAI shared dev pool added since 2026-04-20","runner-linux"),
+    ("windows-gfx1151-gpu-rocm","Windows","Windows 11","On-Prem","11 (strix-halo-1/4/6/8/10-16; -7 DO-NOT-ENABLE)","Strix Halo","gfx1151","1","PR (Build) · postsubmit (Build) · nightly (Build + Test)","Primary Windows GPU runner; nightly_check_only_for_family on Windows too; strix-halo-7 excluded (DO-NOT-ENABLE flag)","runner-windows"),
+    ("windows-gfx110X-gpu-rocm","Windows","Windows 11","On-Prem","23 (22 online + 1 offline; azure-windows-11-gfx1101-*)","Navi3 / RX 7900 (gfx1101)","gfx1100/1101","1","PR · postsubmit · nightly","Tests at all 3 tiers; Windows gfx110X cfg has NO nightly_check_only_for_family flag (unlike Linux side)","runner-windows"),
+    ("windows-gfx1030-gpu-rocm","Windows","Windows 11","On-Prem","2","RX 6000 (RDNA2)","gfx1030","1","PR (Build) · postsubmit (Build) · nightly (Build + Test)","nightly_check_only_for_family","runner-windows"),
+    ("windows-gfx120X-gpu-rocm","Windows","Windows 11","On-Prem","5 (label now active; 5 machines registered as windows-gfx120X-gpu-rocm; also accept the windows-gfx1201-gpu-rocm alias)","Navi4 / RX 9070","gfx1200/1201","1","PR (Build) · postsubmit (Build) · nightly (Build + Test)","nightly_check_only_for_family; label was missing in 2026-04-20 snapshot but is now active in fleet (alongside windows-gfx1201-gpu-rocm)","runner-windows"),
     ("azure-linux-scale-rocm","Linux","Ubuntu 22.04 LTS","OSSCI","~113 VMs (112 ccqkb-* online + 1 heavy runner)","None (build only)","—","—","All tiers (build jobs)","Elastic Azure build pool; no GPU; used for all compile/package jobs","runner-build"),
     ("azure-windows-scale-rocm","Windows","Windows Server 2022","OSSCI","69 VMs (ckv2f-*: 67 online + 2 offline)","None (build only)","—","—","All tiers (build jobs)","Elastic Windows build pool; no GPU","runner-build"),
     ("nova-linux-slurm-scale-runner","Linux","Ubuntu 22.04 LTS","On-Prem","1 (currently offline)","MI355X multi-node","gfx950","N","RCCL multi-node only","RCCL CI in rocm-systems; Slurm job scheduler; offline as of Apr 20 snapshot","runner-linux"),
@@ -661,11 +678,361 @@ def _parse_server_count(phys_str: str) -> int:
 
 _runner_counts: dict = {rec[0]: _parse_server_count(rec[4]) for rec in RUNNER_DATA}
 
+# ── Optional: load runner-health dashboard data ──────────────────────────────
+# If the user dropped a saved page from https://therock-runner-health.com/ in
+# this folder, pick it up so we can decorate the gfx groupings with live
+# online / busy / idle counts and queue health badges.
+_RUNNER_HEALTH = None
+try:
+    from runner_health_parser import load_runner_health
+    from pathlib import Path as _P
+    for _candidate in ("TheRock Runner Health.mhtml", "runner_health.mhtml",
+                       "runner-health.mhtml", "TheRockRunnerHealth.mhtml"):
+        if (_P(__file__).parent / _candidate).exists():
+            _RUNNER_HEALTH = load_runner_health(_P(__file__).parent / _candidate)
+            if _RUNNER_HEALTH:
+                print(f"  [runner-health] Loaded {_candidate}: {len(_RUNNER_HEALTH.per_machine)} machines, {len(_RUNNER_HEALTH.per_label)} labelled metrics")
+                break
+except Exception as _e:
+    print(f"  [runner-health] WARN: {_e}")
+
+# ── Helper: group a list of runner labels by gfx family for "Runner Labels & Counts" cells ──
+_runner_meta = {rec[0]: {"isa": rec[6], "gpu": rec[5], "platform": rec[1]} for rec in RUNNER_DATA}
+
+# ── Pool-type classification ─────────────────────────────────────────────────
+# Distinguishes:
+#   bare-metal — fixed physical GPU/build hardware (counts are stable)
+#   ARC-GPU    — elastic GHA Actions Runner Controller pool with GPU passthrough
+#                (Build + Test capable; counts are point-in-time, can autoscale)
+#   ARC-VM     — elastic ARC pool with NO GPU (Build-only)
+#   Slurm      — multi-node Slurm-managed cluster
+#   Sandbox    — quarantined ASAN/dev sandbox
+#   GitHub     — GitHub-hosted cloud runners (Build-only fallback)
+_POOL_TYPE = {
+    "linux-gfx942-1gpu-ossci-rocm":          "ARC-GPU",   # vth9c-* Vultr cloud
+    "linux-gfx942-1gpu-ccs-ossci-rocm":      "bare-metal",
+    "linux-gfx942-1gpu-core42-ossci-rocm":   "ARC-GPU",   # core42 ARC autoscale
+    "linux-gfx942-8gpu-ossci-rocm":          "bare-metal",
+    "linux-gfx942-8gpu-core42-ossci-rocm":   "bare-metal",
+    "linux-gfx950-1gpu-ccs-ossci-rocm":      "ARC-GPU",   # j5v9z-* pool
+    "linux-gfx950-8gpu-ccs-ossci-rocm":      "bare-metal",
+    "linux-gfx90a-gpu-rocm":                 "bare-metal",
+    "linux-gfx1030-gpu-rocm":                "bare-metal",
+    "linux-gfx110X-gpu-rocm":                "bare-metal",
+    "linux-gfx1150-gpu-rocm":                "bare-metal",
+    "linux-gfx1151-gpu-rocm":                "bare-metal",
+    "linux-strix-halo-gpu-rocm-oem":         "bare-metal",
+    "linux-gfx1153-gpu-rocm":                "bare-metal",
+    "linux-gfx120X-gpu-rocm":                "bare-metal",
+    "windows-gfx1151-gpu-rocm":              "bare-metal",
+    "windows-gfx110X-gpu-rocm":              "bare-metal",
+    "windows-gfx1030-gpu-rocm":              "bare-metal",
+    "windows-gfx120X-gpu-rocm":              "bare-metal",
+    "azure-linux-scale-rocm":                "ARC-VM",
+    "azure-windows-scale-rocm":              "ARC-VM",
+    "nova-linux-slurm-scale-runner":         "Slurm",
+    "rocm-asan-mi325-sandbox":               "Sandbox",
+    "self-hosted (amdsmi/aqlprofile)":       "bare-metal",
+    "ubuntu-24.04":                          "GitHub",
+    "windows-2022":                          "GitHub",
+}
+
+# Visual style per pool type — short tag + tooltip + colour
+_POOL_TAG = {
+    "bare-metal": ('<span title="Fixed bare-metal hardware — count is stable" '
+                   'style="display:inline-block;padding:0 4px;border-radius:3px;'
+                   'background:#1B5E20;color:#fff;font-size:9px;font-weight:700;'
+                   'margin-left:4px;vertical-align:middle">BM</span>'),
+    "ARC-GPU":   ('<span title="ARC ephemeral pool with GPU passthrough — Build + Test capable; '
+                   'count is point-in-time and autoscales with queue pressure" '
+                   'style="display:inline-block;padding:0 4px;border-radius:3px;'
+                   'background:#F9A825;color:#000;font-size:9px;font-weight:700;'
+                   'margin-left:4px;vertical-align:middle">ARC-GPU</span>'),
+    "ARC-VM":    ('<span title="ARC elastic VM pool — no GPU, Build-only" '
+                   'style="display:inline-block;padding:0 4px;border-radius:3px;'
+                   'background:#90A4AE;color:#fff;font-size:9px;font-weight:700;'
+                   'margin-left:4px;vertical-align:middle">VM</span>'),
+    "Slurm":     ('<span title="Slurm-scheduled multi-node cluster" '
+                   'style="display:inline-block;padding:0 4px;border-radius:3px;'
+                   'background:#4527A0;color:#fff;font-size:9px;font-weight:700;'
+                   'margin-left:4px;vertical-align:middle">Slurm</span>'),
+    "Sandbox":   ('<span title="Quarantined sandbox runner" '
+                   'style="display:inline-block;padding:0 4px;border-radius:3px;'
+                   'background:#6D4C41;color:#fff;font-size:9px;font-weight:700;'
+                   'margin-left:4px;vertical-align:middle">Sandbox</span>'),
+    "GitHub":    ('<span title="GitHub-hosted cloud runner (no GPU)" '
+                   'style="display:inline-block;padding:0 4px;border-radius:3px;'
+                   'background:#37474F;color:#fff;font-size:9px;font-weight:700;'
+                   'margin-left:4px;vertical-align:middle">GitHub</span>'),
+}
+
+def _pool_tag(label: str) -> str:
+    """Return small inline pool-type badge for a runner label."""
+    pt = _POOL_TYPE.get(label, "bare-metal")
+    return _POOL_TAG.get(pt, "")
+
+# Map detailed ISA strings (col 6 of RUNNER_DATA) to a canonical short family + GPU description.
+_GFX_GROUP_NAMES = {
+    "gfx942 / gfx94X":   ("gfx94X",  "MI300X / MI325X"),
+    "gfx950":            ("gfx950",  "MI355X"),
+    "gfx90a":            ("gfx90a",  "MI200"),
+    "gfx1030 / gfx103X": ("gfx103X", "RX 6000 (RDNA2)"),
+    "gfx1030":           ("gfx103X", "RX 6000 (RDNA2)"),
+    "gfx1100/1101":      ("gfx110X", "Navi3 / RX 7900"),
+    "gfx1150":           ("gfx1150", "Strix Point APU"),
+    "gfx1151":           ("gfx1151", "Strix Halo"),
+    "gfx1153":           ("gfx1153", "Krackan Point APU"),
+    "gfx1200/1201":      ("gfx120X", "Navi4 / RX 9070"),
+}
+
+def _normalize_isa(isa: str) -> tuple:
+    if isa in _GFX_GROUP_NAMES:
+        return _GFX_GROUP_NAMES[isa]
+    short = isa.split("/")[0].strip().split(" ")[0]
+    return (short, "")
+
+def _live_status_chip(label: str) -> str:
+    """Render an inline live status chip from runner-health data, or '' if none."""
+    if not _RUNNER_HEALTH:
+        return ""
+    busy, idle = _RUNNER_HEALTH.label_busy_idle(label)
+    online = busy + idle
+    metrics = _RUNNER_HEALTH.per_label.get(label, {})
+    status   = metrics.get("status", "unknown")
+    med_q    = metrics.get("median_queue", "")
+    worst_q  = metrics.get("worst_queue", "")
+    jobs_6h  = metrics.get("jobs_6h", "")
+    if online == 0 and not metrics:
+        return ""
+    badge_color = {"bad": "#F9A825", "ok": "#2E7D32"}.get(status, "#888")  # yellow for lag, green for ok
+    badge_fg    = {"bad": "#000",     "ok": "#fff"   }.get(status, "#fff")  # dark text on yellow for contrast
+    badge_text  = {"bad": "&#x26A0; queue lag", "ok": "&#x2713; healthy"}.get(status, "")
+    badge = (f' <span title="6h: {jobs_6h} jobs &bull; median queue {med_q} &bull; worst {worst_q}" '
+             f'style="display:inline-block;padding:0 6px;border-radius:8px;background:{badge_color};color:{badge_fg};font-size:10px;font-weight:700">{badge_text}</span>'
+             if badge_text else "")
+    live = ""
+    if online > 0:
+        # Include offline derived from snapshot count when we know it
+        snap_total = _runner_counts.get(label, 0)
+        offline = max(0, snap_total - online) if snap_total else 0
+        off_part = f" &middot; <b>{offline}</b> offline" if offline else ""
+        live = (f' <span style="color:#1B5E20" '
+                f'title="Snapshot says {snap_total} physical nodes for this label. '
+                f'Dashboard enumerates {online} online runners ({busy} busy + {idle} idle). '
+                f'The remaining {offline} are offline or unreachable.">'
+                f'&#x25CF; live: <b>{online}</b> online ({busy} busy / {idle} idle){off_part}</span>')
+    return live + badge
+
+
+def _runner_labels_by_gfx_html(labels: list) -> str:
+    """Render the given runner labels grouped by gfx family.
+    Each row shows: family / GPU description / subtotal / per-label breakdown.
+    When runner-health data is loaded, also shows live online/busy/idle counts
+    and a queue-health badge per label."""
+    from collections import OrderedDict
+    groups = OrderedDict()
+    for label in labels:
+        meta = _runner_meta.get(label)
+        if not meta:
+            continue
+        short, desc = _normalize_isa(meta["isa"])
+        if not desc and meta["gpu"]:
+            desc = meta["gpu"]
+        if short not in groups:
+            groups[short] = {"desc": desc, "items": []}
+        groups[short]["items"].append((label, _runner_counts.get(label, 0), meta["platform"]))
+
+    parts = ['<div style="font-size:12px;line-height:1.6">']
+    for short, info in groups.items():
+        total = sum(c for _, c, _ in info["items"])
+        # Live family-level totals — DEDUPLICATED across labels by physical
+        # machine identity, so multi-label / multi-GPU machines are not
+        # double-counted. (See runner_health_parser.physical_id.)
+        live_online = live_busy = 0
+        if _RUNNER_HEALTH:
+            family_labels = [label for label, _, _ in info["items"]]
+            live_busy, live_idle_tmp = _RUNNER_HEALTH.family_busy_idle(family_labels)
+            live_online = live_busy + live_idle_tmp
+        live_idle    = live_online - live_busy
+        live_offline = max(0, total - live_online)  # offline = declared - currently-online
+        plats = sorted(set(p for _, _, p in info["items"]))
+        plat_tag = (' <span style="color:#888;font-size:11px">(L+W)</span>' if len(plats) > 1
+                    else f' <span style="color:#888;font-size:11px">({plats[0][0]})</span>')
+        family_live = ""
+        if _RUNNER_HEALTH and (live_online > 0 or live_offline > 0):
+            family_live = (
+                f' <span style="color:#1B5E20;font-weight:400;font-size:11px"'
+                f' title="Snapshot: {total} declared physical nodes &#10;'
+                f'Online now: {live_online} ({live_busy} busy + {live_idle} idle) &#10;'
+                f'Offline / unenumerated: {live_offline}">'
+                f'(live: <b>{live_online}</b> online = {live_busy} busy + {live_idle} idle'
+                f'{f" &middot; {live_offline} offline" if live_offline else ""})'
+                f'</span>'
+            )
+        parts.append(
+            f'<div style="margin-bottom:5px"><b style="color:#000;font-size:12.5px">{short}</b>{plat_tag} '
+            f'<span style="color:#666">{info["desc"]}</span> &mdash; <b>{total}</b> nodes{family_live}'
+        )
+        for label, count, _plat in info["items"]:
+            chip = _live_status_chip(label)
+            ptag = _pool_tag(label)
+            parts.append(
+                f'<div style="margin-left:14px;color:#333">&bull; '
+                f'<code style="font-size:12px;color:#1565C0">{label}</code>{ptag} = <b>{count}</b>{chip}</div>'
+            )
+        parts.append('</div>')
+    parts.append('</div>')
+    return "".join(parts)
+
+# ── Snapshot caveats per runner label (DO-NOT-ENABLE, mis-labelled, offline) ──
+# Pulled from RUNNER_DATA phys_machines (idx 4) + notes (idx 9) — these are the
+# operationally interesting facts to surface in the per-tier "Comments" column.
+_runner_phys_note = {rec[0]: rec[4]  for rec in RUNNER_DATA}  # e.g. "11 (strix-halo-1/...; -7 DO-NOT-ENABLE)"
+_runner_op_notes  = {rec[0]: rec[9]  for rec in RUNNER_DATA}
+
+def _caveats_for_label(label: str) -> list:
+    """Return a short list of human-readable caveats for a runner label
+    (e.g. 'strix-halo-7 DO-NOT-ENABLE', 'rx9070-2 mis-labelled', 'offline')."""
+    caveats = []
+    phys = _runner_phys_note.get(label, "")
+    note = _runner_op_notes.get(label, "")
+    text = f"{phys} | {note}"
+    low  = text.lower()
+    # Curated patterns we care about — keep the raw fragment around
+    if "do-not-enable" in low:
+        caveats.append("DO-NOT-ENABLE flag on a node (e.g. strix-halo-7)" if "strix-halo" in low else "DO-NOT-ENABLE flag")
+    if "mis-labelled" in low:
+        # Pull the offending node name when present (e.g. "strix-halo-3 mis-labelled")
+        m = re.search(r'([A-Za-z0-9\-]+)\s+mis-labelled', text)
+        caveats.append(f"{m.group(1)} mis-labelled" if m else "mis-labelled node")
+    # Honest "offline" mentions ONLY if not the generic "online + N offline" formula
+    if "currently offline" in low or "offline as of" in low:
+        caveats.append("entire pool offline at last snapshot")
+    return caveats
+
+def _gfx_os_breakdown_html(labels: list, include_caveats: bool = True) -> str:
+    """Compact summary table: per-gfx total, broken down by Linux/Windows
+    online vs offline. When runner-health is loaded, "online" comes from the
+    live dashboard; "offline" = declared (snapshot) - online. When absent,
+    everything falls back to the snapshot count.
+    Also lists per-label caveats (DO-NOT-ENABLE, mis-labelled, offline)."""
+    from collections import OrderedDict
+    fams = OrderedDict()
+    for label in labels:
+        meta = _runner_meta.get(label)
+        if not meta:
+            continue
+        short, desc = _normalize_isa(meta["isa"])
+        if not desc and meta["gpu"]:
+            desc = meta["gpu"]
+        fam = fams.setdefault(short, {"desc": desc, "Linux": [], "Windows": []})
+        fam[meta["platform"]].append(label)
+
+    if not fams:
+        return ""
+
+    # Helpers to compute (declared, online, offline) for a list of labels.
+    # Live count is deduplicated by physical-machine identity so a multi-GPU
+    # or multi-label runner is counted once.
+    def _stats(label_list):
+        decl = sum(_runner_counts.get(l, 0) for l in label_list)
+        if _RUNNER_HEALTH:
+            b, i = _RUNNER_HEALTH.family_busy_idle(label_list)
+            online = b + i
+        else:
+            online = decl  # no live data → assume all online
+        offline = max(0, decl - online)
+        return decl, online, offline
+
+    parts = ['<div style="font-size:11px;line-height:1.45;margin-top:6px">'
+             '<div style="font-weight:700;color:#37474F;margin-bottom:3px;font-size:11.5px">'
+             '&#x1F4CA; Online / Offline by gfx (Linux + Windows)</div>'
+             '<table style="border-collapse:collapse;font-size:11px;width:100%;margin-bottom:4px">'
+             '<thead><tr style="color:#fff;font-weight:700">'
+             '<th style="padding:3px 6px;text-align:left;border:1px solid #CFD8DC;background:#37474F">gfx</th>'
+             '<th style="padding:3px 6px;text-align:center;border:1px solid #CFD8DC;background:#546E7A" title="Total = Online + Offline (per snapshot in RUNNER_DATA). &#10;&#10;Bare-metal pools: fixed physical machines. &#10;ARC-GPU pools: current ephemeral runner capacity (autoscaling, point-in-time). &#10;ARC-VM pools: build-only Azure VMs (excluded from GPU breakdowns). &#10;&#10;Hover the BM / ARC-GPU / VM badges next to each label for pool type details.">Total</th>'
+             '<th style="padding:3px 6px;text-align:center;border:1px solid #2E7D32;background:#2E7D32">Online</th>'
+             '<th style="padding:3px 6px;text-align:center;border:1px solid #C62828;background:#C62828">Offline</th>'
+             '<th style="padding:3px 6px;text-align:left;border:1px solid #CFD8DC;background:#37474F">Per-OS</th>'
+             '</tr></thead><tbody>']
+    all_caveats = []
+    for short, info in fams.items():
+        all_lbls = info["Linux"] + info["Windows"]
+        decl, online, offline = _stats(all_lbls)
+        os_parts = []
+        for ostag in ("Linux", "Windows"):
+            if info[ostag]:
+                d, o, off = _stats(info[ostag])
+                color = "#1B5E20" if off == 0 else "#B71C1C"
+                os_parts.append(
+                    f'<b>{ostag[0]}</b>: '
+                    f'<span style="color:#1B5E20">{o}</span>/{d} on'
+                    f'{f", <span style=\"color:{color}\"><b>{off}</b> off</span>" if off else ""}'
+                )
+        parts.append(
+            f'<tr>'
+            f'<td style="padding:2px 5px;border:1px solid #CFD8DC;white-space:nowrap"><b style="color:#000">{short}</b>'
+            f' <span style="color:#888;font-size:10px">{info["desc"]}</span></td>'
+            f'<td style="padding:2px 5px;text-align:center;border:1px solid #CFD8DC">{decl}</td>'
+            f'<td style="padding:2px 5px;text-align:center;border:1px solid #CFD8DC;color:#1B5E20"><b>{online}</b></td>'
+            f'<td style="padding:2px 5px;text-align:center;border:1px solid #CFD8DC;'
+            f'color:{"#B71C1C" if offline else "#999"}"><b>{offline}</b></td>'
+            f'<td style="padding:2px 5px;border:1px solid #CFD8DC;font-size:10.5px;line-height:1.4">'
+            f'{" &nbsp;|&nbsp; ".join(os_parts)}</td>'
+            f'</tr>'
+        )
+        if include_caveats:
+            for lbl in all_lbls:
+                for c in _caveats_for_label(lbl):
+                    all_caveats.append((short, lbl, c))
+    parts.append('</tbody></table>')
+    # Pool-type breakdown for the labels in scope
+    pool_counts: dict = {}
+    for short, info in fams.items():
+        for ostag in ("Linux", "Windows"):
+            for lbl in info[ostag]:
+                pt = _POOL_TYPE.get(lbl, "bare-metal")
+                pool_counts[pt] = pool_counts.get(pt, 0) + _runner_counts.get(lbl, 0)
+    if pool_counts:
+        legend_parts = []
+        for pt in ("bare-metal", "ARC-GPU", "ARC-VM", "Slurm", "Sandbox", "GitHub"):
+            if pt in pool_counts:
+                tag = _POOL_TAG.get(pt, "")
+                legend_parts.append(f'{tag} = <b>{pool_counts[pt]}</b>')
+        parts.append('<div style="font-size:10px;color:#37474F;margin-top:3px;line-height:1.7">'
+                     '<b>Pool types:</b> ' + " &nbsp; ".join(legend_parts) + '</div>')
+
+    if all_caveats and include_caveats:
+        parts.append('<div style="font-size:10.5px;color:#5D4037;margin-top:4px;line-height:1.4">'
+                     '<b>Caveats:</b><br>')
+        cav_html = "<br>".join(
+            f'&bull; <code style="font-size:10px">{lbl}</code>: <span style="color:#B71C1C">{c}</span>'
+            for short, lbl, c in all_caveats
+        )
+        parts.append(cav_html + '</div>')
+    parts.append('</div>')
+    return "".join(parts)
+
+# Curated runner sets per CI tier (used by Component CI Matrix summary table)
+# Pre-commit: gfx94X test pool (all 3 1-GPU lanes + 2 8-GPU lanes + ASAN sandbox) + Windows build-only
+_PC_GPU_LABELS = [
+    "linux-gfx942-1gpu-ossci-rocm", "linux-gfx942-1gpu-ccs-ossci-rocm", "linux-gfx942-1gpu-core42-ossci-rocm",
+    "linux-gfx942-8gpu-ossci-rocm", "linux-gfx942-8gpu-core42-ossci-rocm",
+    "rocm-asan-mi325-sandbox",
+    "windows-gfx1151-gpu-rocm",
+]
+# Post-commit: pre-commit pool + gfx950 (1-GPU + 8-GPU)
+_PO_GPU_LABELS = _PC_GPU_LABELS + [
+    "linux-gfx950-1gpu-ccs-ossci-rocm", "linux-gfx950-8gpu-ccs-ossci-rocm",
+]
+# Nightly: everything (all GPU runners)
+_NI_GPU_LABELS = [r[0] for r in RUNNER_DATA if r[10] in ("runner-linux", "runner-windows")]
+
 _pt_build_servers = _runner_counts.get("azure-linux-scale-rocm", 0) + _runner_counts.get("azure-windows-scale-rocm", 0)
 _pt_gpu_runners = [
     ("linux-gfx942-1gpu-ossci-rocm", "gfx94X (MI300X/MI325X)"),
     ("linux-gfx942-8gpu-ossci-rocm", "gfx94X 8-GPU distributed"),
-    ("linux-mi355-1gpu-ossci-rocm",  "gfx950 (MI355X)"),
+    ("linux-gfx950-1gpu-ccs-ossci-rocm",  "gfx950 (MI355X)"),
     ("linux-gfx90a-gpu-rocm",        "gfx90a (MI200)"),
     ("linux-gfx1030-gpu-rocm",       "gfx103X (RDNA2)"),
     ("linux-gfx110X-gpu-rocm",       "gfx110X (Navi3)"),
@@ -687,11 +1054,66 @@ _pt_gpu_runner_breakdown = " &bull; ".join(
     for lbl, desc in _pt_gpu_runners
 )
 
+# Pre-computed gfx-grouped HTML for "Runner Labels & Counts" cells
+_pc_runner_grouped_html = _runner_labels_by_gfx_html(_PC_GPU_LABELS)
+_po_runner_grouped_html = _runner_labels_by_gfx_html(_PO_GPU_LABELS)
+_ni_runner_grouped_html = _runner_labels_by_gfx_html(_NI_GPU_LABELS)
+# Framework PyTorch uses the full set (all gfx tested by PyTorch nightly)
+_pt_runner_grouped_html = _runner_labels_by_gfx_html(_NI_GPU_LABELS)
+
+# Pre-computed gfx × OS online/offline breakdown for "Comments" column
+_pc_breakdown_html = _gfx_os_breakdown_html(_PC_GPU_LABELS)
+_po_breakdown_html = _gfx_os_breakdown_html(_PO_GPU_LABELS)
+_ni_breakdown_html = _gfx_os_breakdown_html(_NI_GPU_LABELS)
+_pt_breakdown_html = _gfx_os_breakdown_html(_NI_GPU_LABELS)
+_jax_breakdown_html = _gfx_os_breakdown_html(["linux-gfx942-1gpu-ossci-rocm"])
+
+# Optional live-status banner — populated from runner-health dashboard if available.
+if _RUNNER_HEALTH:
+    _s = _RUNNER_HEALTH.summary
+    _gpu = _s.get("resource", {}).get("GPU", {})
+    _cpu = _s.get("resource", {}).get("CPU", {})
+    _live_status_banner = (
+        f'<div style="margin:0 0 14px 0;padding:10px 14px;background:#E8F5E9;border-left:4px solid #2E7D32;'
+        f'border-radius:4px;font-size:12px;color:#1B5E20">'
+        f'&#x1F4E1; <b>Live runner-health snapshot</b> &mdash; refreshed '
+        f'<b>{_RUNNER_HEALTH.refresh_time or "(time unknown)"}</b> '
+        f'(parsed from <a href="https://therock-runner-health.com/" target="_blank" rel="noopener" style="color:#1B5E20;font-weight:600">therock-runner-health.com</a>):'
+        f'<br>&nbsp;&nbsp;&nbsp;&nbsp;'
+        f'<b>{_s.get("online", "?")}</b> online &middot; '
+        f'<b>{_s.get("offline", "?")}</b> offline &middot; '
+        f'<b>{_s.get("busy", "?")}</b> busy &middot; '
+        f'<b>{_s.get("idle", "?")}</b> idle '
+        f'&nbsp;|&nbsp; '
+        f'<b>GPU pool:</b> {_gpu.get("online","?")}/{_gpu.get("total","?")} online '
+        f'({_gpu.get("busy","?")} busy, {_gpu.get("idle","?")} idle, {_gpu.get("offline","?")} offline) '
+        f'&nbsp;|&nbsp; '
+        f'<b>CPU pool:</b> {_cpu.get("online","?")}/{_cpu.get("total","?")} online '
+        f'({_cpu.get("busy","?")} busy, {_cpu.get("idle","?")} idle)'
+        f'<br><span style="font-size:11px;color:#555">Each gfx group below shows live online/busy counts and queue-health badges per runner label '
+        f'(&#x26A0; = queue lag, &#x2713; = healthy). Hover badges for 6h job stats and worst queue time.</span>'
+        f'</div>'
+    )
+else:
+    _live_status_banner = (
+        f'<div style="margin:0 0 14px 0;padding:10px 14px;background:#FFF3E0;border-left:4px solid #F57C00;'
+        f'border-radius:4px;font-size:12px;color:#777">'
+        f'&#x1F4E1; <b>Live status not available</b> &mdash; drop a saved page from '
+        f'<a href="https://therock-runner-health.com/" target="_blank" rel="noopener" style="color:#1565C0">'
+        f'therock-runner-health.com</a> as <code>TheRock Runner Health.mhtml</code> in this folder to enrich '
+        f'gfx groupings with live online/busy counts and queue-health badges.'
+        f'</div>'
+    )
+# Recomputed total counts based on new comprehensive sets
+_pc_gpu_nodes_full = sum(_runner_counts.get(l, 0) for l in _PC_GPU_LABELS)
+_po_gpu_nodes_full = sum(_runner_counts.get(l, 0) for l in _PO_GPU_LABELS)
+_ni_gpu_nodes_full = sum(_runner_counts.get(l, 0) for l in _NI_GPU_LABELS)
+
 _jax_build_servers = _runner_counts.get("azure-linux-scale-rocm", 0)
 _jax_gpu_servers   = _runner_counts.get("linux-gfx942-1gpu-ossci-rocm", 0)
 _jax_total_servers = _jax_build_servers + _jax_gpu_servers
 _jax_combinations  = "4 versions × 4 Python vers × 1 GPU runner type (gfx94X test-only)"
-_grand_physical    = _pt_gpu_total   # unique physical GPU machines used by frameworks (JAX shares PyTorch's pool — no double-count)
+_grand_physical    = _ni_gpu_nodes_full   # unique physical GPU machines used by frameworks (JAX shares PyTorch's pool — no double-count)
 _grand_total       = _pt_build_servers + _grand_physical # shared build VMs + unique physical GPU machines
 
 # ── Per-tier server counts for Component CI Matrix summary bar ──────────────
@@ -699,7 +1121,7 @@ _build_vms        = _pt_build_servers   # 182 shared Azure VMs (Linux 113 + Wind
 _pc_gpu_nodes     = (_runner_counts.get("linux-gfx942-1gpu-ossci-rocm", 0) +
                      _runner_counts.get("windows-gfx1151-gpu-rocm", 0))          # 84 + 11 = 95
 _po_gpu_nodes     = (_pc_gpu_nodes +
-                     _runner_counts.get("linux-mi355-1gpu-ossci-rocm", 0))        # +3 = 98
+                     _runner_counts.get("linux-gfx950-1gpu-ccs-ossci-rocm", 0))        # +3 = 98
 _ni_gpu_nodes     = _pt_gpu_total                                                 # 159 (all unique)
 _ni_runner_types  = len(_pt_gpu_runners)                                          # 13
 
@@ -814,6 +1236,47 @@ def _inf_rows_html(data: list, row_cls: str) -> str:
         </tr>\n"""
     return rows
 
+def _inf_runner_comment(gpu_type: str, nodes: list, cluster: str) -> str:
+    """Build the per-row Comments cell for the Inference Runner Inventory table.
+    InferenceMAX runners are NOT tracked by therock-runner-health.com (separate
+    pool managed by the InferenceMAX_rocm repo / AMD-S Slurm cluster), so we
+    emit a clear note plus any pool-specific quirks we can derive from names."""
+    # Classify each node into amds (Slurm) vs amd (Docker) sub-pools
+    n_amds   = sum(1 for n in nodes if "amds" in n)
+    n_part   = sum(1 for n in nodes if re.search(r'_p\d+_g\d+', n))   # explicit partition slot
+    sub = []
+    if n_amds:
+        sub.append(f'<span style="color:#4A148C"><b>{n_amds}</b> AMD-S Slurm</span> '
+                   f'<span style="color:#888;font-size:10px">(amds_*)</span>')
+    n_docker = max(0, len(nodes) - n_amds)
+    if n_docker:
+        sub.append(f'<span style="color:#1B5E20"><b>{n_docker}</b> Docker / self-hosted</span> '
+                   f'<span style="color:#888;font-size:10px">(amd_*)</span>')
+    if n_part:
+        sub.append(f'<span style="color:#37474F">incl. {n_part} explicit partition slot(s) '
+                   f'<span style="color:#888;font-size:10px">(p&lt;part&gt;_g&lt;gpu&gt;)</span></span>')
+    # Pool-specific notes
+    extras = []
+    if "disagg" in gpu_type:
+        extras.append("disaggregated serving (prefill+decode split)")
+    if "spec" in gpu_type or "tw-sctrl" in gpu_type:
+        extras.append("speculative-decoding / single-controller test pool")
+    if cluster == "SLURM":
+        tracking = ("Managed by AMD internal Slurm scheduler &mdash; live online/offline "
+                    "<b>not</b> reported by <code>therock-runner-health.com</code>; "
+                    "presumed available unless explicitly drained.")
+    else:
+        tracking = ("Self-hosted Docker pool managed by InferenceMAX_rocm &mdash; live online/offline "
+                    "<b>not</b> reported by <code>therock-runner-health.com</code>.")
+    parts = [f'<div style="font-size:11.5px">{tracking}</div>']
+    if sub:
+        parts.append(f'<div style="font-size:10.5px;margin-top:2px">Sub-pools: '
+                     + " &nbsp;&middot;&nbsp; ".join(sub) + '</div>')
+    if extras:
+        parts.append(f'<div style="font-size:10.5px;color:#5D4037;margin-top:2px">'
+                     f'Quirks: {"; ".join(extras)}</div>')
+    return "".join(parts)
+
 def _inf_runner_rows_html(runners_dict: dict, ecosystem: str, badge_color: str) -> str:
     rows = ""
     grand_total = 0
@@ -831,12 +1294,14 @@ def _inf_runner_rows_html(runners_dict: dict, ecosystem: str, badge_color: str) 
         base = gpu_type.split("-")[0] if gpu_type.startswith("mi") else gpu_type
         family_totals[base] = family_totals.get(base, 0) + len(nodes)
         node_list = ", ".join(nodes)
+        comment_cell = _inf_runner_comment(gpu_type, nodes, cluster)
         rows += f"""<tr>
           <td style="vertical-align:middle"><span style="background:{badge_color};color:#fff;padding:2px 6px;border-radius:3px;font-size:12.5px">{ecosystem}</span></td>
           <td style="vertical-align:middle"><b>{gpu_type}</b></td>
           <td style="font-size:12.5px;vertical-align:middle">{node_list}</td>
           <td style="text-align:center;font-weight:700;font-size:13px;vertical-align:middle">{len(nodes)}</td>
           <td style="font-size:12.5px;vertical-align:middle">{cluster}</td>
+          <td style="font-size:12px;vertical-align:middle;color:#37474F;min-width:720px;word-wrap:break-word">{comment_cell}</td>
         </tr>\n"""
     if rows:
         family_parts = " &nbsp;&bull;&nbsp; ".join(
@@ -853,13 +1318,16 @@ def _inf_runner_rows_html(runners_dict: dict, ecosystem: str, badge_color: str) 
             {family_parts}<br>
             <span style="font-weight:400;opacity:0.85">{cluster_parts}</span>
           </td>
+          <td style="font-size:11px;color:#fff;opacity:0.85;vertical-align:middle">
+            Live online/offline <b>not tracked</b> by <code>therock-runner-health.com</code> &mdash; this dashboard only covers TheRock GitHub Actions runners.
+            InferenceMAX uses AMD-S Slurm + self-hosted Docker pools managed in <code>ROCm/InferenceMAX_rocm</code>.
+          </td>
         </tr>\n"""
     return rows
 
-_imax_rows  = _inf_rows_html(INFERENCEMAX_DATA, "imax-row") if INFERENCEMAX_DATA else "<tr><td colspan='8' style='color:#999;text-align:center'>No InferenceMAX data available — run fetch_rocm_data.py with GITHUB_TOKEN or local clone</td></tr>"
+_imax_rows  = _inf_rows_html(INFERENCEMAX_DATA, "imax-row") if INFERENCEMAX_DATA else "<tr><td colspan='8' style='color:#999;text-align:center'>No InferenceMAX data available — run fetch_rocm_data.py (needs an SSH key registered with GitHub, or a local InferenceMAX_rocm/ clone)</td></tr>"
 _amd_run_rows = _inf_runner_rows_html(INFERENCE_RUNNERS.get("amd", {}), "AMD", "#CC0000")
-_nv_run_rows  = _inf_runner_rows_html(INFERENCE_RUNNERS.get("nvidia", {}), "NVIDIA", "#76b900")
-_inf_run_rows_html = (_amd_run_rows + _nv_run_rows) if (_amd_run_rows or _nv_run_rows) else "<tr><td colspan='5' style='color:#999;text-align:center'>No runner data available</td></tr>"
+_inf_run_rows_html = _amd_run_rows if _amd_run_rows else "<tr><td colspan='6' style='color:#999;text-align:center'>No AMD runner data available</td></tr>"
 
 _imax_count = len(INFERENCEMAX_DATA)
 _imax_gpus  = len({r[3] for r in INFERENCEMAX_DATA}) if INFERENCEMAX_DATA else 0
@@ -999,9 +1467,10 @@ footer{{background:var(--amd-dark);color:#888;text-align:center;padding:16px;fon
   <span class="nav-divider"></span>
   <span class="nav-section-label" style="color:#CE93D8">InferenceMAX CI</span>
   <a href="#inferencemax" style="color:#CE93D8">Benchmarks</a>
-  <a href="#inference-runners" style="color:#CE93D8">Inf Runners</a>
+  <a href="#inference-runner-inventory" style="color:#CE93D8">Inf Runners</a>
   <span class="nav-divider"></span>
   <a href="#data-sources">Data Sources</a>
+  <a href="#appendix-gfx">Appendix</a>
   <a href="https://therock-hud-dev.amd.com/" target="_blank" rel="noopener" style="margin-left:auto;background:#CC0000;color:#fff;border-radius:4px;padding:3px 12px;font-weight:600;text-decoration:none">&#128202; TheRock HUD</a>
 </nav>
 <div class="page-header">
@@ -1041,7 +1510,7 @@ footer{{background:var(--amd-dark);color:#888;text-align:center;padding:16px;fon
 <tbody>
 <tr class="tier-row">
   <td>Pre-commit (PR)</td>
-  <td>pull_request: opened / synchronized / labeled</td>
+  <td><code>ci.yml</code><br>pull_request: opened / synchronized / labeled<br><small>(no <code>push:</code> trigger &mdash; PR only)</small></td>
   <td>Every PR</td>
   <td>
     <b>standard</b> = full unit suite<br>
@@ -1050,81 +1519,117 @@ footer{{background:var(--amd-dark);color:#888;text-align:center;padding:16px;fon
     <small>&#x2192; TheRock infra/build PRs &bull; default when no <code>test:*</code> label</small>
   </td>
   <td>
-    <span class="tag">gfx94X-dcgpu</span> <b>Build + Test</b> (MI300X/MI325X)<br>
-    <span class="tag">gfx110X</span> <span class="tag">gfx1151</span> <span class="tag">gfx120X</span> <b>Build-only</b> (<code>nightly_check_only</code>)
+    <b>Default (no label):</b> <span class="tag">gfx94X-dcgpu</span> <span class="tag">gfx110X</span><br>
+    &nbsp;&bull; <span class="tag">gfx94X-dcgpu</span> <b>Build + Test</b> (MI300X/MI325X)<br>
+    &nbsp;&bull; <span class="tag">gfx110X</span> <b>Build-only</b> (<code>nightly_check_only_for_family</code>)<br>
+    <b>Opt-in via labels (<code>gfx1151-linux</code>, <code>gfx120X-linux</code>):</b><br>
+    &nbsp;&bull; <span class="tag">gfx1151</span> <span class="tag">gfx120X</span> <b>Build-only</b> (<code>nightly_check_only</code>)
   </td>
   <td>
-    <span class="tag tag-win">gfx1151</span> <b>Build-only</b> (<code>nightly_check_only</code> on Windows too)
+    <b>Default (no label):</b> <span class="tag tag-win">gfx110X</span> <b>Build + Test</b> (no <code>nightly_check_only</code> on Windows)<br>
+    <b>Opt-in via labels:</b><br>
+    &nbsp;&bull; <span class="tag tag-win">gfx1151</span> <b>Build-only</b> (<code>nightly_check_only</code>)<br>
+    &nbsp;&bull; <span class="tag tag-win">gfx120X</span> <b>Build-only</b> (<code>nightly_check_only</code>)
   </td>
   <td>PyTorch torch package only (no wheel upload)<br><b>No JAX in PR CI</b></td>
-  <td>Ubuntu 22.04 LTS<br><small>(OSSCI scale pool)</small></td>
-  <td>Windows 11<br><small>(azure-windows-11-* runners)</small></td>
+  <td>Ubuntu 22.04 LTS<br><small>(azure-linux-scale-rocm)</small></td>
+  <td>Windows Server 2022<br><small>(azure-windows-scale-rocm)</small></td>
 </tr>
 <tr class="tier-row" style="background:#f7faff">
-  <td>Post-commit<br><small>(Submodule Bump)</small></td>
-  <td>push to main / release/therock-* branches<br><small>Fires on every merged commit incl. submodule bumps from rocm-libraries or rocm-systems</small></td>
+  <td>Post-commit</td>
+  <td><code>multi_arch_ci.yml</code><br>push to <code>main</code> / <code>multi_arch/**</code> / <code>release/therock-*</code><br><small>Fires on every merged commit (incl. submodule-bump merges via <code>bump_submodules.yml</code> which runs every 12 hrs)</small></td>
   <td>Every merged commit</td>
   <td><b>quick</b> = smoke/sanity only</td>
   <td>
-    <span class="tag">gfx94X-dcgpu</span> <b>Build + Test</b><br>
-    <span class="tag">gfx950-dcgpu</span> <b>Build + Test</b> (MI355X &mdash; postsubmit matrix only)<br>
-    <span class="tag">gfx110X</span> <span class="tag">gfx1151</span> <span class="tag">gfx120X</span> <b>Build-only</b>
+    <b>Build + Test</b>:<br>
+    &nbsp;&bull; <span class="tag">gfx94X-dcgpu</span> (MI300X/MI325X)<br>
+    &nbsp;&bull; <span class="tag">gfx950-dcgpu</span> (MI355X &mdash; postsubmit matrix only)<br>
+    <b>Build-only</b> (<code>nightly_check_only_for_family</code>):<br>
+    &nbsp;&bull; <span class="tag">gfx110X</span> <span class="tag">gfx1151</span> <span class="tag">gfx120X</span>
   </td>
   <td>
-    <span class="tag tag-win">gfx1151</span> <b>Build-only</b>
+    <b>Build + Test</b>: <span class="tag tag-win">gfx110X</span><br>
+    <b>Build-only</b> (<code>nightly_check_only</code>):<br>
+    &nbsp;&bull; <span class="tag tag-win">gfx1151</span> <span class="tag tag-win">gfx120X</span>
   </td>
   <td>PyTorch torch package only<br>ROCm Python wheels (Ubuntu 24.04 + UBI10 smoke)<br><b>No JAX</b></td>
   <td>Ubuntu 22.04 LTS</td>
-  <td>Windows 11</td>
+  <td>Windows Server 2022</td>
 </tr>
 <tr class="tier-row">
   <td>CI Nightly</td>
-  <td>ci_nightly.yml + ci_nightly_pytorch_full_test.yml (schedule)</td>
-  <td>02:00 UTC ({_utc_to_pt(2)}) daily (ROCm)<br>12:00 UTC ({_utc_to_pt(12)}) daily (PyTorch full)</td>
+  <td><code>ci_nightly.yml</code> + <code>ci_nightly_pytorch_full_test.yml</code><br><small>(schedule + workflow_dispatch)</small></td>
+  <td>02:00 UTC ({_utc_to_pt(2)}) daily (ROCm) &mdash; <code>0 02 * * *</code><br>12:00 UTC ({_utc_to_pt(12)}) daily (PyTorch full) &mdash; <code>0 12 * * *</code></td>
   <td><b>comprehensive</b> = full + integration (ROCm)<br><b>full</b> = complete suite (PyTorch)</td>
   <td>
+    <b>Build + Test</b> (HW runners available):<br>
     <span class="tag">gfx94X</span> <span class="tag">gfx950</span> <span class="tag">gfx90a</span>
     <span class="tag">gfx103X</span> <span class="tag">gfx110X</span> <span class="tag">gfx1150</span>
-    <span class="tag">gfx1151</span> <span class="tag">gfx1153</span> <span class="tag">gfx120X</span> &mdash; all <b>Build + Test</b><br>
-    <small><i>gfx900/906/908/101X &mdash; Build-only (no HW runners)</i></small>
+    <span class="tag">gfx1151</span> <span class="tag">gfx1153</span> <span class="tag">gfx120X</span><br>
+    <b>Build-only</b> (no HW runners &mdash; <code>test-runs-on: ""</code> in matrix):<br>
+    <small><i>gfx900, gfx906, gfx908, gfx101X, gfx1152</i></small>
   </td>
   <td>
-    <span class="tag tag-win">gfx1151</span> <span class="tag tag-win">gfx110X</span>
-    <span class="tag tag-win">gfx103X</span> <span class="tag tag-win">gfx120X</span> &mdash; all <b>Build + Test</b>
+    <b>Build + Test</b>:<br>
+    <span class="tag tag-win">gfx110X</span> <span class="tag tag-win">gfx103X</span>
+    <span class="tag tag-win">gfx1151</span> <span class="tag tag-win">gfx120X</span>
   </td>
   <td>PyTorch: all 5 versions &times; 5 Python vers &times; all families<br>JAX: all 4 versions &times; 4 Python vers<br>Triton + Apex (Linux)</td>
   <td>Ubuntu 22.04 LTS</td>
-  <td>Windows 11</td>
+  <td>Windows Server 2022</td>
 </tr>
 <tr class="tier-row" style="background:#f7faff">
   <td>ASAN / TSAN</td>
-  <td>ci_asan.yml / ci_tsan.yml (schedule)</td>
-  <td>02:00 UTC ({_utc_to_pt(2)}) daily</td>
-  <td><b>quick</b> = smoke/sanity only<br><small>Same suite as Post-commit but with sanitizer build</small></td>
-  <td><span class="tag">gfx94X-dcgpu</span> <span class="tag">gfx950-dcgpu</span> &mdash; <b>Build + Test</b></td>
+  <td>
+    <b>ASAN</b>: <code>ci_asan.yml</code> &mdash; <b>workflow_dispatch only</b><br>
+    <small><i>(legacy workflow; no schedule. Header notes "will be removed after legacy TheRock CI is retired")</i></small><br>
+    <b>TSAN</b>: <code>ci_tsan.yml</code> &mdash; schedule + workflow_dispatch
+  </td>
+  <td>
+    <b>ASAN</b>: on-demand only<br>
+    <b>TSAN</b>: 02:00 UTC ({_utc_to_pt(2)}) daily &mdash; <code>0 02 * * *</code>
+  </td>
+  <td><b>quick</b> = smoke/sanity only<br><small>Same suite as Post-commit but with sanitizer build (asan / tsan variants of <code>ci_linux.yml</code>)</small></td>
+  <td>
+    <b>Build + Test</b>:<br>
+    <span class="tag">gfx94X-dcgpu</span> (presubmit matrix; <code>build_variants: ["release", "asan", "tsan"]</code>)<br>
+    <span class="tag">gfx950-dcgpu</span> (postsubmit matrix; <code>build_variants: ["release", "asan", "tsan"]</code>)<br>
+    <small><i>ASAN tests use <code>rocm-asan-mi325-sandbox</code> via <code>test-runs-on-sandbox</code></i></small>
+  </td>
   <td>&mdash;</td>
   <td>None (sanitizer build validation only)</td>
-  <td>Ubuntu 22.04 LTS<br><small>(rocm-asan-mi325-sandbox)</small></td>
+  <td>Ubuntu 22.04 LTS<br><small>(rocm-asan-mi325-sandbox + ramdisk build pool)</small></td>
   <td>&mdash;</td>
 </tr>
 <tr class="tier-row">
   <td>Release</td>
-  <td>workflow_dispatch (rockrel or manual)</td>
-  <td>On-demand: dev / nightly / prerelease</td>
-  <td>quick / none<br><small>(tests not yet fully wired in multi_arch_release)</small></td>
   <td>
-    <span class="tag">gfx94X</span> <span class="tag">gfx950</span> <span class="tag">gfx90a</span>
-    <span class="tag">gfx103X</span> <span class="tag">gfx110X</span> <span class="tag">gfx1150</span>
-    <span class="tag">gfx1151</span> <span class="tag">gfx1153</span> <span class="tag">gfx120X</span> &mdash; <b>Build + Test</b> (quick)<br>
-    <small><i>gfx900/906/908/101X &mdash; Build-only (no HW runners)</i></small>
+    <b>Scheduled (nightly portable releases)</b>:<br>
+    &nbsp;&bull; <code>release_portable_linux_packages.yml</code><br>
+    &nbsp;&bull; <code>release_windows_packages.yml</code><br>
+    <b>On-demand</b>: <code>multi_arch_release.yml</code>, <code>release_native_*</code>, JAX/PyTorch wheel releases (rockrel or manual)
   </td>
   <td>
-    <span class="tag tag-win">gfx1151</span> <span class="tag tag-win">gfx110X</span>
-    <span class="tag tag-win">gfx103X</span> <span class="tag tag-win">gfx120X</span> &mdash; <b>Build + Test</b> (quick)
+    02:00 UTC ({_utc_to_pt(2)}) daily for portable packages &mdash; <code>0 02 * * *</code><br>
+    On-demand for dev / prerelease / native / wheels
+  </td>
+  <td>quick / none<br><small>(tests not yet fully wired in <code>multi_arch_release</code>; <code>bypass_tests_for_releases: True</code> on most opt-in families)</small></td>
+  <td>
+    <b>Build + Test</b> (quick):<br>
+    <span class="tag">gfx94X</span> <span class="tag">gfx950</span> <span class="tag">gfx90a</span>
+    <span class="tag">gfx103X</span> <span class="tag">gfx110X</span> <span class="tag">gfx1150</span>
+    <span class="tag">gfx1151</span> <span class="tag">gfx1153</span> <span class="tag">gfx120X</span><br>
+    <b>Build-only</b>:<br>
+    <small><i>gfx900, gfx906, gfx908, gfx101X, gfx1152 (no HW runners)</i></small>
+  </td>
+  <td>
+    <b>Build + Test</b> (quick):<br>
+    <span class="tag tag-win">gfx110X</span> <span class="tag tag-win">gfx103X</span>
+    <span class="tag tag-win">gfx1151</span> <span class="tag tag-win">gfx120X</span>
   </td>
   <td>PyTorch all 5 versions &times; all Pythons<br>JAX all 4 versions<br>ROCm tarballs to S3</td>
   <td>Ubuntu 22.04 LTS + RHEL 8.8/9.5 + SLES 15.6</td>
-  <td>Windows 11</td>
+  <td>Windows Server 2022</td>
 </tr>
 </tbody>
 </table></div>
@@ -1195,128 +1700,6 @@ footer{{background:var(--amd-dark);color:#888;text-align:center;padding:16px;fon
 {rows_html}
 </tbody>
 </table></div>
-
-<h3 style="margin:20px 0 8px 0;font-size:13px;color:#444;font-weight:600">Component CI Matrix — Unique Server Counts by Tier</h3>
-<div class="tbl-wrap" style="margin-bottom:6px"><table class="fw-table fw-server-table">
-<thead><tr>
-  <th>CI Tier</th>
-  <th>Pool Type</th>
-  <th style="text-align:center">Count</th>
-  <th>Azure Build Pool (no GPU)</th>
-  <th>Physical GPU Machines</th>
-  <th>Runner Labels &amp; Counts</th>
-  <th>Notes</th>
-</tr></thead>
-<tbody>
-
-<!-- Shared Azure Build Pool row -->
-<tr style="background:#FFF9E6">
-  <td rowspan="2" style="font-weight:700;color:#555;vertical-align:middle;text-align:center;border-left:4px solid #F9A825">All Tiers</td>
-  <td>Azure Build Pool<br><span style="font-weight:400;font-size:11.5px;color:#777">cloud VMs, no GPU — compile &amp; package only</span></td>
-  <td style="text-align:center"><b>{_build_vms}</b><br><span style="font-weight:400;font-size:11.5px;color:#777">VMs (snapshot)</span></td>
-  <td style="text-align:center"><b>{_runner_counts.get('azure-linux-scale-rocm',0)}</b> Linux VMs<br>+<br><b>{_runner_counts.get('azure-windows-scale-rocm',0)}</b> Windows VMs</td>
-  <td style="text-align:center;color:#aaa">&mdash;</td>
-  <td><code>azure-linux-scale-rocm</code> = <b>{_runner_counts.get('azure-linux-scale-rocm',0)}</b> &bull; <code>azure-windows-scale-rocm</code> = <b>{_runner_counts.get('azure-windows-scale-rocm',0)}</b></td>
-  <td style="font-size:12.5px;color:#555">Shared across all tiers; elastic — can scale beyond snapshot count under queue pressure</td>
-</tr>
-<tr style="font-weight:700;background:#F5F0D8">
-  <td>Build Subtotal</td>
-  <td style="text-align:center;font-size:13px"><b>{_build_vms}</b></td>
-  <td style="text-align:center;font-weight:400;font-size:12.5px">{_build_vms} VMs total</td>
-  <td style="text-align:center;color:#aaa">&mdash;</td>
-  <td colspan="2" style="color:#555;font-size:12.5px">{_runner_counts.get('azure-linux-scale-rocm',0)} Linux + {_runner_counts.get('azure-windows-scale-rocm',0)} Windows Azure VMs — no GPU hardware involved</td>
-</tr>
-
-<!-- Pre-commit rows -->
-<tr style="background:#EBF3FB">
-  <td rowspan="2" style="font-weight:700;color:#1565C0;vertical-align:middle;text-align:center;border-left:4px solid #1565C0">&#128196; Pre-commit<br>(PR)</td>
-  <td>GPU Test Pool<br><span style="font-weight:400;font-size:11.5px;color:#777">2 physical runner types</span></td>
-  <td style="text-align:center"><b>{_pc_gpu_nodes}</b><br><span style="font-weight:400;font-size:11.5px;color:#777">physical</span></td>
-  <td style="text-align:center;color:#aaa">&mdash;</td>
-  <td style="text-align:center"><b>{_pc_gpu_nodes}</b> unique nodes</td>
-  <td style="font-size:10.5px;line-height:1.7">
-    linux-gfx942-1gpu-ossci-rocm (gfx94X) = <b>{_runner_counts.get('linux-gfx942-1gpu-ossci-rocm',0)}</b><br>
-    windows-gfx1151-gpu-rocm (gfx1151, build-only) = <b>{_runner_counts.get('windows-gfx1151-gpu-rocm',0)}</b>
-  </td>
-  <td style="font-size:12.5px;color:#555">gfx94X: Build + Test &bull; gfx1151 Win: Build-only (nightly_check_only)</td>
-</tr>
-<tr style="font-weight:700;background:#D0E8F8">
-  <td>Pre-commit Subtotal</td>
-  <td style="text-align:center;font-size:13px;color:#1565C0"><b>{_pc_gpu_nodes}</b></td>
-  <td style="text-align:center;font-weight:400;font-size:12.5px">{_build_vms} shared build VMs</td>
-  <td style="text-align:center;font-weight:400;font-size:12.5px">{_pc_gpu_nodes} physical GPU</td>
-  <td colspan="2" style="color:#555;font-size:12.5px">{_build_vms} Azure build VMs + <b>{_pc_gpu_nodes}</b> physical GPU machines = <b>{_build_vms + _pc_gpu_nodes}</b> total</td>
-</tr>
-
-<!-- Post-commit rows -->
-<tr style="background:#EBF5EB">
-  <td rowspan="2" style="font-weight:700;color:#2E7D32;vertical-align:middle;text-align:center;border-left:4px solid #2E7D32">&#10003; Post-commit<br>(Sub Bump)</td>
-  <td>GPU Test Pool<br><span style="font-weight:400;font-size:11.5px;color:#777">3 physical runner types</span></td>
-  <td style="text-align:center"><b>{_po_gpu_nodes}</b><br><span style="font-weight:400;font-size:11.5px;color:#777">physical</span></td>
-  <td style="text-align:center;color:#aaa">&mdash;</td>
-  <td style="text-align:center"><b>{_po_gpu_nodes}</b> unique nodes</td>
-  <td style="font-size:10.5px;line-height:1.7">
-    linux-gfx942-1gpu-ossci-rocm (gfx94X) = <b>{_runner_counts.get('linux-gfx942-1gpu-ossci-rocm',0)}</b><br>
-    linux-mi355-1gpu-ossci-rocm (gfx950 / MI355X) = <b>{_runner_counts.get('linux-mi355-1gpu-ossci-rocm',0)}</b><br>
-    windows-gfx1151-gpu-rocm (gfx1151, build-only) = <b>{_runner_counts.get('windows-gfx1151-gpu-rocm',0)}</b>
-  </td>
-  <td style="font-size:12.5px;color:#555">Adds gfx950 (MI355X) vs Pre-commit; gfx1151 Win remains build-only</td>
-</tr>
-<tr style="font-weight:700;background:#C8E6C9">
-  <td>Post-commit Subtotal</td>
-  <td style="text-align:center;font-size:13px;color:#2E7D32"><b>{_po_gpu_nodes}</b></td>
-  <td style="text-align:center;font-weight:400;font-size:12.5px">{_build_vms} shared build VMs</td>
-  <td style="text-align:center;font-weight:400;font-size:12.5px">{_po_gpu_nodes} physical GPU</td>
-  <td colspan="2" style="color:#555;font-size:12.5px">{_build_vms} Azure build VMs + <b>{_po_gpu_nodes}</b> physical GPU machines = <b>{_build_vms + _po_gpu_nodes}</b> total</td>
-</tr>
-
-<!-- Nightly rows -->
-<tr style="background:#FFF3E0">
-  <td rowspan="2" style="font-weight:700;color:#E65100;vertical-align:middle;text-align:center;border-left:4px solid #E65100">&#127769; CI Nightly</td>
-  <td>GPU Test Pool<br><span style="font-weight:400;font-size:11.5px;color:#777">{_ni_runner_types} physical runner types</span></td>
-  <td style="text-align:center"><b>{_ni_gpu_nodes}</b><br><span style="font-weight:400;font-size:11.5px;color:#777">physical</span></td>
-  <td style="text-align:center;color:#aaa">&mdash;</td>
-  <td style="text-align:center"><b>{_ni_gpu_nodes}</b> unique nodes</td>
-  <td style="font-size:10.5px;line-height:1.7">
-    linux-gfx942-1gpu-ossci-rocm (gfx94X) = <b>{_runner_counts.get('linux-gfx942-1gpu-ossci-rocm',0)}</b> &bull;
-    linux-gfx942-8gpu-ossci-rocm (gfx94X 8-GPU) = <b>{_runner_counts.get('linux-gfx942-8gpu-ossci-rocm',0)}</b><br>
-    linux-mi355-1gpu-ossci-rocm (gfx950) = <b>{_runner_counts.get('linux-mi355-1gpu-ossci-rocm',0)}</b> &bull;
-    linux-gfx90a-gpu-rocm (gfx90a) = <b>{_runner_counts.get('linux-gfx90a-gpu-rocm',0)}</b><br>
-    linux-gfx1030-gpu-rocm (gfx103X) = <b>{_runner_counts.get('linux-gfx1030-gpu-rocm',0)}</b> &bull;
-    linux-gfx110X-gpu-rocm (gfx110X) = <b>{_runner_counts.get('linux-gfx110X-gpu-rocm',0)}</b> &bull;
-    windows-gfx110X-gpu-rocm = <b>{_runner_counts.get('windows-gfx110X-gpu-rocm',0)}</b><br>
-    linux-gfx1150-gpu-rocm (gfx1150) = <b>{_runner_counts.get('linux-gfx1150-gpu-rocm',0)}</b> &bull;
-    linux-gfx1151-gpu-rocm (gfx1151 L) = <b>{_runner_counts.get('linux-gfx1151-gpu-rocm',0)}</b> &bull;
-    windows-gfx1151-gpu-rocm (gfx1151 W) = <b>{_runner_counts.get('windows-gfx1151-gpu-rocm',0)}</b><br>
-    linux-gfx1153-gpu-rocm (gfx1153) = <b>{_runner_counts.get('linux-gfx1153-gpu-rocm',0)}</b> &bull;
-    linux-gfx120X-gpu-rocm (gfx120X) = <b>{_runner_counts.get('linux-gfx120X-gpu-rocm',0)}</b> &bull;
-    windows-gfx1030-gpu-rocm (gfx103X W) = <b>{_runner_counts.get('windows-gfx1030-gpu-rocm',0)}</b>
-  </td>
-  <td style="font-size:12.5px;color:#555">Full GPU family coverage; all unique physical machines, each counted once</td>
-</tr>
-<tr style="font-weight:700;background:#FFE0B2">
-  <td>Nightly Subtotal</td>
-  <td style="text-align:center;font-size:13px;color:#E65100"><b>{_ni_gpu_nodes}</b></td>
-  <td style="text-align:center;font-weight:400;font-size:12.5px">{_build_vms} shared build VMs</td>
-  <td style="text-align:center;font-weight:400;font-size:12.5px">{_ni_gpu_nodes} physical GPU</td>
-  <td colspan="2" style="color:#555;font-size:12.5px">{_build_vms} Azure build VMs + <b>{_ni_gpu_nodes}</b> physical GPU machines = <b>{_build_vms + _ni_gpu_nodes}</b> total</td>
-</tr>
-
-<!-- Grand Total -->
-<tr style="font-weight:700;background:#37474F;color:#fff">
-  <td colspan="2" style="text-align:center;font-size:13px;letter-spacing:0.3px">Grand Total (all tiers, unique)</td>
-  <td style="text-align:center;font-size:13px"><b>{_build_vms + _ni_gpu_nodes}</b></td>
-  <td style="text-align:center;font-size:12px">{_build_vms} VMs<br><span style="font-weight:400;font-size:11.5px;opacity:0.85">(Azure, no GPU)</span></td>
-  <td style="text-align:center;font-size:12px"><b>{_ni_gpu_nodes}</b> physical<br><span style="font-weight:400;font-size:11.5px;opacity:0.85">unique GPU machines</span></td>
-  <td colspan="2" style="font-size:12.5px;opacity:0.9">{_build_vms} Azure build VMs (cloud, no GPU) + {_ni_gpu_nodes} unique physical GPU machines = <b>{_build_vms + _ni_gpu_nodes}</b> &nbsp;&bull;&nbsp; <span style="font-weight:400">GPU node counts cumulative across tiers — each physical machine counted once</span></td>
-</tr>
-
-</tbody>
-</table></div>
-<p style="font-size:10.5px;color:#777;margin:4px 0 16px 4px">
-  <b>Azure Build Pool</b>: Cloud-managed VMs with no GPU — used exclusively for compile, package, and artifact jobs. VM counts are point-in-time snapshots; elastic pools can provision beyond this number under load.<br>
-  <b>Physical GPU counts</b>: Unique machines counted once regardless of how many tiers use them. Pre-commit uses {_pc_gpu_nodes}, Post-commit adds MI355X for {_po_gpu_nodes}, Nightly expands to all {_ni_gpu_nodes} GPU machines across {_ni_runner_types} runner types.
-</p>
 </div>
 
 <!-- ═══════════════════════════════════════════════════════════════════
@@ -1347,7 +1730,7 @@ footer{{background:var(--amd-dark);color:#888;text-align:center;padding:16px;fon
   <td>sanity + smoke (quick)</td>
   <td>11 parallel jobs: Default suite (6) + Distributed training (3, 8-GPU runner) + Compiler/Inductor (2)</td>
   <td><code>azure-linux-scale-rocm</code></td>
-  <td><small>linux-gfx942-1gpu-ossci-rocm (gfx94X)<br>linux-mi355-1gpu-ossci-rocm (gfx950)<br>linux-gfx90a-gpu-rocm (gfx90a)<br>linux-gfx1030-gpu-rocm (gfx103X)<br>linux-gfx110X-gpu-rocm (gfx110X)<br>linux-gfx1150-gpu-rocm (gfx1150)<br>linux-gfx1151-gpu-rocm (gfx1151)<br>linux-gfx120X-gpu-rocm (gfx120X)<br>linux-gfx942-8gpu-ossci-rocm (distributed, 3 shards)<br><i>gfx1153: excluded entirely</i></small></td>
+  <td><small>linux-gfx942-1gpu-ossci-rocm (gfx94X)<br>linux-gfx950-1gpu-ccs-ossci-rocm (gfx950)<br>linux-gfx90a-gpu-rocm (gfx90a)<br>linux-gfx1030-gpu-rocm (gfx103X)<br>linux-gfx110X-gpu-rocm (gfx110X)<br>linux-gfx1150-gpu-rocm (gfx1150)<br>linux-gfx1151-gpu-rocm (gfx1151)<br>linux-gfx120X-gpu-rocm (gfx120X)<br>linux-gfx942-8gpu-ossci-rocm (distributed, 3 shards)<br><i>gfx1153: excluded entirely</i></small></td>
   <td>py3.14 excluded; aotriton incompatible with gfx90X/101X/103X/1152/1153</td>
 </tr>
 <tr class="fw-pytorch">
@@ -1361,7 +1744,7 @@ footer{{background:var(--amd-dark);color:#888;text-align:center;padding:16px;fon
   <td>sanity + smoke (quick)</td>
   <td>11 parallel jobs: Default suite (6) + Distributed training (3) + Compiler/Inductor (2)</td>
   <td><code>azure-linux-scale-rocm</code> (Linux)<br><code>azure-windows-scale-rocm</code> (Windows)</td>
-  <td><small>Linux: linux-gfx942-1gpu-ossci-rocm (gfx94X)<br>linux-mi355-1gpu-ossci-rocm (gfx950)<br>linux-gfx90a-gpu-rocm (gfx90a)<br>linux-gfx1030-gpu-rocm (gfx103X)<br>linux-gfx110X-gpu-rocm (gfx110X)<br>linux-gfx1150-gpu-rocm (gfx1150)<br>linux-gfx1151-gpu-rocm (gfx1151)<br>linux-gfx1153-gpu-rocm (gfx1153)<br>linux-gfx120X-gpu-rocm (gfx120X)<br>linux-gfx942-8gpu-ossci-rocm (distributed, 3 shards)<br>Windows: windows-gfx1151-gpu-rocm (gfx1151)<br>windows-gfx110X-gpu-rocm (gfx110X)<br>windows-gfx1030-gpu-rocm (gfx103X)<br>windows-gfx120X-gpu-rocm (gfx120X)</small></td>
+  <td><small>Linux: linux-gfx942-1gpu-ossci-rocm (gfx94X)<br>linux-gfx950-1gpu-ccs-ossci-rocm (gfx950)<br>linux-gfx90a-gpu-rocm (gfx90a)<br>linux-gfx1030-gpu-rocm (gfx103X)<br>linux-gfx110X-gpu-rocm (gfx110X)<br>linux-gfx1150-gpu-rocm (gfx1150)<br>linux-gfx1151-gpu-rocm (gfx1151)<br>linux-gfx1153-gpu-rocm (gfx1153)<br>linux-gfx120X-gpu-rocm (gfx120X)<br>linux-gfx942-8gpu-ossci-rocm (distributed, 3 shards)<br>Windows: windows-gfx1151-gpu-rocm (gfx1151)<br>windows-gfx110X-gpu-rocm (gfx110X)<br>windows-gfx1030-gpu-rocm (gfx103X)<br>windows-gfx120X-gpu-rocm (gfx120X)</small></td>
   <td>gfx1153 excluded Linux-only</td>
 </tr>
 <tr class="fw-pytorch">
@@ -1375,7 +1758,7 @@ footer{{background:var(--amd-dark);color:#888;text-align:center;padding:16px;fon
   <td>sanity + smoke (quick)</td>
   <td>11 parallel jobs: Default suite (6) + Distributed training (3) + Compiler/Inductor (2)</td>
   <td><code>azure-linux-scale-rocm</code> (Linux)<br><code>azure-windows-scale-rocm</code> (Windows)</td>
-  <td><small>Linux: linux-gfx942-1gpu-ossci-rocm (gfx94X)<br>linux-mi355-1gpu-ossci-rocm (gfx950)<br>linux-gfx90a-gpu-rocm (gfx90a)<br>linux-gfx1030-gpu-rocm (gfx103X)<br>linux-gfx110X-gpu-rocm (gfx110X)<br>linux-gfx1150-gpu-rocm (gfx1150)<br>linux-gfx1151-gpu-rocm (gfx1151)<br>linux-gfx1153-gpu-rocm (gfx1153)<br>linux-gfx120X-gpu-rocm (gfx120X)<br>linux-gfx942-8gpu-ossci-rocm (distributed, 3 shards)<br>Windows: windows-gfx1151-gpu-rocm (gfx1151)<br>windows-gfx110X-gpu-rocm (gfx110X)<br>windows-gfx1030-gpu-rocm (gfx103X)<br>windows-gfx120X-gpu-rocm (gfx120X)</small></td>
+  <td><small>Linux: linux-gfx942-1gpu-ossci-rocm (gfx94X)<br>linux-gfx950-1gpu-ccs-ossci-rocm (gfx950)<br>linux-gfx90a-gpu-rocm (gfx90a)<br>linux-gfx1030-gpu-rocm (gfx103X)<br>linux-gfx110X-gpu-rocm (gfx110X)<br>linux-gfx1150-gpu-rocm (gfx1150)<br>linux-gfx1151-gpu-rocm (gfx1151)<br>linux-gfx1153-gpu-rocm (gfx1153)<br>linux-gfx120X-gpu-rocm (gfx120X)<br>linux-gfx942-8gpu-ossci-rocm (distributed, 3 shards)<br>Windows: windows-gfx1151-gpu-rocm (gfx1151)<br>windows-gfx110X-gpu-rocm (gfx110X)<br>windows-gfx1030-gpu-rocm (gfx103X)<br>windows-gfx120X-gpu-rocm (gfx120X)</small></td>
   <td>Default CI pin</td>
 </tr>
 <tr class="fw-pytorch">
@@ -1389,7 +1772,7 @@ footer{{background:var(--amd-dark);color:#888;text-align:center;padding:16px;fon
   <td>sanity + smoke (quick)</td>
   <td>11 parallel jobs: Default suite (6) + Distributed training (3) + Compiler/Inductor (2)</td>
   <td><code>azure-linux-scale-rocm</code> (Linux)<br><code>azure-windows-scale-rocm</code> (Windows)</td>
-  <td><small>Linux: linux-gfx942-1gpu-ossci-rocm (gfx94X)<br>linux-mi355-1gpu-ossci-rocm (gfx950)<br>linux-gfx90a-gpu-rocm (gfx90a)<br>linux-gfx1030-gpu-rocm (gfx103X)<br>linux-gfx110X-gpu-rocm (gfx110X)<br>linux-gfx1150-gpu-rocm (gfx1150)<br>linux-gfx1151-gpu-rocm (gfx1151)<br>linux-gfx1153-gpu-rocm (gfx1153)<br>linux-gfx120X-gpu-rocm (gfx120X)<br>linux-gfx942-8gpu-ossci-rocm (distributed, 3 shards)<br>Windows: windows-gfx1151-gpu-rocm (gfx1151)<br>windows-gfx110X-gpu-rocm (gfx110X)<br>windows-gfx1030-gpu-rocm (gfx103X)<br>windows-gfx120X-gpu-rocm (gfx120X)</small></td>
+  <td><small>Linux: linux-gfx942-1gpu-ossci-rocm (gfx94X)<br>linux-gfx950-1gpu-ccs-ossci-rocm (gfx950)<br>linux-gfx90a-gpu-rocm (gfx90a)<br>linux-gfx1030-gpu-rocm (gfx103X)<br>linux-gfx110X-gpu-rocm (gfx110X)<br>linux-gfx1150-gpu-rocm (gfx1150)<br>linux-gfx1151-gpu-rocm (gfx1151)<br>linux-gfx1153-gpu-rocm (gfx1153)<br>linux-gfx120X-gpu-rocm (gfx120X)<br>linux-gfx942-8gpu-ossci-rocm (distributed, 3 shards)<br>Windows: windows-gfx1151-gpu-rocm (gfx1151)<br>windows-gfx110X-gpu-rocm (gfx110X)<br>windows-gfx1030-gpu-rocm (gfx103X)<br>windows-gfx120X-gpu-rocm (gfx120X)</small></td>
   <td></td>
 </tr>
 <tr class="fw-pytorch">
@@ -1403,7 +1786,7 @@ footer{{background:var(--amd-dark);color:#888;text-align:center;padding:16px;fon
   <td>sanity + smoke (quick)</td>
   <td>11 parallel jobs: Default suite (6) + Distributed training (3) + Compiler/Inductor (2)</td>
   <td><code>azure-linux-scale-rocm</code> (Linux)<br><code>azure-windows-scale-rocm</code> (Windows)</td>
-  <td><small>Linux: linux-gfx942-1gpu-ossci-rocm (gfx94X)<br>linux-mi355-1gpu-ossci-rocm (gfx950)<br>linux-gfx90a-gpu-rocm (gfx90a)<br>linux-gfx1030-gpu-rocm (gfx103X)<br>linux-gfx110X-gpu-rocm (gfx110X)<br>linux-gfx1150-gpu-rocm (gfx1150)<br>linux-gfx1151-gpu-rocm (gfx1151)<br>linux-gfx1153-gpu-rocm (gfx1153)<br>linux-gfx120X-gpu-rocm (gfx120X)<br>linux-gfx942-8gpu-ossci-rocm (distributed, 3 shards)<br>Windows: windows-gfx1151-gpu-rocm (gfx1151)<br>windows-gfx110X-gpu-rocm (gfx110X)<br>windows-gfx1030-gpu-rocm (gfx103X)<br>windows-gfx120X-gpu-rocm (gfx120X)</small></td>
+  <td><small>Linux: linux-gfx942-1gpu-ossci-rocm (gfx94X)<br>linux-gfx950-1gpu-ccs-ossci-rocm (gfx950)<br>linux-gfx90a-gpu-rocm (gfx90a)<br>linux-gfx1030-gpu-rocm (gfx103X)<br>linux-gfx110X-gpu-rocm (gfx110X)<br>linux-gfx1150-gpu-rocm (gfx1150)<br>linux-gfx1151-gpu-rocm (gfx1151)<br>linux-gfx1153-gpu-rocm (gfx1153)<br>linux-gfx120X-gpu-rocm (gfx120X)<br>linux-gfx942-8gpu-ossci-rocm (distributed, 3 shards)<br>Windows: windows-gfx1151-gpu-rocm (gfx1151)<br>windows-gfx110X-gpu-rocm (gfx110X)<br>windows-gfx1030-gpu-rocm (gfx103X)<br>windows-gfx120X-gpu-rocm (gfx120X)</small></td>
   <td>Triton pin from pytorch/.ci/docker/ci_commit_pins/triton.txt</td>
 </tr>
 <tr class="fw-jax">
@@ -1589,10 +1972,128 @@ footer{{background:var(--amd-dark);color:#888;text-align:center;padding:16px;fon
 </div>
 
 <!-- ═══════════════════════════════════════════════════════════════════
-     SERVER COUNT DETAILS
+     SERVER COUNTS — consolidated section with 3 sub-tables
 ════════════════════════════════════════════════════════════════════ -->
 <div class="section" id="server-counts">
-<h2>Framework Runner &amp; Server Count Details</h2>
+<h2>&#128202; Server Counts <a href="https://therock-runner-health.com/" target="_blank" rel="noopener" style="font-size:13px;font-weight:400;vertical-align:middle;margin-left:10px;color:#1565C0;text-decoration:none;border:1px solid #1565C0;padding:2px 8px;border-radius:4px">&#128279; Runner Health Dashboard</a></h2>
+<p style="margin:0 0 12px 0;font-size:12.5px;color:#555;background:#F5F5F5;padding:10px 14px;border-radius:4px;border-left:3px solid #1565C0">
+  Three perspectives on the runner fleet, all in one place:
+  <b>(1)</b> per CI tier (PR / postsubmit / nightly),
+  <b>(2)</b> per framework (PyTorch + JAX),
+  <b>(3)</b> per inference benchmark pool (InferenceMAX AMD).
+  Live per-machine status &mdash; including online / offline and queue health &mdash; is published at
+  <a href="https://therock-runner-health.com/" target="_blank" rel="noopener" style="color:#1565C0;font-weight:600">therock-runner-health.com</a>.
+</p>
+{_live_status_banner}
+
+<!-- ── 1/3: COMPONENT CI MATRIX SERVER COUNTS BY TIER ───────────────── -->
+<h3 id="server-counts-component" style="margin:24px 0 8px 0;font-size:14px;color:#37474F;font-weight:700;border-bottom:2px solid #37474F;padding-bottom:4px">
+  1 &mdash; Component CI Matrix &mdash; Unique Server Counts by Tier
+  <a href="https://therock-runner-health.com/" target="_blank" rel="noopener" style="font-size:11.5px;font-weight:400;margin-left:8px;color:#1565C0;text-decoration:none;border:1px solid #1565C0;padding:1px 6px;border-radius:3px">&#128279; Runner Health</a>
+</h3>
+<div class="tbl-wrap" style="margin-bottom:6px"><table class="fw-table fw-server-table">
+<thead><tr>
+  <th>CI Tier</th>
+  <th>Pool Type</th>
+  <th style="text-align:center">Count</th>
+  <th>Azure Build Pool (no GPU)</th>
+  <th>Physical GPU Machines</th>
+  <th>Runner Labels &amp; Counts</th>
+  <th style="width:800px;min-width:720px">Comments<br><span style="font-weight:400;font-size:10.5px;color:#FFE082">online/offline by gfx &middot; DO-NOT-ENABLE flags</span></th>
+</tr></thead>
+<tbody>
+
+<!-- Shared Azure Build Pool row -->
+<tr style="background:#FFF9E6">
+  <td rowspan="2" style="font-weight:700;color:#555;vertical-align:middle;text-align:center;border-left:4px solid #F9A825">All Tiers</td>
+  <td>Azure Build Pool<br><span style="font-weight:400;font-size:11.5px;color:#777">cloud VMs, no GPU &mdash; compile &amp; package only</span></td>
+  <td style="text-align:center"><b>{_build_vms}</b><br><span style="font-weight:400;font-size:11.5px;color:#777">VMs (snapshot)</span></td>
+  <td style="text-align:center"><b>{_runner_counts.get('azure-linux-scale-rocm',0)}</b> Linux VMs<br>+<br><b>{_runner_counts.get('azure-windows-scale-rocm',0)}</b> Windows VMs</td>
+  <td style="text-align:center;color:#aaa">&mdash;</td>
+  <td><code>azure-linux-scale-rocm</code> = <b>{_runner_counts.get('azure-linux-scale-rocm',0)}</b> &bull; <code>azure-windows-scale-rocm</code> = <b>{_runner_counts.get('azure-windows-scale-rocm',0)}</b></td>
+  <td style="font-size:12.5px;color:#555">Shared across all tiers; elastic &mdash; can scale beyond snapshot count under queue pressure</td>
+</tr>
+<tr style="font-weight:700;background:#F5F0D8">
+  <td>Build Subtotal</td>
+  <td style="text-align:center;font-size:13px"><b>{_build_vms}</b></td>
+  <td style="text-align:center;font-weight:400;font-size:12.5px">{_build_vms} VMs total</td>
+  <td style="text-align:center;color:#aaa">&mdash;</td>
+  <td colspan="2" style="color:#555;font-size:12.5px">{_runner_counts.get('azure-linux-scale-rocm',0)} Linux + {_runner_counts.get('azure-windows-scale-rocm',0)} Windows Azure VMs &mdash; no GPU hardware involved</td>
+</tr>
+
+<!-- Pre-commit rows -->
+<tr style="background:#EBF3FB">
+  <td rowspan="2" style="font-weight:700;color:#1565C0;vertical-align:middle;text-align:center;border-left:4px solid #1565C0">&#128196; Pre-commit<br>(PR)</td>
+  <td>GPU Test Pool<br><span style="font-weight:400;font-size:11.5px;color:#777">{len(_PC_GPU_LABELS)} physical runner labels</span></td>
+  <td style="text-align:center"><b>{_pc_gpu_nodes_full}</b><br><span style="font-weight:400;font-size:11.5px;color:#777">physical</span></td>
+  <td style="text-align:center;color:#aaa">&mdash;</td>
+  <td style="text-align:center"><b>{_pc_gpu_nodes_full}</b> unique nodes</td>
+  <td>{_pc_runner_grouped_html}</td>
+  <td style="font-size:12px;color:#555;min-width:720px;word-wrap:break-word"><div style="font-size:11.5px">gfx94X: full Build + Test pool (1+8 GPU + ASAN sandbox + alt pools) &bull; gfx1151 Win: Build-only (nightly_check_only_for_family)</div>{_pc_breakdown_html}</td>
+</tr>
+<tr style="font-weight:700;background:#D0E8F8">
+  <td>Pre-commit Subtotal</td>
+  <td style="text-align:center;font-size:13px;color:#1565C0"><b>{_pc_gpu_nodes_full}</b></td>
+  <td style="text-align:center;font-weight:400;font-size:12.5px">{_build_vms} shared build VMs</td>
+  <td style="text-align:center;font-weight:400;font-size:12.5px">{_pc_gpu_nodes_full} physical GPU</td>
+  <td colspan="2" style="color:#555;font-size:12.5px">{_build_vms} Azure build VMs + <b>{_pc_gpu_nodes_full}</b> physical GPU machines = <b>{_build_vms + _pc_gpu_nodes_full}</b> total</td>
+</tr>
+
+<!-- Post-commit rows -->
+<tr style="background:#EBF5EB">
+  <td rowspan="2" style="font-weight:700;color:#2E7D32;vertical-align:middle;text-align:center;border-left:4px solid #2E7D32">&#10003; Post-commit<br>(Sub Bump)</td>
+  <td>GPU Test Pool<br><span style="font-weight:400;font-size:11.5px;color:#777">{len(_PO_GPU_LABELS)} physical runner labels</span></td>
+  <td style="text-align:center"><b>{_po_gpu_nodes_full}</b><br><span style="font-weight:400;font-size:11.5px;color:#777">physical</span></td>
+  <td style="text-align:center;color:#aaa">&mdash;</td>
+  <td style="text-align:center"><b>{_po_gpu_nodes_full}</b> unique nodes</td>
+  <td>{_po_runner_grouped_html}</td>
+  <td style="font-size:12px;color:#555;min-width:720px;word-wrap:break-word"><div style="font-size:11.5px">Adds gfx950 (MI355X) 1-GPU + 8-GPU lanes vs Pre-commit; gfx1151 Win remains Build-only</div>{_po_breakdown_html}</td>
+</tr>
+<tr style="font-weight:700;background:#C8E6C9">
+  <td>Post-commit Subtotal</td>
+  <td style="text-align:center;font-size:13px;color:#2E7D32"><b>{_po_gpu_nodes_full}</b></td>
+  <td style="text-align:center;font-weight:400;font-size:12.5px">{_build_vms} shared build VMs</td>
+  <td style="text-align:center;font-weight:400;font-size:12.5px">{_po_gpu_nodes_full} physical GPU</td>
+  <td colspan="2" style="color:#555;font-size:12.5px">{_build_vms} Azure build VMs + <b>{_po_gpu_nodes_full}</b> physical GPU machines = <b>{_build_vms + _po_gpu_nodes_full}</b> total</td>
+</tr>
+
+<!-- Nightly rows -->
+<tr style="background:#FFF3E0">
+  <td rowspan="2" style="font-weight:700;color:#E65100;vertical-align:middle;text-align:center;border-left:4px solid #E65100">&#127769; CI Nightly</td>
+  <td>GPU Test Pool<br><span style="font-weight:400;font-size:11.5px;color:#777">{len(_NI_GPU_LABELS)} physical runner labels</span></td>
+  <td style="text-align:center"><b>{_ni_gpu_nodes_full}</b><br><span style="font-weight:400;font-size:11.5px;color:#777">physical</span></td>
+  <td style="text-align:center;color:#aaa">&mdash;</td>
+  <td style="text-align:center"><b>{_ni_gpu_nodes_full}</b> unique nodes</td>
+  <td>{_ni_runner_grouped_html}</td>
+  <td style="font-size:12px;color:#555;min-width:720px;word-wrap:break-word"><div style="font-size:11.5px">Full GPU family coverage; all unique physical machines, each counted once</div>{_ni_breakdown_html}</td>
+</tr>
+<tr style="font-weight:700;background:#FFE0B2">
+  <td>Nightly Subtotal</td>
+  <td style="text-align:center;font-size:13px;color:#E65100"><b>{_ni_gpu_nodes_full}</b></td>
+  <td style="text-align:center;font-weight:400;font-size:12.5px">{_build_vms} shared build VMs</td>
+  <td style="text-align:center;font-weight:400;font-size:12.5px">{_ni_gpu_nodes_full} physical GPU</td>
+  <td colspan="2" style="color:#555;font-size:12.5px">{_build_vms} Azure build VMs + <b>{_ni_gpu_nodes_full}</b> physical GPU machines = <b>{_build_vms + _ni_gpu_nodes_full}</b> total</td>
+</tr>
+
+<!-- Grand Total -->
+<tr style="font-weight:700;background:#37474F;color:#fff">
+  <td colspan="2" style="text-align:center;font-size:13px;letter-spacing:0.3px">Grand Total (all tiers, unique)</td>
+  <td style="text-align:center;font-size:13px"><b>{_build_vms + _ni_gpu_nodes_full}</b></td>
+  <td style="text-align:center;font-size:12px">{_build_vms} VMs<br><span style="font-weight:400;font-size:11.5px;opacity:0.85">(Azure, no GPU)</span></td>
+  <td style="text-align:center;font-size:12px"><b>{_ni_gpu_nodes_full}</b> physical<br><span style="font-weight:400;font-size:11.5px;opacity:0.85">unique GPU machines</span></td>
+  <td colspan="2" style="font-size:12.5px;opacity:0.9">{_build_vms} Azure build VMs (cloud, no GPU) + {_ni_gpu_nodes_full} unique physical GPU machines = <b>{_build_vms + _ni_gpu_nodes_full}</b> &nbsp;&bull;&nbsp; <span style="font-weight:400">GPU node counts cumulative across tiers &mdash; each physical machine counted once</span></td>
+</tr>
+</tbody></table></div>
+<p style="font-size:10.5px;color:#777;margin:4px 0 22px 4px">
+  <b>Azure Build Pool</b>: Cloud-managed VMs with no GPU &mdash; used exclusively for compile, package, and artifact jobs. VM counts are point-in-time snapshots; elastic pools can provision beyond this number under load.<br>
+  <b>Physical GPU counts</b>: Unique machines counted once regardless of how many tiers use them. Pre-commit uses {_pc_gpu_nodes_full} (full gfx94X test pool incl. 1+8 GPU + alt pools + ASAN sandbox + Win build-only), Post-commit adds MI355X (gfx950 1+8 GPU) for {_po_gpu_nodes_full}, Nightly expands to all {_ni_gpu_nodes_full} GPU machines across {len(_NI_GPU_LABELS)} runner labels.
+</p>
+
+<!-- ── 2/3: FRAMEWORK RUNNER & SERVER COUNT DETAILS ─────────────────── -->
+<h3 id="server-counts-framework" style="margin:24px 0 8px 0;font-size:14px;color:#37474F;font-weight:700;border-bottom:2px solid #37474F;padding-bottom:4px">
+  2 &mdash; Framework Runner &amp; Server Count Details
+  <a href="https://therock-runner-health.com/" target="_blank" rel="noopener" style="font-size:11.5px;font-weight:400;margin-left:8px;color:#1565C0;text-decoration:none;border:1px solid #1565C0;padding:1px 6px;border-radius:3px">&#128279; Runner Health</a>
+</h3>
 <div class="tbl-wrap" style="margin-bottom:18px"><table class="fw-table fw-server-table">
 <thead><tr>
   <th>Framework</th>
@@ -1601,7 +2102,7 @@ footer{{background:var(--amd-dark);color:#888;text-align:center;padding:16px;fon
   <th>Build (VMs)</th>
   <th>GPU Test (Physical)</th>
   <th>Runner Labels &amp; Counts</th>
-  <th>Coverage</th>
+  <th style="width:800px;min-width:720px">Comments<br><span style="font-weight:400;font-size:10.5px;color:#FFE082">coverage &middot; online/offline by gfx &middot; DO-NOT-ENABLE</span></th>
 </tr></thead>
 <tbody>
 <tr class="fw-pytorch">
@@ -1614,19 +2115,19 @@ footer{{background:var(--amd-dark);color:#888;text-align:center;padding:16px;fon
   <td>2 elastic VM pools (no GPU); auto-scales beyond snapshot count when queue builds up</td>
 </tr>
 <tr class="fw-pytorch">
-  <td>GPU Test Pool<br><span style="font-weight:400;font-size:11.5px;color:#777">13 physical runner types</span></td>
-  <td style="text-align:center"><b>{_pt_gpu_total}</b> physical</td>
+  <td>GPU Test Pool<br><span style="font-weight:400;font-size:11.5px;color:#777">{len(_NI_GPU_LABELS)} physical runner labels (grouped by gfx)</span></td>
+  <td style="text-align:center"><b>{_ni_gpu_nodes_full}</b> physical</td>
   <td style="text-align:center;color:#aaa">&mdash;</td>
-  <td style="text-align:center"><b>{_pt_gpu_total}</b> across {len(_pt_gpu_runners)} runner types</td>
-  <td style="font-size:10.5px;line-height:1.6">{_pt_gpu_runner_breakdown}</td>
-  <td>{_pt_combinations}</td>
+  <td style="text-align:center"><b>{_ni_gpu_nodes_full}</b> across {len(_NI_GPU_LABELS)} runner labels</td>
+  <td>{_pt_runner_grouped_html}</td>
+  <td style="min-width:720px;word-wrap:break-word;font-size:12px"><div style="font-size:11.5px">{_pt_combinations}</div>{_pt_breakdown_html}</td>
 </tr>
 <tr class="fw-pytorch" style="font-weight:700;background:#D0E8F8">
   <td>Total</td>
-  <td style="text-align:center;color:#1F4E79"><b>{_pt_total_servers}</b></td>
+  <td style="text-align:center;color:#1F4E79"><b>{_pt_build_servers + _ni_gpu_nodes_full}</b></td>
   <td style="text-align:center;font-weight:400;font-size:12.5px">{_pt_build_servers} VMs (build)</td>
-  <td style="text-align:center;font-weight:400;font-size:12.5px">{_pt_gpu_total} physical (GPU test)</td>
-  <td colspan="2" style="color:#555;font-size:12.5px">{_pt_build_servers} build VMs + {_pt_gpu_total} physical GPU machines = <b>{_pt_total_servers}</b> &nbsp;(mixed: VMs + physical)</td>
+  <td style="text-align:center;font-weight:400;font-size:12.5px">{_ni_gpu_nodes_full} physical (GPU test)</td>
+  <td colspan="2" style="color:#555;font-size:12.5px">{_pt_build_servers} build VMs + {_ni_gpu_nodes_full} physical GPU machines = <b>{_pt_build_servers + _ni_gpu_nodes_full}</b> &nbsp;(mixed: VMs + physical)</td>
 </tr>
 <tr class="fw-jax">
   <td rowspan="2" style="font-weight:700;color:#2E7D32;vertical-align:middle;text-align:center">JAX</td>
@@ -1635,7 +2136,7 @@ footer{{background:var(--amd-dark);color:#888;text-align:center;padding:16px;fon
   <td style="color:#777;font-size:10.5px">Shared with PyTorch<br><span style="font-size:11.5px">azure-linux-scale-rocm</span><br><span style="font-size:11.5px">(VMs, not counted separately)</span></td>
   <td style="text-align:center"><b>{_jax_gpu_servers}</b> physical<br><span style="font-size:11.5px">(gfx94X only)</span></td>
   <td>linux-gfx942-1gpu-ossci-rocm = <b>{_jax_gpu_servers}</b> physical &nbsp;<span style="color:#888;font-size:10.5px">| Build: shared azure-linux-scale-rocm VMs</span></td>
-  <td>{_jax_combinations}</td>
+  <td style="min-width:720px;word-wrap:break-word;font-size:12px"><div style="font-size:11.5px">{_jax_combinations}</div>{_jax_breakdown_html}</td>
 </tr>
 <tr class="fw-jax" style="font-weight:700;background:#C8E6C9">
   <td>Total</td>
@@ -1653,11 +2154,13 @@ footer{{background:var(--amd-dark);color:#888;text-align:center;padding:16px;fon
 </tr>
 </tbody>
 </table>
-<p style="font-size:10.5px;color:#777;margin:4px 0 16px 4px">
+<p style="font-size:10.5px;color:#777;margin:4px 0 22px 4px">
   <b>Count</b>: VM instance counts are point-in-time snapshots from the runner fleet; elastic pools can provision beyond this number under load.<br>
-  <b>Build VMs</b>: Azure-managed virtual machines with no GPU — 2 pools total (<code>azure-linux-scale-rocm</code>, <code>azure-windows-scale-rocm</code>). Physical server count underneath is managed by Azure and not exposed.
+  <b>Build VMs</b>: Azure-managed virtual machines with no GPU &mdash; 2 pools total (<code>azure-linux-scale-rocm</code>, <code>azure-windows-scale-rocm</code>). Physical server count underneath is managed by Azure and not exposed.
 </p>
 </div>
+
+<!-- (Inference Runner Inventory moved to its own section below the InferenceMAX CI table — that's where it logically belongs since these pools are NOT tracked by therock-runner-health.com.) -->
 </div>
 <!-- ═══════════════════════════════════════════════════════════════════
      RUNNER INVENTORY
@@ -1718,18 +2221,25 @@ footer{{background:var(--amd-dark);color:#888;text-align:center;padding:16px;fon
 </tr></thead>
 <tbody>{_imax_rows}</tbody>
 </table></div>
-</div>
 
-<!-- ═══════════════════════════════════════════════════════════════════
-     INFERENCE RUNNER INVENTORY
-════════════════════════════════════════════════════════════════════ -->
-<div class="section" id="inference-runners" style="border-left:5px solid #4E342E">
-<h2 style="color:#4E342E">&#128295; Inference Runner Inventory</h2>
-<p class="inf-source">AMD runner pools (ROCm/InferenceMAX_rocm)</p>
-<div class="tbl-wrap"><table>
+<!-- ─── INFERENCE RUNNER INVENTORY (placed here, NOT in the Server Counts section,
+     because these pools are NOT tracked by therock-runner-health.com — they belong
+     with the InferenceMAX CI data and use a separate AMD-S Slurm + self-hosted Docker
+     management plane.) ────────────────────────────────────────────────────── -->
+<h3 id="inference-runner-inventory" style="margin:28px 0 8px 0;font-size:15px;color:#4E342E;font-weight:700;border-bottom:2px solid #4E342E;padding-bottom:4px">
+  Inference Runner Inventory &nbsp;<span style="font-weight:400;font-size:12px;color:#666">(InferenceMAX AMD GPU benchmarking pools)</span>
+</h3>
+<p style="font-size:12px;color:#5D4037;margin:6px 0 10px 0;background:#FFF8E1;border-left:4px solid #F9A825;padding:8px 12px;border-radius:3px">
+  &#9432; Live online/offline status for these runners is <b>not</b> available from
+  <code>therock-runner-health.com</code>. They are managed independently by the
+  <code>ROCm/InferenceMAX_rocm</code> repo via AMD internal Slurm scheduler + self-hosted
+  Docker pools. Snapshot counts below are from the InferenceMAX runner config.
+</p>
+<div class="tbl-wrap" id="inference-runners"><table>
 <thead><tr class="hdr-infr">
   <th style="vertical-align:middle">Ecosystem</th><th style="vertical-align:middle">GPU Type</th><th style="vertical-align:middle">Runner Labels</th>
   <th style="vertical-align:middle;text-align:center">Node Count</th><th style="vertical-align:middle">Cluster Type</th>
+  <th style="vertical-align:middle;width:800px;min-width:720px">Comments<br><span style="font-weight:400;font-size:10.5px;color:#FFE0B2">sub-pools &middot; quirks &middot; tracking source</span></th>
 </tr></thead>
 <tbody>{_inf_run_rows_html}</tbody>
 </table></div>
@@ -1741,10 +2251,15 @@ footer{{background:var(--amd-dark);color:#888;text-align:center;padding:16px;fon
 <div class="section" id="data-sources">
 <h2>&#128196; How Data Is Fetched</h2>
 <p style="font-size:12px;color:#555;margin-bottom:16px">
-  <code>fetch_rocm_data.py</code> pulls live data from four GitHub repositories via the
-  <a href="https://docs.github.com/en/rest/repos/contents" target="_blank" rel="noopener">GitHub REST API</a>.
-  With <code>GITHUB_TOKEN</code> set it uses authenticated calls (5 000 req/hr); without it, unauthenticated
-  calls are used (60 req/hr) with automatic fallback to local clones where available.
+  <code>fetch_rocm_data.py</code> pulls live data from four GitHub repositories using
+  <b>anonymous sparse <code>git clone</code></b> for the public repos and an
+  <b>SSH <code>git clone</code></b> for the private <code>ROCm/InferenceMAX_rocm</code>.
+  No <code>GITHUB_TOKEN</code> is required &mdash; ROCm-org now blocks classic PATs, and
+  fine-grained tokens typically need admin approval. Each clone is shallow
+  (<code>--depth=1</code>) and blob-filtered (<code>--filter=blob:none</code>), so the live run
+  finishes in &asymp;60&nbsp;seconds and only downloads the handful of files actually used.
+  If any clone fails, the fetcher transparently falls back to the committed JSON snapshots
+  (<code>therock_ci_snapshot.json</code>, <code>inferencemax_snapshot.json</code>).
 </p>
 
 <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(420px,1fr));gap:18px">
@@ -1776,8 +2291,8 @@ footer{{background:var(--amd-dark);color:#888;text-align:center;padding:16px;fon
     &#128279; Source 2 &mdash; <a href="https://github.com/ROCm/rocm-libraries" target="_blank" rel="noopener" style="color:#2E7D32">ROCm/rocm-libraries</a>
   </div>
   <p style="font-size:12.5px;margin:0">
-    <b>Endpoint:</b> <code>projects/</code> directory listing via
-    <a href="https://api.github.com/repos/ROCm/rocm-libraries/contents/projects" target="_blank" rel="noopener">GitHub API</a><br>
+    <b>Method:</b> Anonymous git clone (<code>--depth=1 --filter=blob:none --no-checkout</code>) +
+    <code>git ls-tree -d projects/</code> &mdash; <b>no blobs are downloaded</b>.<br>
     <b>Populates:</b> All library component names (rocBLAS, hipBLAS, MIOpen, rocFFT, &hellip;).
     Every subdirectory in <code>projects/</code> is treated as an active CI component.
   </p>
@@ -1788,8 +2303,8 @@ footer{{background:var(--amd-dark);color:#888;text-align:center;padding:16px;fon
     &#128279; Source 3 &mdash; <a href="https://github.com/ROCm/rocm-systems" target="_blank" rel="noopener" style="color:#E65100">ROCm/rocm-systems</a>
   </div>
   <p style="font-size:12.5px;margin:0">
-    <b>Endpoint:</b> <code>projects/</code> directory listing via
-    <a href="https://api.github.com/repos/ROCm/rocm-systems/contents/projects" target="_blank" rel="noopener">GitHub API</a><br>
+    <b>Method:</b> Anonymous git clone (<code>--depth=1 --filter=blob:none --no-checkout</code>) +
+    <code>git ls-tree -d projects/</code> &mdash; <b>no blobs are downloaded</b>.<br>
     <b>Populates:</b> All system component names (RCCL, rocminfo, ROCm-SMI, &hellip;).
   </p>
 </div>
@@ -1808,9 +2323,9 @@ footer{{background:var(--amd-dark);color:#888;text-align:center;padding:16px;fon
   </table>
   <div style="font-size:12.5px;color:#555;margin-top:8px">
     <b>Data source priority:</b>
-    (1) GitHub API when <code>GITHUB_TOKEN</code> is set &rarr;
-    (2) Local clone at <code>InferenceMAX_rocm/</code> &rarr;
-    (3) Graceful skip with <code>WARN</code> if neither available
+    (1) Local clone at <code>./InferenceMAX_rocm/</code> &rarr;
+    (2) Sparse SSH clone (<code>git@github.com:ROCm/InferenceMAX_rocm.git</code>) &rarr;
+    (3) <code>inferencemax_snapshot.json</code> (committed cache)
   </div>
 </div>
 
@@ -1818,12 +2333,144 @@ footer{{background:var(--amd-dark);color:#888;text-align:center;padding:16px;fon
 
 <div style="margin-top:18px;background:#f5f5f5;border-radius:6px;padding:12px 18px;font-size:12.5px;color:#555">
   <b>Fetch pipeline:</b>
-  GitHub APIs / Local clones &rarr;
+  Sparse anonymous git clones (public repos) + Sparse SSH clone (InferenceMAX_rocm) &rarr;
   <code>fetch_rocm_data.py</code> &rarr;
   <code>rocm_ci_data.py</code> (intermediate snapshot) &rarr;
   <code>generate_rocm_html.py</code> + <code>generate_rocm_cicd.py</code> &rarr;
-  <b>ROCm_CICD_Comprehensive.html</b> + <b>ROCm_CICD_Comprehensive.xlsx</b>
+  <b>ROCm_CICD_Comprehensive.html</b> + <b>ROCm_CICD_Comprehensive.xlsx</b><br>
+  <b>Resilience:</b> any clone failure transparently falls back to the committed
+  <code>therock_ci_snapshot.json</code> / <code>inferencemax_snapshot.json</code>.
 </div>
+
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     APPENDIX — AMD GFX ISA → ASIC LOOKUP
+════════════════════════════════════════════════════════════════════ -->
+<div class="section" id="appendix-gfx">
+<h2>&#128218; Appendix &mdash; AMD GFX ISA &rarr; ASIC Full Lookup Table</h2>
+<p style="font-size:12px;color:#555;margin-bottom:14px">
+  Reference table mapping every AMD <code>gfxNNN</code> ISA target to its
+  codename, chip family, retail products, and market segment. Use this to
+  decode the GPU family abbreviations used throughout this report
+  (<code>gfx94X</code>, <code>gfx1151</code>, etc.).
+</p>
+
+<style>
+.gfx-tbl {{ border-collapse:collapse; width:100%; margin:8px 0 24px 0; font-size:12px }}
+.gfx-tbl th {{ background:#37474F; color:#fff; padding:6px 10px; text-align:left;
+               border:1px solid #263238; font-weight:700; font-size:11.5px }}
+.gfx-tbl td {{ padding:5px 10px; border:1px solid #CFD8DC; vertical-align:top }}
+.gfx-tbl tr:nth-child(even) td {{ background:#FAFAFA }}
+.gfx-tbl code {{ font-size:11.5px; color:#1565C0; font-weight:700 }}
+.gfx-grp-h {{ margin:18px 0 6px 0; font-size:14.5px; color:#CC0000;
+              border-bottom:2px solid #CC0000; padding-bottom:3px; font-weight:700 }}
+.gfx-grp-sub {{ font-weight:400; font-size:11.5px; color:#666; margin-left:8px }}
+.gfx-seg-Consumer  {{ background:#E3F2FD }}
+.gfx-seg-Pro       {{ background:#F3E5F5 }}
+.gfx-seg-APU       {{ background:#FFF3E0 }}
+.gfx-seg-DC        {{ background:#FFEBEE }}
+.gfx-seg-Mobile    {{ background:#E8F5E9 }}
+.gfx-seg-Embedded  {{ background:#ECEFF1 }}
+</style>
+
+<h3 class="gfx-grp-h">GFX8 &mdash; GCN 4 (Polaris / Fiji) <span class="gfx-grp-sub">Pre-ROCm era</span></h3>
+<table class="gfx-tbl">
+<thead><tr><th>GFX ISA</th><th>Codename</th><th>Chip</th><th>Products</th><th>Segment</th></tr></thead>
+<tbody>
+<tr><td><code>gfx803</code></td><td>Fiji</td><td>Fiji XT/Pro</td><td>R9 Fury X, R9 Fury, R9 Nano</td><td class="gfx-seg-Consumer">Consumer</td></tr>
+<tr><td><code>gfx803</code></td><td>Ellesmere</td><td>Polaris 10/20</td><td>RX 480, RX 580, RX 470, RX 570</td><td class="gfx-seg-Consumer">Consumer</td></tr>
+<tr><td><code>gfx804</code></td><td>Baffin</td><td>Polaris 11/21</td><td>RX 460, RX 560, RX 560X</td><td class="gfx-seg-Consumer">Consumer</td></tr>
+</tbody></table>
+
+<h3 class="gfx-grp-h">GFX9 &mdash; Vega / CDNA</h3>
+<table class="gfx-tbl">
+<thead><tr><th>GFX ISA</th><th>Codename</th><th>Chip</th><th>Products</th><th>Segment</th></tr></thead>
+<tbody>
+<tr><td><code>gfx900</code></td><td>Vega 10</td><td>Vega 10 XT/XL</td><td>RX Vega 64, RX Vega 56, Instinct MI25</td><td class="gfx-seg-DC">Consumer + DC</td></tr>
+<tr><td><code>gfx902</code></td><td>Raven / Raven2</td><td>Raven</td><td>Ryzen 2000/3000 APU &mdash; Radeon RX Vega 8/11</td><td class="gfx-seg-APU">APU</td></tr>
+<tr><td><code>gfx904</code></td><td>Vega 12</td><td>Vega 12</td><td>Radeon Pro Vega 20, Radeon Pro Vega 16</td><td class="gfx-seg-Pro">Pro</td></tr>
+<tr><td><code>gfx906</code></td><td>Vega 20</td><td>Vega 20</td><td>Radeon VII, Instinct MI50, Instinct MI60</td><td class="gfx-seg-DC">Consumer + DC</td></tr>
+<tr><td><code>gfx908</code></td><td>Arcturus</td><td>Arcturus</td><td>Instinct MI100</td><td class="gfx-seg-DC">CDNA1 DC</td></tr>
+<tr><td><code>gfx90a</code></td><td>Aldebaran</td><td>Aldebaran</td><td>Instinct MI210, MI250, MI250X</td><td class="gfx-seg-DC">CDNA2 DC</td></tr>
+<tr><td><code>gfx90c</code></td><td>Renoir</td><td>Renoir</td><td>Ryzen 4000/5000 APU &mdash; Radeon RX Vega 6/7/8</td><td class="gfx-seg-APU">APU</td></tr>
+<tr><td><code>gfx940</code></td><td>Aqua Vanjaram</td><td>CDNA3 (eng. step A)</td><td>Pre-production only</td><td class="gfx-seg-DC">CDNA3 DC</td></tr>
+<tr><td><code>gfx941</code></td><td>Aqua Vanjaram</td><td>CDNA3 (eng. step B)</td><td>Pre-production only</td><td class="gfx-seg-DC">CDNA3 DC</td></tr>
+<tr><td><code>gfx942</code></td><td>Aqua Vanjaram</td><td>CDNA3</td><td>Instinct MI300X, MI300A, MI325X</td><td class="gfx-seg-DC">CDNA3 DC</td></tr>
+<tr><td><code>gfx950</code></td><td>Antares</td><td>CDNA4</td><td>Instinct MI355X</td><td class="gfx-seg-DC">CDNA4 DC</td></tr>
+</tbody></table>
+
+<h3 class="gfx-grp-h">GFX10 &mdash; RDNA 1</h3>
+<table class="gfx-tbl">
+<thead><tr><th>GFX ISA</th><th>Codename</th><th>Chip</th><th>Products</th><th>Segment</th></tr></thead>
+<tbody>
+<tr><td><code>gfx1010</code></td><td>Navi 10</td><td>Navi 10</td><td>RX 5700 XT, RX 5700, RX 5600 XT, Radeon Pro 5700 XT</td><td class="gfx-seg-Consumer">Consumer</td></tr>
+<tr><td><code>gfx1011</code></td><td>Navi 12</td><td>Navi 12</td><td>Radeon Pro 5600M, Radeon Pro VII</td><td class="gfx-seg-Pro">Pro / Mobile</td></tr>
+<tr><td><code>gfx1012</code></td><td>Navi 14</td><td>Navi 14</td><td>RX 5500 XT, RX 5500, RX 5300 XT, RX 5300</td><td class="gfx-seg-Consumer">Consumer</td></tr>
+<tr><td><code>gfx1013</code></td><td>Cyan Skillfish</td><td>Cyan Skillfish</td><td>Embedded / rare discrete variant</td><td class="gfx-seg-Embedded">Embedded</td></tr>
+</tbody></table>
+
+<h3 class="gfx-grp-h">GFX10.3 &mdash; RDNA 2</h3>
+<table class="gfx-tbl">
+<thead><tr><th>GFX ISA</th><th>Codename</th><th>Chip</th><th>Products</th><th>Segment</th></tr></thead>
+<tbody>
+<tr><td><code>gfx1030</code></td><td>Navi 21</td><td>Navi 21 XTXH/XTX/XT/XL</td><td>RX 6950 XT, RX 6900 XT, RX 6800 XT, RX 6800, Radeon Pro W6800</td><td class="gfx-seg-Consumer">Consumer</td></tr>
+<tr><td><code>gfx1031</code></td><td>Navi 22</td><td>Navi 22 XT/XL</td><td>RX 6700 XT, RX 6700, Radeon Pro W6600</td><td class="gfx-seg-Consumer">Consumer</td></tr>
+<tr><td><code>gfx1032</code></td><td>Navi 23</td><td>Navi 23 XT/XL/XM</td><td>RX 6600 XT, RX 6600, RX 6650 XT</td><td class="gfx-seg-Consumer">Consumer</td></tr>
+<tr><td><code>gfx1033</code></td><td>Navi 24</td><td>Navi 24 XT/XL/XM</td><td>RX 6500 XT, RX 6400, RX 6300</td><td class="gfx-seg-Consumer">Consumer</td></tr>
+<tr><td><code>gfx1034</code></td><td>Beige Goby</td><td>Navi 24 (mobile)</td><td>RX 6500M, RX 6300M</td><td class="gfx-seg-Mobile">Mobile</td></tr>
+<tr><td><code>gfx1035</code></td><td>Yellow Carp</td><td>Rembrandt</td><td>Ryzen 6000 APU &mdash; Radeon 680M, 660M</td><td class="gfx-seg-APU">APU</td></tr>
+<tr><td><code>gfx1036</code></td><td>Barcelo-R</td><td>Rembrandt-R</td><td>Ryzen 5000 refresh APU &mdash; Radeon 610M</td><td class="gfx-seg-APU">APU</td></tr>
+</tbody></table>
+
+<h3 class="gfx-grp-h">GFX11 &mdash; RDNA 3</h3>
+<table class="gfx-tbl">
+<thead><tr><th>GFX ISA</th><th>Codename</th><th>Chip</th><th>Products</th><th>Segment</th></tr></thead>
+<tbody>
+<tr><td><code>gfx1100</code></td><td>Navi 31</td><td>Navi 31 XTX/XT</td><td>RX 7900 XTX, RX 7900 XT, RX 7900 GRE, Radeon Pro W7900</td><td class="gfx-seg-Consumer">Consumer</td></tr>
+<tr><td><code>gfx1101</code></td><td>Navi 32</td><td>Navi 32 XT/XL</td><td>RX 7800 XT, RX 7700 XT, Radeon Pro W7700</td><td class="gfx-seg-Consumer">Consumer</td></tr>
+<tr><td><code>gfx1102</code></td><td>Navi 33</td><td>Navi 33 XT/XL</td><td>RX 7600 XT, RX 7600, Radeon Pro W7600</td><td class="gfx-seg-Consumer">Consumer</td></tr>
+<tr><td><code>gfx1103</code></td><td>Phoenix</td><td>Phoenix 1</td><td>Ryzen 7040 APU &mdash; Radeon 780M, 760M, 740M</td><td class="gfx-seg-APU">APU</td></tr>
+</tbody></table>
+
+<h3 class="gfx-grp-h">GFX11 &mdash; RDNA 3.5</h3>
+<table class="gfx-tbl">
+<thead><tr><th>GFX ISA</th><th>Codename</th><th>Chip</th><th>Products</th><th>Segment</th></tr></thead>
+<tbody>
+<tr><td><code>gfx1150</code></td><td>Strix Point</td><td>Strix Point</td><td>Ryzen AI 300 &mdash; Radeon 890M, 880M</td><td class="gfx-seg-APU">APU</td></tr>
+<tr><td><code>gfx1151</code></td><td>Strix Halo</td><td>Strix Halo</td><td>Ryzen AI Max &mdash; Radeon 8060S, 8050S</td><td class="gfx-seg-APU">APU (large die)</td></tr>
+<tr><td><code>gfx1152</code></td><td>Krackan Point</td><td>Krackan Point</td><td>Ryzen AI 300 &mdash; Radeon 840M</td><td class="gfx-seg-APU">APU</td></tr>
+<tr><td><code>gfx1153</code></td><td>Krackan Point</td><td>Krackan Point</td><td>Ryzen AI 300 &mdash; Radeon 820M</td><td class="gfx-seg-APU">APU</td></tr>
+</tbody></table>
+<p style="font-size:11px;color:#666;margin:-12px 0 16px 4px;font-style:italic">
+  <code>gfx1152</code> and <code>gfx1153</code> are separate ISA targets despite sharing the
+  Krackan Point codename &mdash; different CU configs produce different ISA IDs.
+</p>
+
+<h3 class="gfx-grp-h">GFX12 &mdash; RDNA 4</h3>
+<table class="gfx-tbl">
+<thead><tr><th>GFX ISA</th><th>Codename</th><th>Chip</th><th>Products</th><th>Segment</th></tr></thead>
+<tbody>
+<tr><td><code>gfx1200</code></td><td>Navi 48</td><td>Navi 48 XT/XTX</td><td>RX 9070 XT, RX 9070</td><td class="gfx-seg-Consumer">Consumer</td></tr>
+<tr><td><code>gfx1201</code></td><td>Navi 44</td><td>Navi 44 XT</td><td>RX 9060 XT</td><td class="gfx-seg-Consumer">Consumer</td></tr>
+</tbody></table>
+
+<h3 class="gfx-grp-h">Architecture Summary</h3>
+<table class="gfx-tbl">
+<thead><tr><th>GFX Range</th><th>Architecture</th><th>Generation</th><th>Primary Use</th></tr></thead>
+<tbody>
+<tr><td><code>gfx803&ndash;gfx804</code></td><td>GCN 4</td><td>Polaris / Fiji</td><td>Legacy (ROCm dropped)</td></tr>
+<tr><td><code>gfx900&ndash;gfx90c</code></td><td>GFX9 / Vega</td><td>Vega + APUs</td><td>ROCm legacy (build-only in CI)</td></tr>
+<tr><td><code>gfx908</code></td><td>GFX9 / CDNA1</td><td>Arcturus</td><td>Datacenter (ROCm 4+)</td></tr>
+<tr><td><code>gfx90a</code></td><td>GFX9 / CDNA2</td><td>Aldebaran</td><td>Datacenter (MI200)</td></tr>
+<tr><td><code>gfx940&ndash;gfx942</code></td><td>GFX9 / CDNA3</td><td>Aqua Vanjaram</td><td>Datacenter (MI300 series)</td></tr>
+<tr><td><code>gfx950</code></td><td>GFX9 / CDNA4</td><td>Antares</td><td>Datacenter (MI355X)</td></tr>
+<tr><td><code>gfx1010&ndash;gfx1013</code></td><td>GFX10 / RDNA 1</td><td>Navi 1x</td><td>Consumer (build-only in CI)</td></tr>
+<tr><td><code>gfx1030&ndash;gfx1036</code></td><td>GFX10.3 / RDNA 2</td><td>Navi 2x</td><td>Consumer + APU</td></tr>
+<tr><td><code>gfx1100&ndash;gfx1103</code></td><td>GFX11 / RDNA 3</td><td>Navi 3x</td><td>Consumer + APU</td></tr>
+<tr><td><code>gfx1150&ndash;gfx1153</code></td><td>GFX11 / RDNA 3.5</td><td>Strix / Krackan</td><td>APU (Ryzen AI)</td></tr>
+<tr><td><code>gfx1200&ndash;gfx1201</code></td><td>GFX12 / RDNA 4</td><td>Navi 4x</td><td>Consumer</td></tr>
+</tbody></table>
 
 </div>
 
