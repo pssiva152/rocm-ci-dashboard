@@ -10,14 +10,15 @@ ROCm-org repos now **block classic GitHub Personal Access Tokens** — only fine
 
 Instead, it now uses **anonymous `git clone`** for the public repos and **SSH `git clone`** for the private one:
 
-| Repo | Visibility | Method | Auth needed |
-|---|---|---|---|
-| `ROCm/TheRock` | public | `git clone` (HTTPS, sparse) | none |
-| `ROCm/rocm-libraries` | public | `git clone` (HTTPS, metadata only) | none |
-| `ROCm/rocm-systems` | public | `git clone` (HTTPS, metadata only) | none |
-| `ROCm/InferenceMAX_rocm` | private | `git clone` (SSH, sparse) | SSH key registered with GitHub |
+| Repo / source | Visibility | Method | Auth needed | Fallback |
+|---|---|---|---|---|
+| `ROCm/TheRock` | public | `git clone` (HTTPS, sparse) | none | `therock_ci_snapshot.json` |
+| `ROCm/rocm-libraries` | public | `git clone` (HTTPS, metadata only) | none | `therock_ci_snapshot.json` |
+| `ROCm/rocm-systems` | public | `git clone` (HTTPS, metadata only) | none | `therock_ci_snapshot.json` |
+| `ROCm/InferenceMAX_rocm` | private | `git clone` (SSH, sparse) | SSH key registered with GitHub | `inferencemax_snapshot.json` |
+| `therock-runner-health.com` | AMD-internal | local `.mhtml` → live HTTPS GET | AMD VPN + GitHub-authenticated browser session | `runner_health_snapshot.json` |
 
-If any clone fails (no network, git missing, SSH key not configured, repo unreachable), the fetcher transparently falls back to the **last good JSON snapshot** committed alongside the script.
+If any of these primary sources fail (no network, git missing, SSH key not configured, repo unreachable, dashboard requires login), the fetcher transparently falls back to the **last good JSON snapshot** committed alongside the script.
 
 ---
 
@@ -101,9 +102,24 @@ Use this when:
 │       ↓ fails (no SSH key / no access) ↓                             │
 │  ③ inferencemax_snapshot.json   ← committed to repo                  │
 └──────────────────────────────────────────────────────────────────────┘
+
+┌─ Runner-health (therock-runner-health.com, AMD-internal) ────────────┐
+│  ① local TheRock Runner Health.mhtml in this folder                  │
+│     (saved manually from the dashboard while signed in on AMD VPN;   │
+│      NEVER committed — it's a verbatim copy of an internal page)     │
+│       ↓ not present ↓                                                │
+│  ② anonymous HTTPS GET of https://therock-runner-health.com/         │
+│     (will succeed only if your shell can reach the host AND the      │
+│      response isn't bounced to a GitHub OAuth login page)            │
+│       ↓ fails (page gated, host unreachable, parse mismatch) ↓       │
+│  ③ runner_health_snapshot.json   ← committed to repo                 │
+│     (auto-refreshed every time path ① or ② succeeds, so even this    │
+│      committed cache stays current as long as one team-mate runs     │
+│      with the .mhtml present and pushes the regenerated snapshot)    │
+└──────────────────────────────────────────────────────────────────────┘
 ```
 
-The fetcher prints exactly which path was used at every step, so you can always tell whether the report is built from live data or a cached snapshot.
+The loaders print exactly which path was used at every step, so you can always tell whether the report is built from live data or a cached snapshot. The HTML report itself shows a coloured "source" chip in the live-status banner: green = mhtml, blue = live, orange = snapshot.
 
 ---
 
@@ -122,7 +138,9 @@ TheRock_CI-CD/
 ├── rocm_ci_data.py              # COMMITTED snapshot — full COMPONENTS / RUNNER_DATA / TIER_DATA / etc.
 ├── therock_ci_snapshot.json     # COMMITTED snapshot — raw text of TheRock files (matrix, topology, …)
 ├── inferencemax_snapshot.json   # COMMITTED snapshot — parsed InferenceMAX configs + runner pools
-├── TheRock Runner Health.mhtml  # Manual snapshot of the internal runner-health dashboard
+├── runner_health_snapshot.json  # COMMITTED snapshot — parsed runner-health dashboard (online/busy/idle)
+├── TheRock Runner Health.mhtml  # GIT-IGNORED — manual save of the internal runner-health dashboard
+│                                #   (NOT in repo; produces runner_health_snapshot.json when present)
 │
 ├── InferenceMAX_rocm/           # OPTIONAL local clone (`git clone git@github.com:ROCm/InferenceMAX_rocm.git`)
 └── README.md
@@ -216,6 +234,34 @@ Once SSH is set up, every `python fetch_rocm_data.py` run will pick up the lates
 
 ---
 
+## Refreshing the runner-health snapshot (AMD VPN required)
+
+`runner_health_snapshot.json` is the public-facing cache of live runner-fleet status (online/offline/busy/idle counts, per-label queue lag, per-machine details). It is committed to the repo so the report always renders. To refresh it:
+
+1. **On AMD VPN**, open <https://therock-runner-health.com/> in a browser and sign in with GitHub.
+2. **Save the page** as `TheRock Runner Health.mhtml` in this folder
+   *(Edge / Chrome → "Save page as…" → "Webpage, Single File")*. The file name must match exactly (or any of the other four names listed in `.gitignore`).
+3. Run any of the generators:
+   ```bash
+   python generate_rocm_html.py        # or
+   python rocm_report_bundle.py        # full report
+   ```
+   The runner-health loader detects the `.mhtml`, parses it, and **automatically rewrites** `runner_health_snapshot.json` so that downstream users without VPN access still see your refreshed numbers.
+4. Commit the regenerated snapshot:
+   ```bash
+   git add runner_health_snapshot.json
+   git commit -m "chore: refresh runner-health snapshot"
+   git push
+   ```
+
+> **Why isn't the `.mhtml` in the repo?**
+> It's a verbatim copy of an AMD-internal dashboard page (with internal hostnames, GitHub session metadata, etc.). The parsed JSON snapshot is safe to publish — it's the same numerical data we already render in the public HTML report — but the raw page is not. `.gitignore` covers all four common name variants of the saved page.
+
+> **Resolution order at run time** (mirrored in `runner_health_parser.load_runner_health_any`):
+> ① local `.mhtml` → ② live HTTPS GET of the dashboard (usually fails for scripted runs because the URL requires a logged-in browser session) → ③ committed `runner_health_snapshot.json`. The HTML report shows a coloured chip indicating which path was actually used for the current build.
+
+---
+
 ## How to refresh snapshots (dev workflow)
 
 After a successful live run, the fetcher always writes the latest `rocm_ci_data.py`, `therock_ci_snapshot.json`, and `inferencemax_snapshot.json`. To update the committed snapshots:
@@ -243,8 +289,9 @@ python create_snapshots.py
 | `rocm_ci_data.py` | **All structured data** — COMPONENTS, RUNNER_DATA, TIER_DATA, FW_DATA, WH_DATA, INFERENCEMAX_DATA, INFERENCE_RUNNERS | `generate_rocm_html.py`, `generate_rocm_cicd.py` (auto-detected) |
 | `therock_ci_snapshot.json` | Raw text of `amdgpu_family_matrix.py`, `BUILD_TOPOLOGY.toml`, `.gitmodules`, `ci_nightly.yml` + project-name lists | `fetch_rocm_data.py` (fallback when public clones fail) |
 | `inferencemax_snapshot.json` | Parsed InferenceMAX benchmark configs + runner pools | `fetch_rocm_data.py` (fallback when InferenceMAX clone fails) |
+| `runner_health_snapshot.json` | Parsed runner-health dashboard — refresh time, online/offline/busy/idle counts, per-label queue metrics, per-machine list | `runner_health_parser.load_runner_health_any` (fallback when no `.mhtml` and live HTTPS fails) |
 
-All three are committed to git so the report can be regenerated reproducibly with `python rocm_report_bundle.py --snapshot` even with no network access.
+All four are committed to git so the report can be regenerated reproducibly with `python rocm_report_bundle.py --snapshot` even with no network access.
 
 ---
 
@@ -342,3 +389,14 @@ Either snapshots are out of date (run `python fetch_rocm_data.py` and commit the
 
 **Windows: long-path errors during clone**
 The fetcher already passes `-c core.longpaths=true` to every git command. If you still see issues, enable the Windows long-path policy: `git config --global core.longpaths true`.
+
+**Live-status banner shows orange "snapshot" chip even on AMD VPN**
+The live HTTPS fetch silently fell back because the request was bounced to GitHub's OAuth flow (the dashboard is gated by GitHub login). This is expected for any non-browser HTTP client. To get fresh numbers, save the dashboard page as `TheRock Runner Health.mhtml` in this folder and re-run — see the *Refreshing the runner-health snapshot* section above. The orange chip means the report is rendering from the last committed snapshot, which is always present.
+
+**`AttributeError: 'RunnerHealth' object has no attribute …` after pulling latest**
+You have a stale `runner_health_snapshot.json` written by an older schema. Delete it and re-run:
+```bash
+rm runner_health_snapshot.json
+python generate_rocm_html.py
+```
+If a `.mhtml` is on disk, it'll be parsed and a fresh snapshot will be written. Otherwise the live fetch will be tried and (if it fails) the report will simply render without the live-runner enrichment.

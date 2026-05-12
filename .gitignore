@@ -4,6 +4,15 @@ ROCm_Components_CICD.xlsx
 # Local clone of ROCm/InferenceMAX_rocm — not part of this project
 InferenceMAX_rocm/
 
+# Saved page from the AMD-internal therock-runner-health.com dashboard.
+# This is a verbatim copy of an internal page and must NOT be committed.
+# The parsed numbers live in runner_health_snapshot.json (which IS committed)
+# so that downstream users without VPN access still get a current report.
+TheRock Runner Health.mhtml
+runner_health.mhtml
+runner-health.mhtml
+TheRockRunnerHealth.mhtml
+
 # Python bytecode
 __pycache__/
 *.pyc

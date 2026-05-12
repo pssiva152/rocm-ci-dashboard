@@ -1,27 +1,44 @@
 """
-Parse the runner health dashboard MHTML file (saved from
-https://therock-runner-health.com/) and expose:
+Parse runner-health dashboard data (from https://therock-runner-health.com/)
+and expose:
 
   - SUMMARY:       aggregated online/offline counts and refresh time
   - PER_LABEL:     queue-status metrics per runner label (bad / ok)
   - PER_MACHINE:   list of individual runners with busy state + labels + pool
 
-Usage:
-    from runner_health_parser import load_runner_health, RunnerHealth
-    rh = load_runner_health("TheRock Runner Health.mhtml")
-    if rh:
-        print(rh.summary)              # {'online': 297, 'offline': 30, ...}
-        print(rh.per_label["linux-gfx942-1gpu-ossci-rocm"])
-        for m in rh.per_machine:
-            print(m["name"], m["busy"], m["labels"])
+Three load paths (use `load_runner_health_any` to try them all in order):
 
-If the MHTML is missing or malformed, load_runner_health() returns None
-and the calling code should gracefully skip the enrichment.
+  1. Local MHTML file       — saved manually from the dashboard while logged
+                              into GitHub on the AMD VPN. NOT committed to
+                              git (it's a verbatim dump of an internal page).
+  2. Live HTTPS fetch       — anonymous GET against the dashboard URL. Will
+                              succeed only if the network can reach the host
+                              AND the response isn't a GitHub login redirect.
+                              Most users on a clean shell will silently fail
+                              this step and fall through to the snapshot.
+  3. JSON snapshot          — cached copy of the parsed data, committed to
+                              git so the report can always be rendered.
+                              Refreshed automatically after a successful
+                              MHTML or live fetch.
+
+Quick use:
+    from runner_health_parser import load_runner_health_any, RunnerHealth
+    rh, src = load_runner_health_any(
+        mhtml_candidates=["TheRock Runner Health.mhtml"],
+        live_url="https://therock-runner-health.com/",
+        snapshot_path="runner_health_snapshot.json",
+    )
+    if rh:
+        print(f"Loaded from {src!r}, refresh={rh.refresh_time}, machines={len(rh.per_machine)}")
 """
 from __future__ import annotations
 
+import datetime
 import email
+import json
 import re
+import urllib.error
+import urllib.request
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Optional
@@ -96,6 +113,59 @@ class RunnerHealth:
         busy = sum(1 for v in seen.values() if v)
         idle = len(seen) - busy
         return busy, idle
+
+    # ── JSON-snapshot serialization (used as fallback when no MHTML is on
+    #    disk and the live dashboard is unreachable) ────────────────────────
+    def to_dict(self) -> dict:
+        """Serializable representation; suitable for JSON snapshot."""
+        return {
+            "refresh_time": self.refresh_time,
+            "summary":      self.summary,
+            "per_label":    self.per_label,
+            "per_machine":  self.per_machine,
+            "raw_size":     self.raw_size,
+        }
+
+    @classmethod
+    def from_dict(cls, d: dict) -> "RunnerHealth":
+        return cls(
+            refresh_time = d.get("refresh_time", ""),
+            summary      = d.get("summary", {}) or {},
+            per_label    = d.get("per_label", {}) or {},
+            per_machine  = d.get("per_machine", []) or [],
+            raw_size     = int(d.get("raw_size", 0) or 0),
+        )
+
+    def save_snapshot(self, path: str | Path) -> None:
+        """Write a JSON snapshot of the parsed data, plus a capture timestamp."""
+        try:
+            import zoneinfo
+            _pt = zoneinfo.ZoneInfo("America/Los_Angeles")
+        except ImportError:
+            _pt = datetime.timezone(datetime.timedelta(hours=-7))
+        captured = datetime.datetime.now(_pt).strftime("%Y-%m-%d %I:%M %p %Z")
+        payload = {
+            "_schema_version":   1,
+            "_captured":         captured,
+            "_source_note":      "Snapshot of the parsed runner-health data. "
+                                 "Used as a fallback when the .mhtml is absent "
+                                 "and the live dashboard is unreachable.",
+            **self.to_dict(),
+        }
+        Path(path).write_text(json.dumps(payload, indent=2, ensure_ascii=False),
+                              encoding="utf-8")
+
+    @classmethod
+    def load_snapshot(cls, path: str | Path) -> Optional["RunnerHealth"]:
+        p = Path(path)
+        if not p.exists():
+            return None
+        try:
+            d = json.loads(p.read_text(encoding="utf-8"))
+            return cls.from_dict(d)
+        except Exception as e:
+            print(f"[runner_health_parser] WARN: bad snapshot {p}: {e}")
+            return None
 
 
 def _extract_html_part(mhtml_path: Path) -> str:
@@ -219,34 +289,147 @@ def _parse_per_machine(html: str) -> list:
     return machines
 
 
+def _parse_html(html: str) -> Optional[RunnerHealth]:
+    """Parse an already-decoded runner-health HTML body into a RunnerHealth."""
+    if not html or "Last refresh" not in html:
+        return None
+    rh = RunnerHealth(raw_size=len(html))
+    m = re.search(r'Last refresh[^<]*:\s*[^<]*<b>([^<]+)</b>', html, re.S)
+    if m:
+        rh.refresh_time = m.group(1).strip()
+    rh.summary     = _parse_summary(html)
+    rh.per_label   = _parse_per_label_metrics(html)
+    rh.per_machine = _parse_per_machine(html)
+    if not rh.summary and not rh.per_label and not rh.per_machine:
+        return None
+    return rh
+
+
 def load_runner_health(path: str | Path) -> Optional[RunnerHealth]:
+    """Load runner-health data from a saved MHTML page on disk."""
     p = Path(path)
     if not p.exists():
         return None
     try:
         html = _extract_html_part(p)
-        if not html:
-            return None
-        rh = RunnerHealth(raw_size=len(html))
-        m = re.search(r'Last refresh[^<]*:\s*[^<]*<b>([^<]+)</b>', html, re.S)
-        if m:
-            rh.refresh_time = m.group(1).strip()
-        rh.summary     = _parse_summary(html)
-        rh.per_label   = _parse_per_label_metrics(html)
-        rh.per_machine = _parse_per_machine(html)
-        return rh
+        return _parse_html(html)
     except Exception as e:
-        print(f"[runner_health_parser] WARN: failed to parse {p}: {e}")
+        print(f"[runner_health_parser] WARN: failed to parse MHTML {p}: {e}")
         return None
+
+
+def fetch_live(url: str = "https://therock-runner-health.com/",
+               timeout: float = 10.0) -> Optional[RunnerHealth]:
+    """Attempt an anonymous HTTPS GET against the live dashboard.
+
+    The dashboard sits behind GitHub OAuth, so an unauthenticated script
+    typically gets redirected to a GitHub sign-in page. We detect that
+    case (and any network error) and return None so the caller can fall
+    through to the JSON snapshot.
+    """
+    req = urllib.request.Request(
+        url,
+        headers={
+            "User-Agent": "rocm-cicd-report/1.0 (+runner-health fetcher)",
+            "Accept": "text/html,application/xhtml+xml",
+        },
+    )
+    try:
+        with urllib.request.urlopen(req, timeout=timeout) as resp:
+            final_url = resp.geturl()
+            body = resp.read().decode("utf-8", errors="replace")
+    except (urllib.error.URLError, urllib.error.HTTPError, OSError, ValueError) as e:
+        print(f"[runner_health_parser] live fetch FAIL: {e}")
+        return None
+
+    # If we got bounced to GitHub's OAuth/sign-in flow, there's no usable
+    # data in the body — bail out so the snapshot fallback can run.
+    if "github.com" in final_url.lower() or "<title>Sign in to GitHub" in body:
+        print("[runner_health_parser] live fetch: redirected to GitHub login "
+              "(needs an authenticated browser session — falling back).")
+        return None
+
+    rh = _parse_html(body)
+    if rh is None:
+        print("[runner_health_parser] live fetch: response did not look like "
+              "the runner-health dashboard — falling back.")
+    return rh
+
+
+def load_runner_health_any(
+    mhtml_candidates: Optional[list] = None,
+    live_url: Optional[str] = "https://therock-runner-health.com/",
+    snapshot_path: Optional[str | Path] = "runner_health_snapshot.json",
+    refresh_snapshot: bool = True,
+    try_live: bool = True,
+) -> tuple[Optional[RunnerHealth], Optional[str]]:
+    """Three-tier loader: local MHTML → live HTTPS → JSON snapshot.
+
+    Returns ``(RunnerHealth | None, source_label | None)`` where
+    ``source_label`` is one of ``"mhtml"``, ``"live"``, ``"snapshot"``.
+
+    When the load succeeds via mhtml or live, the snapshot at
+    ``snapshot_path`` is refreshed (if ``refresh_snapshot`` is True) so the
+    next snapshot-only run sees the latest numbers.
+    """
+    # 1) Local MHTML
+    for cand in (mhtml_candidates or []):
+        p = Path(cand)
+        if not p.exists():
+            continue
+        rh = load_runner_health(p)
+        if rh:
+            print(f"[runner_health_parser] mhtml OK: {p.name} "
+                  f"({len(rh.per_machine)} machines, "
+                  f"{len(rh.per_label)} labels, refresh={rh.refresh_time!r})")
+            if refresh_snapshot and snapshot_path:
+                try:
+                    rh.save_snapshot(snapshot_path)
+                    print(f"[runner_health_parser] snapshot refreshed -> {snapshot_path}")
+                except Exception as e:
+                    print(f"[runner_health_parser] WARN: could not refresh snapshot: {e}")
+            return rh, "mhtml"
+
+    # 2) Live HTTPS
+    if try_live and live_url:
+        rh = fetch_live(live_url)
+        if rh:
+            print(f"[runner_health_parser] live OK: {live_url} "
+                  f"({len(rh.per_machine)} machines, "
+                  f"{len(rh.per_label)} labels, refresh={rh.refresh_time!r})")
+            if refresh_snapshot and snapshot_path:
+                try:
+                    rh.save_snapshot(snapshot_path)
+                    print(f"[runner_health_parser] snapshot refreshed -> {snapshot_path}")
+                except Exception as e:
+                    print(f"[runner_health_parser] WARN: could not refresh snapshot: {e}")
+            return rh, "live"
+
+    # 3) JSON snapshot fallback
+    if snapshot_path:
+        rh = RunnerHealth.load_snapshot(snapshot_path)
+        if rh:
+            print(f"[runner_health_parser] snapshot OK: {snapshot_path} "
+                  f"({len(rh.per_machine)} machines, "
+                  f"{len(rh.per_label)} labels, refresh={rh.refresh_time!r})")
+            return rh, "snapshot"
+
+    return None, None
 
 
 if __name__ == "__main__":
     import sys
     sys.stdout.reconfigure(encoding="utf-8")
-    rh = load_runner_health("TheRock Runner Health.mhtml")
+    rh, src = load_runner_health_any(
+        mhtml_candidates=["TheRock Runner Health.mhtml", "runner_health.mhtml",
+                          "runner-health.mhtml", "TheRockRunnerHealth.mhtml"],
+        live_url="https://therock-runner-health.com/",
+        snapshot_path="runner_health_snapshot.json",
+    )
     if not rh:
-        print("No runner health data available.")
+        print("No runner health data available (no mhtml, live unreachable, no snapshot).")
         raise SystemExit(0)
+    print(f"Source : {src}")
     print(f"Refresh: {rh.refresh_time}")
     print(f"Summary: {rh.summary}")
     print(f"Per-label entries: {len(rh.per_label)}")

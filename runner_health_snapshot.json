@@ -1,0 +1,3301 @@
+{
+  "_schema_version": 1,
+  "_captured": "2026-05-12 03:57 AM PDT",
+  "_source_note": "Snapshot of the parsed runner-health data. Used as a fallback when the .mhtml is absent and the live dashboard is unreachable.",
+  "refresh_time": "May 7, 5:10 AM PT",
+  "summary": {
+    "online": 297,
+    "offline": 30,
+    "busy": 153,
+    "idle": 144,
+    "resource": {
+      "CPU": {
+        "total": 96,
+        "online": 96,
+        "offline": 0,
+        "busy": 91,
+        "idle": 5,
+        "status_class": "bad"
+      },
+      "GPU": {
+        "total": 184,
+        "online": 163,
+        "offline": 21,
+        "busy": 62,
+        "idle": 101,
+        "status_class": "ok"
+      }
+    }
+  },
+  "per_label": {
+    "linux-gfx1151-gpu-rocm": {
+      "status": "bad",
+      "avg_queued_per_hr": "0.00",
+      "jobs_6h": "28",
+      "median_queue": "99.1m",
+      "worst_queue": "135.8m",
+      "median_duration": "4.4m",
+      "worst_duration": "24.9m"
+    },
+    "linux-strix-halo-gpu-rocm": {
+      "status": "bad",
+      "avg_queued_per_hr": "0.00",
+      "jobs_6h": "2",
+      "median_queue": "99.9m",
+      "worst_queue": "99.9m",
+      "median_duration": "24.6m",
+      "worst_duration": "24.6m"
+    },
+    "windows-gfx110X-gpu-rocm": {
+      "status": "bad",
+      "avg_queued_per_hr": "0.00",
+      "jobs_6h": "312",
+      "median_queue": "0s",
+      "worst_queue": "91.5m",
+      "median_duration": "2.7m",
+      "worst_duration": "30.2m"
+    },
+    "azure-windows-scale-rocm": {
+      "status": "bad",
+      "avg_queued_per_hr": "0.00",
+      "jobs_6h": "383",
+      "median_queue": "29.1m",
+      "worst_queue": "64.9m",
+      "median_duration": "54.3m",
+      "worst_duration": "192.9m"
+    },
+    "linux-gfx950-1gpu-ccs-ossci-rocm": {
+      "status": "bad",
+      "avg_queued_per_hr": "0.00",
+      "jobs_6h": "236",
+      "median_queue": "2.4m",
+      "worst_queue": "52.0m",
+      "median_duration": "3.9m",
+      "worst_duration": "62.8m"
+    },
+    "linux-gfx942-1gpu-core42-ossci-rocm": {
+      "status": "bad",
+      "avg_queued_per_hr": "0.00",
+      "jobs_6h": "200",
+      "median_queue": "46s",
+      "worst_queue": "45.0m",
+      "median_duration": "6.9m",
+      "worst_duration": "61.9m"
+    },
+    "azure-linux-scale-rocm": {
+      "status": "bad",
+      "avg_queued_per_hr": "0.00",
+      "jobs_6h": "911",
+      "median_queue": "2.2m",
+      "worst_queue": "38.8m",
+      "median_duration": "34.5m",
+      "worst_duration": "183.4m"
+    },
+    "linux-gfx942-1gpu-ccs-ossci-rocm": {
+      "status": "bad",
+      "avg_queued_per_hr": "0.00",
+      "jobs_6h": "148",
+      "median_queue": "2.1m",
+      "worst_queue": "19.4m",
+      "median_duration": "12.2m",
+      "worst_duration": "70.8m"
+    },
+    "windows-gfx1151-gpu-rocm": {
+      "status": "bad",
+      "avg_queued_per_hr": "0.00",
+      "jobs_6h": "245",
+      "median_queue": "89s",
+      "worst_queue": "14.6m",
+      "median_duration": "5.9m",
+      "worst_duration": "24.3m"
+    },
+    "linux-gfx120X-gpu-rocm": {
+      "status": "bad",
+      "avg_queued_per_hr": "0.00",
+      "jobs_6h": "28",
+      "median_queue": "103s",
+      "worst_queue": "10.5m",
+      "median_duration": "5.0m",
+      "worst_duration": "13.9m"
+    },
+    "linux-gfx110X-gpu-rocm": {
+      "status": "ok",
+      "avg_queued_per_hr": "0.00",
+      "jobs_6h": "28",
+      "median_queue": "35s",
+      "worst_queue": "5.0m",
+      "median_duration": "4.6m",
+      "worst_duration": "21.3m"
+    },
+    "linux-gfx950-8gpu-ccs-ossci-rocm": {
+      "status": "ok",
+      "avg_queued_per_hr": "0.00",
+      "jobs_6h": "4",
+      "median_queue": "31s",
+      "worst_queue": "105s",
+      "median_duration": "3.9m",
+      "worst_duration": "6.3m"
+    },
+    "linux-gfx942-1gpu-ossci-rocm": {
+      "status": "bad",
+      "avg_queued_per_hr": "0.00",
+      "jobs_6h": "904",
+      "median_queue": "23s",
+      "worst_queue": "75s",
+      "median_duration": "6.7m",
+      "worst_duration": "89.1m"
+    },
+    "ubuntu-24.04": {
+      "status": "ok",
+      "avg_queued_per_hr": "0.00",
+      "jobs_6h": "1788",
+      "median_queue": "26s",
+      "worst_queue": "51s",
+      "median_duration": "6s",
+      "worst_duration": "6.3m"
+    },
+    "linux-mi355-1gpu-ossci-rocm": {
+      "status": "bad",
+      "avg_queued_per_hr": "0.00",
+      "jobs_6h": "24",
+      "median_queue": "35s",
+      "worst_queue": "49s",
+      "median_duration": "11.0m",
+      "worst_duration": "64.1m"
+    },
+    "ubuntu-22.04": {
+      "status": "ok",
+      "avg_queued_per_hr": "0.00",
+      "jobs_6h": "130",
+      "median_queue": "29s",
+      "worst_queue": "48s",
+      "median_duration": "27s",
+      "worst_duration": "81s"
+    },
+    "rocr-runtime-libhsakmt-wsl": {
+      "status": "ok",
+      "avg_queued_per_hr": "0.00",
+      "jobs_6h": "9",
+      "median_queue": "20s",
+      "worst_queue": "48s",
+      "median_duration": "4.1m",
+      "worst_duration": "4.4m"
+    },
+    "ubuntu-latest": {
+      "status": "ok",
+      "avg_queued_per_hr": "0.00",
+      "jobs_6h": "996",
+      "median_queue": "26s",
+      "worst_queue": "47s",
+      "median_duration": "2.8m",
+      "worst_duration": "59.3m"
+    },
+    "linux-gfx942-8gpu-ossci-rocm": {
+      "status": "ok",
+      "avg_queued_per_hr": "0.00",
+      "jobs_6h": "14",
+      "median_queue": "20s",
+      "worst_queue": "46s",
+      "median_duration": "12.0m",
+      "worst_duration": "13.6m"
+    },
+    "linux-vultr-mi325-scale-runner": {
+      "status": "ok",
+      "avg_queued_per_hr": "0.00",
+      "jobs_6h": "3",
+      "median_queue": "34s",
+      "worst_queue": "34s",
+      "median_duration": "5.3m",
+      "worst_duration": "5.3m"
+    },
+    "linux-gfx1153-gpu-rocm": {
+      "status": "ok",
+      "avg_queued_per_hr": "0.00",
+      "jobs_6h": "3",
+      "median_queue": "34s",
+      "worst_queue": "34s",
+      "median_duration": "3.0m",
+      "worst_duration": "3.0m"
+    },
+    "windows-2022": {
+      "status": "ok",
+      "avg_queued_per_hr": "0.00",
+      "jobs_6h": "16",
+      "median_queue": "22s",
+      "worst_queue": "31s",
+      "median_duration": "86s",
+      "worst_duration": "119s"
+    },
+    "windows-gfx1030-gpu-rocm": {
+      "status": "ok",
+      "avg_queued_per_hr": "0.00",
+      "jobs_6h": "3",
+      "median_queue": "26s",
+      "worst_queue": "26s",
+      "median_duration": "4.3m",
+      "worst_duration": "4.3m"
+    },
+    "linux-gfx1030-gpu-rocm": {
+      "status": "ok",
+      "avg_queued_per_hr": "0.00",
+      "jobs_6h": "3",
+      "median_queue": "22s",
+      "worst_queue": "22s",
+      "median_duration": "3.1m",
+      "worst_duration": "3.1m"
+    },
+    "windows-gfx120X-gpu-rocm": {
+      "status": "ok",
+      "avg_queued_per_hr": "0.00",
+      "jobs_6h": "3",
+      "median_queue": "18s",
+      "worst_queue": "18s",
+      "median_duration": "70s",
+      "worst_duration": "70s"
+    },
+    "linux-gfx1150-gpu-rocm": {
+      "status": "ok",
+      "avg_queued_per_hr": "0.00",
+      "jobs_6h": "3",
+      "median_queue": "15s",
+      "worst_queue": "15s",
+      "median_duration": "7.1m",
+      "worst_duration": "7.1m"
+    },
+    "linux-gfx942-8gpu-core42-ossci-rocm": {
+      "status": "ok",
+      "avg_queued_per_hr": "0.00",
+      "jobs_6h": "4",
+      "median_queue": "7s",
+      "worst_queue": "9s",
+      "median_duration": "10.3m",
+      "worst_duration": "10.6m"
+    },
+    "(no-custom-label)": {
+      "status": "ok",
+      "avg_queued_per_hr": "0.00",
+      "jobs_6h": "1267",
+      "median_queue": "0s",
+      "worst_queue": "0s",
+      "median_duration": "0s",
+      "worst_duration": "0s"
+    },
+    "linux-mi325-8gpu-ossci-rocm-sandbox": {
+      "status": "ok",
+      "avg_queued_per_hr": "4.00",
+      "jobs_6h": "40",
+      "median_queue": "0s",
+      "worst_queue": "0s",
+      "median_duration": "22.8m",
+      "worst_duration": "52.7m"
+    },
+    "rocprofiler-navi3-dind": {
+      "status": "ok",
+      "avg_queued_per_hr": "0.33",
+      "jobs_6h": "1",
+      "median_queue": "0s",
+      "worst_queue": "0s",
+      "median_duration": "—",
+      "worst_duration": "—"
+    },
+    "rocprofiler-navi4-dind": {
+      "status": "ok",
+      "avg_queued_per_hr": "0.33",
+      "jobs_6h": "1",
+      "median_queue": "0s",
+      "worst_queue": "0s",
+      "median_duration": "—",
+      "worst_duration": "—"
+    },
+    "rocm-asan-mi325-sandbox": {
+      "status": "ok",
+      "avg_queued_per_hr": "0.67",
+      "jobs_6h": "3",
+      "median_queue": "0s",
+      "worst_queue": "0s",
+      "median_duration": "—",
+      "worst_duration": "—"
+    }
+  },
+  "per_machine": [
+    {
+      "name": "aws-linux-scale-rocm-prod-895bl-runner-vgwst",
+      "busy": false,
+      "labels": [
+        "aws-linux-scale-rocm-prod"
+      ],
+      "pool": "CPU"
+    },
+    {
+      "name": "azure-linux-scale-rocm-ccqkb-runner-6dmnd",
+      "busy": true,
+      "labels": [
+        "azure-linux-scale-rocm"
+      ],
+      "pool": "CPU"
+    },
+    {
+      "name": "azure-linux-scale-rocm-ccqkb-runner-6h855",
+      "busy": true,
+      "labels": [
+        "azure-linux-scale-rocm"
+      ],
+      "pool": "CPU"
+    },
+    {
+      "name": "azure-linux-scale-rocm-ccqkb-runner-7z4wc",
+      "busy": true,
+      "labels": [
+        "azure-linux-scale-rocm"
+      ],
+      "pool": "CPU"
+    },
+    {
+      "name": "azure-linux-scale-rocm-ccqkb-runner-8f472",
+      "busy": true,
+      "labels": [
+        "azure-linux-scale-rocm"
+      ],
+      "pool": "CPU"
+    },
+    {
+      "name": "azure-linux-scale-rocm-ccqkb-runner-8pkqg",
+      "busy": true,
+      "labels": [
+        "azure-linux-scale-rocm"
+      ],
+      "pool": "CPU"
+    },
+    {
+      "name": "azure-linux-scale-rocm-ccqkb-runner-bqqcp",
+      "busy": true,
+      "labels": [
+        "azure-linux-scale-rocm"
+      ],
+      "pool": "CPU"
+    },
+    {
+      "name": "azure-linux-scale-rocm-ccqkb-runner-cjwlw",
+      "busy": true,
+      "labels": [
+        "azure-linux-scale-rocm"
+      ],
+      "pool": "CPU"
+    },
+    {
+      "name": "azure-linux-scale-rocm-ccqkb-runner-ct7vk",
+      "busy": true,
+      "labels": [
+        "azure-linux-scale-rocm"
+      ],
+      "pool": "CPU"
+    },
+    {
+      "name": "azure-linux-scale-rocm-ccqkb-runner-dkflv",
+      "busy": true,
+      "labels": [
+        "azure-linux-scale-rocm"
+      ],
+      "pool": "CPU"
+    },
+    {
+      "name": "azure-linux-scale-rocm-ccqkb-runner-f8gmc",
+      "busy": true,
+      "labels": [
+        "azure-linux-scale-rocm"
+      ],
+      "pool": "CPU"
+    },
+    {
+      "name": "azure-linux-scale-rocm-ccqkb-runner-fpzrh",
+      "busy": true,
+      "labels": [
+        "azure-linux-scale-rocm"
+      ],
+      "pool": "CPU"
+    },
+    {
+      "name": "azure-linux-scale-rocm-ccqkb-runner-g8mvr",
+      "busy": true,
+      "labels": [
+        "azure-linux-scale-rocm"
+      ],
+      "pool": "CPU"
+    },
+    {
+      "name": "azure-linux-scale-rocm-ccqkb-runner-gznkn",
+      "busy": true,
+      "labels": [
+        "azure-linux-scale-rocm"
+      ],
+      "pool": "CPU"
+    },
+    {
+      "name": "azure-linux-scale-rocm-ccqkb-runner-ht67m",
+      "busy": true,
+      "labels": [
+        "azure-linux-scale-rocm"
+      ],
+      "pool": "CPU"
+    },
+    {
+      "name": "azure-linux-scale-rocm-ccqkb-runner-j9xq9",
+      "busy": true,
+      "labels": [
+        "azure-linux-scale-rocm"
+      ],
+      "pool": "CPU"
+    },
+    {
+      "name": "azure-linux-scale-rocm-ccqkb-runner-jfmlf",
+      "busy": true,
+      "labels": [
+        "azure-linux-scale-rocm"
+      ],
+      "pool": "CPU"
+    },
+    {
+      "name": "azure-linux-scale-rocm-ccqkb-runner-k7kv8",
+      "busy": true,
+      "labels": [
+        "azure-linux-scale-rocm"
+      ],
+      "pool": "CPU"
+    },
+    {
+      "name": "azure-linux-scale-rocm-ccqkb-runner-kdlpj",
+      "busy": true,
+      "labels": [
+        "azure-linux-scale-rocm"
+      ],
+      "pool": "CPU"
+    },
+    {
+      "name": "azure-linux-scale-rocm-ccqkb-runner-kgtlx",
+      "busy": true,
+      "labels": [
+        "azure-linux-scale-rocm"
+      ],
+      "pool": "CPU"
+    },
+    {
+      "name": "azure-linux-scale-rocm-ccqkb-runner-l5d2g",
+      "busy": true,
+      "labels": [
+        "azure-linux-scale-rocm"
+      ],
+      "pool": "CPU"
+    },
+    {
+      "name": "azure-linux-scale-rocm-ccqkb-runner-lkv7p",
+      "busy": true,
+      "labels": [
+        "azure-linux-scale-rocm"
+      ],
+      "pool": "CPU"
+    },
+    {
+      "name": "azure-linux-scale-rocm-ccqkb-runner-mqmnj",
+      "busy": true,
+      "labels": [
+        "azure-linux-scale-rocm"
+      ],
+      "pool": "CPU"
+    },
+    {
+      "name": "azure-linux-scale-rocm-ccqkb-runner-n2trg",
+      "busy": true,
+      "labels": [
+        "azure-linux-scale-rocm"
+      ],
+      "pool": "CPU"
+    },
+    {
+      "name": "azure-linux-scale-rocm-ccqkb-runner-n9lc6",
+      "busy": true,
+      "labels": [
+        "azure-linux-scale-rocm"
+      ],
+      "pool": "CPU"
+    },
+    {
+      "name": "azure-linux-scale-rocm-ccqkb-runner-njrbz",
+      "busy": true,
+      "labels": [
+        "azure-linux-scale-rocm"
+      ],
+      "pool": "CPU"
+    },
+    {
+      "name": "azure-linux-scale-rocm-ccqkb-runner-pgfbl",
+      "busy": true,
+      "labels": [
+        "azure-linux-scale-rocm"
+      ],
+      "pool": "CPU"
+    },
+    {
+      "name": "azure-linux-scale-rocm-ccqkb-runner-qq97l",
+      "busy": true,
+      "labels": [
+        "azure-linux-scale-rocm"
+      ],
+      "pool": "CPU"
+    },
+    {
+      "name": "azure-linux-scale-rocm-ccqkb-runner-qsvpt",
+      "busy": true,
+      "labels": [
+        "azure-linux-scale-rocm"
+      ],
+      "pool": "CPU"
+    },
+    {
+      "name": "azure-linux-scale-rocm-ccqkb-runner-r9m4x",
+      "busy": false,
+      "labels": [
+        "azure-linux-scale-rocm"
+      ],
+      "pool": "CPU"
+    },
+    {
+      "name": "azure-linux-scale-rocm-ccqkb-runner-sz7nr",
+      "busy": true,
+      "labels": [
+        "azure-linux-scale-rocm"
+      ],
+      "pool": "CPU"
+    },
+    {
+      "name": "azure-linux-scale-rocm-ccqkb-runner-tfgj6",
+      "busy": true,
+      "labels": [
+        "azure-linux-scale-rocm"
+      ],
+      "pool": "CPU"
+    },
+    {
+      "name": "azure-linux-scale-rocm-ccqkb-runner-vn95q",
+      "busy": true,
+      "labels": [
+        "azure-linux-scale-rocm"
+      ],
+      "pool": "CPU"
+    },
+    {
+      "name": "azure-linux-scale-rocm-ccqkb-runner-vtjb6",
+      "busy": true,
+      "labels": [
+        "azure-linux-scale-rocm"
+      ],
+      "pool": "CPU"
+    },
+    {
+      "name": "azure-linux-scale-rocm-ccqkb-runner-w5kfs",
+      "busy": true,
+      "labels": [
+        "azure-linux-scale-rocm"
+      ],
+      "pool": "CPU"
+    },
+    {
+      "name": "azure-linux-scale-rocm-ccqkb-runner-z4n4g",
+      "busy": true,
+      "labels": [
+        "azure-linux-scale-rocm"
+      ],
+      "pool": "CPU"
+    },
+    {
+      "name": "azure-linux-scale-rocm-heavy-k2vcj-runner-d47p4",
+      "busy": false,
+      "labels": [
+        "azure-linux-scale-rocm-heavy"
+      ],
+      "pool": "CPU"
+    },
+    {
+      "name": "azure-linux-scale-rocm-heavy-ramdisk-rbslw-runner-cmccf",
+      "busy": false,
+      "labels": [
+        "azure-linux-scale-rocm-heavy-ramdisk"
+      ],
+      "pool": "CPU"
+    },
+    {
+      "name": "azure-linux-scale-rocm-heavy-ramdisk-rbslw-runner-mpndb",
+      "busy": true,
+      "labels": [
+        "azure-linux-scale-rocm-heavy-ramdisk"
+      ],
+      "pool": "CPU"
+    },
+    {
+      "name": "azure-windows-scale-rocm-ckv2f-runner-2ctlz",
+      "busy": true,
+      "labels": [
+        "azure-windows-scale-rocm"
+      ],
+      "pool": "CPU"
+    },
+    {
+      "name": "azure-windows-scale-rocm-ckv2f-runner-2q8vs",
+      "busy": true,
+      "labels": [
+        "azure-windows-scale-rocm"
+      ],
+      "pool": "CPU"
+    },
+    {
+      "name": "azure-windows-scale-rocm-ckv2f-runner-2qxxh",
+      "busy": true,
+      "labels": [
+        "azure-windows-scale-rocm"
+      ],
+      "pool": "CPU"
+    },
+    {
+      "name": "azure-windows-scale-rocm-ckv2f-runner-4jstt",
+      "busy": true,
+      "labels": [
+        "azure-windows-scale-rocm"
+      ],
+      "pool": "CPU"
+    },
+    {
+      "name": "azure-windows-scale-rocm-ckv2f-runner-555x2",
+      "busy": true,
+      "labels": [
+        "azure-windows-scale-rocm"
+      ],
+      "pool": "CPU"
+    },
+    {
+      "name": "azure-windows-scale-rocm-ckv2f-runner-5jtn9",
+      "busy": true,
+      "labels": [
+        "azure-windows-scale-rocm"
+      ],
+      "pool": "CPU"
+    },
+    {
+      "name": "azure-windows-scale-rocm-ckv2f-runner-5q58z",
+      "busy": true,
+      "labels": [
+        "azure-windows-scale-rocm"
+      ],
+      "pool": "CPU"
+    },
+    {
+      "name": "azure-windows-scale-rocm-ckv2f-runner-6q27j",
+      "busy": true,
+      "labels": [
+        "azure-windows-scale-rocm"
+      ],
+      "pool": "CPU"
+    },
+    {
+      "name": "azure-windows-scale-rocm-ckv2f-runner-7246r",
+      "busy": true,
+      "labels": [
+        "azure-windows-scale-rocm"
+      ],
+      "pool": "CPU"
+    },
+    {
+      "name": "azure-windows-scale-rocm-ckv2f-runner-7hskn",
+      "busy": true,
+      "labels": [
+        "azure-windows-scale-rocm"
+      ],
+      "pool": "CPU"
+    },
+    {
+      "name": "azure-windows-scale-rocm-ckv2f-runner-7kv79",
+      "busy": true,
+      "labels": [
+        "azure-windows-scale-rocm"
+      ],
+      "pool": "CPU"
+    },
+    {
+      "name": "azure-windows-scale-rocm-ckv2f-runner-89bgh",
+      "busy": true,
+      "labels": [
+        "azure-windows-scale-rocm"
+      ],
+      "pool": "CPU"
+    },
+    {
+      "name": "azure-windows-scale-rocm-ckv2f-runner-8csbj",
+      "busy": true,
+      "labels": [
+        "azure-windows-scale-rocm"
+      ],
+      "pool": "CPU"
+    },
+    {
+      "name": "azure-windows-scale-rocm-ckv2f-runner-8sfz2",
+      "busy": true,
+      "labels": [
+        "azure-windows-scale-rocm"
+      ],
+      "pool": "CPU"
+    },
+    {
+      "name": "azure-windows-scale-rocm-ckv2f-runner-8vvdq",
+      "busy": true,
+      "labels": [
+        "azure-windows-scale-rocm"
+      ],
+      "pool": "CPU"
+    },
+    {
+      "name": "azure-windows-scale-rocm-ckv2f-runner-9q7jc",
+      "busy": true,
+      "labels": [
+        "azure-windows-scale-rocm"
+      ],
+      "pool": "CPU"
+    },
+    {
+      "name": "azure-windows-scale-rocm-ckv2f-runner-b26ch",
+      "busy": true,
+      "labels": [
+        "azure-windows-scale-rocm"
+      ],
+      "pool": "CPU"
+    },
+    {
+      "name": "azure-windows-scale-rocm-ckv2f-runner-bjnxm",
+      "busy": true,
+      "labels": [
+        "azure-windows-scale-rocm"
+      ],
+      "pool": "CPU"
+    },
+    {
+      "name": "azure-windows-scale-rocm-ckv2f-runner-bxs8j",
+      "busy": true,
+      "labels": [
+        "azure-windows-scale-rocm"
+      ],
+      "pool": "CPU"
+    },
+    {
+      "name": "azure-windows-scale-rocm-ckv2f-runner-cgf6j",
+      "busy": true,
+      "labels": [
+        "azure-windows-scale-rocm"
+      ],
+      "pool": "CPU"
+    },
+    {
+      "name": "azure-windows-scale-rocm-ckv2f-runner-cm4nk",
+      "busy": true,
+      "labels": [
+        "azure-windows-scale-rocm"
+      ],
+      "pool": "CPU"
+    },
+    {
+      "name": "azure-windows-scale-rocm-ckv2f-runner-d2fv9",
+      "busy": true,
+      "labels": [
+        "azure-windows-scale-rocm"
+      ],
+      "pool": "CPU"
+    },
+    {
+      "name": "azure-windows-scale-rocm-ckv2f-runner-d5jn5",
+      "busy": true,
+      "labels": [
+        "azure-windows-scale-rocm"
+      ],
+      "pool": "CPU"
+    },
+    {
+      "name": "azure-windows-scale-rocm-ckv2f-runner-df6gr",
+      "busy": true,
+      "labels": [
+        "azure-windows-scale-rocm"
+      ],
+      "pool": "CPU"
+    },
+    {
+      "name": "azure-windows-scale-rocm-ckv2f-runner-ds6js",
+      "busy": true,
+      "labels": [
+        "azure-windows-scale-rocm"
+      ],
+      "pool": "CPU"
+    },
+    {
+      "name": "azure-windows-scale-rocm-ckv2f-runner-dt7cz",
+      "busy": true,
+      "labels": [
+        "azure-windows-scale-rocm"
+      ],
+      "pool": "CPU"
+    },
+    {
+      "name": "azure-windows-scale-rocm-ckv2f-runner-f7h7p",
+      "busy": true,
+      "labels": [
+        "azure-windows-scale-rocm"
+      ],
+      "pool": "CPU"
+    },
+    {
+      "name": "azure-windows-scale-rocm-ckv2f-runner-fj7k4",
+      "busy": true,
+      "labels": [
+        "azure-windows-scale-rocm"
+      ],
+      "pool": "CPU"
+    },
+    {
+      "name": "azure-windows-scale-rocm-ckv2f-runner-fzxxj",
+      "busy": true,
+      "labels": [
+        "azure-windows-scale-rocm"
+      ],
+      "pool": "CPU"
+    },
+    {
+      "name": "azure-windows-scale-rocm-ckv2f-runner-g6dmf",
+      "busy": true,
+      "labels": [
+        "azure-windows-scale-rocm"
+      ],
+      "pool": "CPU"
+    },
+    {
+      "name": "azure-windows-scale-rocm-ckv2f-runner-gkbmf",
+      "busy": true,
+      "labels": [
+        "azure-windows-scale-rocm"
+      ],
+      "pool": "CPU"
+    },
+    {
+      "name": "azure-windows-scale-rocm-ckv2f-runner-h69xb",
+      "busy": true,
+      "labels": [
+        "azure-windows-scale-rocm"
+      ],
+      "pool": "CPU"
+    },
+    {
+      "name": "azure-windows-scale-rocm-ckv2f-runner-hgpfd",
+      "busy": true,
+      "labels": [
+        "azure-windows-scale-rocm"
+      ],
+      "pool": "CPU"
+    },
+    {
+      "name": "azure-windows-scale-rocm-ckv2f-runner-hjswd",
+      "busy": true,
+      "labels": [
+        "azure-windows-scale-rocm"
+      ],
+      "pool": "CPU"
+    },
+    {
+      "name": "azure-windows-scale-rocm-ckv2f-runner-hnh6b",
+      "busy": true,
+      "labels": [
+        "azure-windows-scale-rocm"
+      ],
+      "pool": "CPU"
+    },
+    {
+      "name": "azure-windows-scale-rocm-ckv2f-runner-jmfqm",
+      "busy": true,
+      "labels": [
+        "azure-windows-scale-rocm"
+      ],
+      "pool": "CPU"
+    },
+    {
+      "name": "azure-windows-scale-rocm-ckv2f-runner-jw9mq",
+      "busy": true,
+      "labels": [
+        "azure-windows-scale-rocm"
+      ],
+      "pool": "CPU"
+    },
+    {
+      "name": "azure-windows-scale-rocm-ckv2f-runner-kfnzm",
+      "busy": true,
+      "labels": [
+        "azure-windows-scale-rocm"
+      ],
+      "pool": "CPU"
+    },
+    {
+      "name": "azure-windows-scale-rocm-ckv2f-runner-khztl",
+      "busy": true,
+      "labels": [
+        "azure-windows-scale-rocm"
+      ],
+      "pool": "CPU"
+    },
+    {
+      "name": "azure-windows-scale-rocm-ckv2f-runner-kjzls",
+      "busy": true,
+      "labels": [
+        "azure-windows-scale-rocm"
+      ],
+      "pool": "CPU"
+    },
+    {
+      "name": "azure-windows-scale-rocm-ckv2f-runner-kzfbz",
+      "busy": true,
+      "labels": [
+        "azure-windows-scale-rocm"
+      ],
+      "pool": "CPU"
+    },
+    {
+      "name": "azure-windows-scale-rocm-ckv2f-runner-lsfqg",
+      "busy": false,
+      "labels": [
+        "azure-windows-scale-rocm"
+      ],
+      "pool": "CPU"
+    },
+    {
+      "name": "azure-windows-scale-rocm-ckv2f-runner-mpmdm",
+      "busy": true,
+      "labels": [
+        "azure-windows-scale-rocm"
+      ],
+      "pool": "CPU"
+    },
+    {
+      "name": "azure-windows-scale-rocm-ckv2f-runner-ncb7l",
+      "busy": true,
+      "labels": [
+        "azure-windows-scale-rocm"
+      ],
+      "pool": "CPU"
+    },
+    {
+      "name": "azure-windows-scale-rocm-ckv2f-runner-nqrtx",
+      "busy": true,
+      "labels": [
+        "azure-windows-scale-rocm"
+      ],
+      "pool": "CPU"
+    },
+    {
+      "name": "azure-windows-scale-rocm-ckv2f-runner-qcnx7",
+      "busy": true,
+      "labels": [
+        "azure-windows-scale-rocm"
+      ],
+      "pool": "CPU"
+    },
+    {
+      "name": "azure-windows-scale-rocm-ckv2f-runner-qlxjp",
+      "busy": true,
+      "labels": [
+        "azure-windows-scale-rocm"
+      ],
+      "pool": "CPU"
+    },
+    {
+      "name": "azure-windows-scale-rocm-ckv2f-runner-r8q9f",
+      "busy": true,
+      "labels": [
+        "azure-windows-scale-rocm"
+      ],
+      "pool": "CPU"
+    },
+    {
+      "name": "azure-windows-scale-rocm-ckv2f-runner-rk6dk",
+      "busy": true,
+      "labels": [
+        "azure-windows-scale-rocm"
+      ],
+      "pool": "CPU"
+    },
+    {
+      "name": "azure-windows-scale-rocm-ckv2f-runner-snwp6",
+      "busy": true,
+      "labels": [
+        "azure-windows-scale-rocm"
+      ],
+      "pool": "CPU"
+    },
+    {
+      "name": "azure-windows-scale-rocm-ckv2f-runner-tqrkk",
+      "busy": true,
+      "labels": [
+        "azure-windows-scale-rocm"
+      ],
+      "pool": "CPU"
+    },
+    {
+      "name": "azure-windows-scale-rocm-ckv2f-runner-vbd57",
+      "busy": true,
+      "labels": [
+        "azure-windows-scale-rocm"
+      ],
+      "pool": "CPU"
+    },
+    {
+      "name": "azure-windows-scale-rocm-ckv2f-runner-vqxjq",
+      "busy": true,
+      "labels": [
+        "azure-windows-scale-rocm"
+      ],
+      "pool": "CPU"
+    },
+    {
+      "name": "azure-windows-scale-rocm-ckv2f-runner-w7sfp",
+      "busy": true,
+      "labels": [
+        "azure-windows-scale-rocm"
+      ],
+      "pool": "CPU"
+    },
+    {
+      "name": "azure-windows-scale-rocm-ckv2f-runner-w8n22",
+      "busy": true,
+      "labels": [
+        "azure-windows-scale-rocm"
+      ],
+      "pool": "CPU"
+    },
+    {
+      "name": "azure-windows-scale-rocm-ckv2f-runner-wjstc",
+      "busy": true,
+      "labels": [
+        "azure-windows-scale-rocm"
+      ],
+      "pool": "CPU"
+    },
+    {
+      "name": "azure-windows-scale-rocm-ckv2f-runner-xtmkv",
+      "busy": true,
+      "labels": [
+        "azure-windows-scale-rocm"
+      ],
+      "pool": "CPU"
+    },
+    {
+      "name": "linux-gfx942-1gpu-ccs-ossci-rocm-8jf9m-runner-5n78l",
+      "busy": true,
+      "labels": [
+        "linux-gfx942-1gpu-ccs-ossci-rocm"
+      ],
+      "pool": "OSSCI Managed"
+    },
+    {
+      "name": "linux-gfx942-1gpu-ccs-ossci-rocm-8jf9m-runner-6zh56",
+      "busy": true,
+      "labels": [
+        "linux-gfx942-1gpu-ccs-ossci-rocm"
+      ],
+      "pool": "OSSCI Managed"
+    },
+    {
+      "name": "linux-gfx942-1gpu-ccs-ossci-rocm-8jf9m-runner-bgrzx",
+      "busy": true,
+      "labels": [
+        "linux-gfx942-1gpu-ccs-ossci-rocm"
+      ],
+      "pool": "OSSCI Managed"
+    },
+    {
+      "name": "linux-gfx942-1gpu-ccs-ossci-rocm-8jf9m-runner-s56gq",
+      "busy": true,
+      "labels": [
+        "linux-gfx942-1gpu-ccs-ossci-rocm"
+      ],
+      "pool": "OSSCI Managed"
+    },
+    {
+      "name": "linux-gfx942-1gpu-core42-ossci-rocm-bhs98-runner-4qm9l",
+      "busy": true,
+      "labels": [
+        "linux-gfx942-1gpu-core42-ossci-rocm"
+      ],
+      "pool": "OSSCI Managed"
+    },
+    {
+      "name": "linux-gfx942-1gpu-core42-ossci-rocm-bhs98-runner-5mbk2",
+      "busy": true,
+      "labels": [
+        "linux-gfx942-1gpu-core42-ossci-rocm"
+      ],
+      "pool": "OSSCI Managed"
+    },
+    {
+      "name": "linux-gfx942-1gpu-core42-ossci-rocm-bhs98-runner-652l8",
+      "busy": true,
+      "labels": [
+        "linux-gfx942-1gpu-core42-ossci-rocm"
+      ],
+      "pool": "OSSCI Managed"
+    },
+    {
+      "name": "linux-gfx942-1gpu-core42-ossci-rocm-bhs98-runner-679tr",
+      "busy": true,
+      "labels": [
+        "linux-gfx942-1gpu-core42-ossci-rocm"
+      ],
+      "pool": "OSSCI Managed"
+    },
+    {
+      "name": "linux-gfx942-1gpu-core42-ossci-rocm-bhs98-runner-77g2n",
+      "busy": true,
+      "labels": [
+        "linux-gfx942-1gpu-core42-ossci-rocm"
+      ],
+      "pool": "OSSCI Managed"
+    },
+    {
+      "name": "linux-gfx942-1gpu-core42-ossci-rocm-bhs98-runner-9vmwt",
+      "busy": true,
+      "labels": [
+        "linux-gfx942-1gpu-core42-ossci-rocm"
+      ],
+      "pool": "OSSCI Managed"
+    },
+    {
+      "name": "linux-gfx942-1gpu-core42-ossci-rocm-bhs98-runner-crdqj",
+      "busy": true,
+      "labels": [
+        "linux-gfx942-1gpu-core42-ossci-rocm"
+      ],
+      "pool": "OSSCI Managed"
+    },
+    {
+      "name": "linux-gfx942-1gpu-core42-ossci-rocm-bhs98-runner-drnrp",
+      "busy": true,
+      "labels": [
+        "linux-gfx942-1gpu-core42-ossci-rocm"
+      ],
+      "pool": "OSSCI Managed"
+    },
+    {
+      "name": "linux-gfx942-1gpu-core42-ossci-rocm-bhs98-runner-g2ds7",
+      "busy": true,
+      "labels": [
+        "linux-gfx942-1gpu-core42-ossci-rocm"
+      ],
+      "pool": "OSSCI Managed"
+    },
+    {
+      "name": "linux-gfx942-1gpu-core42-ossci-rocm-bhs98-runner-hj654",
+      "busy": true,
+      "labels": [
+        "linux-gfx942-1gpu-core42-ossci-rocm"
+      ],
+      "pool": "OSSCI Managed"
+    },
+    {
+      "name": "linux-gfx942-1gpu-core42-ossci-rocm-bhs98-runner-kp6dn",
+      "busy": true,
+      "labels": [
+        "linux-gfx942-1gpu-core42-ossci-rocm"
+      ],
+      "pool": "OSSCI Managed"
+    },
+    {
+      "name": "linux-gfx942-1gpu-core42-ossci-rocm-bhs98-runner-l72ww",
+      "busy": true,
+      "labels": [
+        "linux-gfx942-1gpu-core42-ossci-rocm"
+      ],
+      "pool": "OSSCI Managed"
+    },
+    {
+      "name": "linux-gfx942-1gpu-core42-ossci-rocm-bhs98-runner-lfs6g",
+      "busy": true,
+      "labels": [
+        "linux-gfx942-1gpu-core42-ossci-rocm"
+      ],
+      "pool": "OSSCI Managed"
+    },
+    {
+      "name": "linux-gfx942-1gpu-core42-ossci-rocm-bhs98-runner-nnjff",
+      "busy": true,
+      "labels": [
+        "linux-gfx942-1gpu-core42-ossci-rocm"
+      ],
+      "pool": "OSSCI Managed"
+    },
+    {
+      "name": "linux-gfx942-1gpu-core42-ossci-rocm-bhs98-runner-pm9cs",
+      "busy": true,
+      "labels": [
+        "linux-gfx942-1gpu-core42-ossci-rocm"
+      ],
+      "pool": "OSSCI Managed"
+    },
+    {
+      "name": "linux-gfx942-1gpu-core42-ossci-rocm-bhs98-runner-qbhr9",
+      "busy": true,
+      "labels": [
+        "linux-gfx942-1gpu-core42-ossci-rocm"
+      ],
+      "pool": "OSSCI Managed"
+    },
+    {
+      "name": "linux-gfx942-1gpu-core42-ossci-rocm-bhs98-runner-ws5dj",
+      "busy": true,
+      "labels": [
+        "linux-gfx942-1gpu-core42-ossci-rocm"
+      ],
+      "pool": "OSSCI Managed"
+    },
+    {
+      "name": "linux-gfx942-1gpu-core42-ossci-rocm-bhs98-runner-xtr8b",
+      "busy": true,
+      "labels": [
+        "linux-gfx942-1gpu-core42-ossci-rocm"
+      ],
+      "pool": "OSSCI Managed"
+    },
+    {
+      "name": "linux-gfx942-1gpu-core42-ossci-rocm-bhs98-runner-z69xx",
+      "busy": true,
+      "labels": [
+        "linux-gfx942-1gpu-core42-ossci-rocm"
+      ],
+      "pool": "OSSCI Managed"
+    },
+    {
+      "name": "linux-gfx942-1gpu-core42-ossci-rocm-bhs98-runner-zttjn",
+      "busy": true,
+      "labels": [
+        "linux-gfx942-1gpu-core42-ossci-rocm"
+      ],
+      "pool": "OSSCI Managed"
+    },
+    {
+      "name": "linux-gfx942-1gpu-ossci-rocm-69plq-runner-58wpp",
+      "busy": true,
+      "labels": [
+        "linux-gfx942-1gpu-ossci-rocm"
+      ],
+      "pool": "OSSCI Managed"
+    },
+    {
+      "name": "linux-gfx942-1gpu-ossci-rocm-69plq-runner-5cdln",
+      "busy": true,
+      "labels": [
+        "linux-gfx942-1gpu-ossci-rocm"
+      ],
+      "pool": "OSSCI Managed"
+    },
+    {
+      "name": "linux-gfx942-1gpu-ossci-rocm-69plq-runner-6c2xh",
+      "busy": true,
+      "labels": [
+        "linux-gfx942-1gpu-ossci-rocm"
+      ],
+      "pool": "OSSCI Managed"
+    },
+    {
+      "name": "linux-gfx942-1gpu-ossci-rocm-69plq-runner-8qww8",
+      "busy": true,
+      "labels": [
+        "linux-gfx942-1gpu-ossci-rocm"
+      ],
+      "pool": "OSSCI Managed"
+    },
+    {
+      "name": "linux-gfx942-1gpu-ossci-rocm-69plq-runner-9gk9z",
+      "busy": false,
+      "labels": [
+        "linux-gfx942-1gpu-ossci-rocm"
+      ],
+      "pool": "OSSCI Managed"
+    },
+    {
+      "name": "linux-gfx942-1gpu-ossci-rocm-69plq-runner-b4nzh",
+      "busy": true,
+      "labels": [
+        "linux-gfx942-1gpu-ossci-rocm"
+      ],
+      "pool": "OSSCI Managed"
+    },
+    {
+      "name": "linux-gfx942-1gpu-ossci-rocm-69plq-runner-crg5d",
+      "busy": true,
+      "labels": [
+        "linux-gfx942-1gpu-ossci-rocm"
+      ],
+      "pool": "OSSCI Managed"
+    },
+    {
+      "name": "linux-gfx942-1gpu-ossci-rocm-69plq-runner-df6lw",
+      "busy": true,
+      "labels": [
+        "linux-gfx942-1gpu-ossci-rocm"
+      ],
+      "pool": "OSSCI Managed"
+    },
+    {
+      "name": "linux-gfx942-1gpu-ossci-rocm-69plq-runner-dmpsq",
+      "busy": true,
+      "labels": [
+        "linux-gfx942-1gpu-ossci-rocm"
+      ],
+      "pool": "OSSCI Managed"
+    },
+    {
+      "name": "linux-gfx942-1gpu-ossci-rocm-69plq-runner-dn6jl",
+      "busy": true,
+      "labels": [
+        "linux-gfx942-1gpu-ossci-rocm"
+      ],
+      "pool": "OSSCI Managed"
+    },
+    {
+      "name": "linux-gfx942-1gpu-ossci-rocm-69plq-runner-drtcc",
+      "busy": false,
+      "labels": [
+        "linux-gfx942-1gpu-ossci-rocm"
+      ],
+      "pool": "OSSCI Managed"
+    },
+    {
+      "name": "linux-gfx942-1gpu-ossci-rocm-69plq-runner-dspxv",
+      "busy": true,
+      "labels": [
+        "linux-gfx942-1gpu-ossci-rocm"
+      ],
+      "pool": "OSSCI Managed"
+    },
+    {
+      "name": "linux-gfx942-1gpu-ossci-rocm-69plq-runner-gb6vb",
+      "busy": true,
+      "labels": [
+        "linux-gfx942-1gpu-ossci-rocm"
+      ],
+      "pool": "OSSCI Managed"
+    },
+    {
+      "name": "linux-gfx942-1gpu-ossci-rocm-69plq-runner-gbp5p",
+      "busy": false,
+      "labels": [
+        "linux-gfx942-1gpu-ossci-rocm"
+      ],
+      "pool": "OSSCI Managed"
+    },
+    {
+      "name": "linux-gfx942-1gpu-ossci-rocm-69plq-runner-jl9nv",
+      "busy": true,
+      "labels": [
+        "linux-gfx942-1gpu-ossci-rocm"
+      ],
+      "pool": "OSSCI Managed"
+    },
+    {
+      "name": "linux-gfx942-1gpu-ossci-rocm-69plq-runner-lhncq",
+      "busy": true,
+      "labels": [
+        "linux-gfx942-1gpu-ossci-rocm"
+      ],
+      "pool": "OSSCI Managed"
+    },
+    {
+      "name": "linux-gfx942-1gpu-ossci-rocm-69plq-runner-n55xq",
+      "busy": false,
+      "labels": [
+        "linux-gfx942-1gpu-ossci-rocm"
+      ],
+      "pool": "OSSCI Managed"
+    },
+    {
+      "name": "linux-gfx942-1gpu-ossci-rocm-69plq-runner-nv864",
+      "busy": true,
+      "labels": [
+        "linux-gfx942-1gpu-ossci-rocm"
+      ],
+      "pool": "OSSCI Managed"
+    },
+    {
+      "name": "linux-gfx942-1gpu-ossci-rocm-69plq-runner-pvr87",
+      "busy": true,
+      "labels": [
+        "linux-gfx942-1gpu-ossci-rocm"
+      ],
+      "pool": "OSSCI Managed"
+    },
+    {
+      "name": "linux-gfx942-1gpu-ossci-rocm-69plq-runner-r2d9f",
+      "busy": true,
+      "labels": [
+        "linux-gfx942-1gpu-ossci-rocm"
+      ],
+      "pool": "OSSCI Managed"
+    },
+    {
+      "name": "linux-gfx942-1gpu-ossci-rocm-69plq-runner-rqrfk",
+      "busy": true,
+      "labels": [
+        "linux-gfx942-1gpu-ossci-rocm"
+      ],
+      "pool": "OSSCI Managed"
+    },
+    {
+      "name": "linux-gfx942-1gpu-ossci-rocm-69plq-runner-v8lmx",
+      "busy": true,
+      "labels": [
+        "linux-gfx942-1gpu-ossci-rocm"
+      ],
+      "pool": "OSSCI Managed"
+    },
+    {
+      "name": "linux-gfx942-1gpu-ossci-rocm-69plq-runner-vmwnh",
+      "busy": false,
+      "labels": [
+        "linux-gfx942-1gpu-ossci-rocm"
+      ],
+      "pool": "OSSCI Managed"
+    },
+    {
+      "name": "linux-gfx942-1gpu-ossci-rocm-69plq-runner-zjdwj",
+      "busy": true,
+      "labels": [
+        "linux-gfx942-1gpu-ossci-rocm"
+      ],
+      "pool": "OSSCI Managed"
+    },
+    {
+      "name": "linux-gfx942-2gpu-core42-ossci-rocm-x8khf-runner-jd8pm",
+      "busy": false,
+      "labels": [
+        "linux-gfx942-2gpu-core42-ossci-rocm"
+      ],
+      "pool": "OSSCI Managed"
+    },
+    {
+      "name": "linux-gfx942-8gpu-core42-ossci-rocm-225j2-runner-9gkfl",
+      "busy": false,
+      "labels": [
+        "linux-gfx942-8gpu-core42-ossci-rocm"
+      ],
+      "pool": "OSSCI Managed"
+    },
+    {
+      "name": "linux-gfx942-8gpu-ossci-rocm-7hpkh-runner-5q986",
+      "busy": true,
+      "labels": [
+        "linux-gfx942-8gpu-ossci-rocm"
+      ],
+      "pool": "OSSCI Managed"
+    },
+    {
+      "name": "linux-gfx942-8gpu-ossci-rocm-7hpkh-runner-c75lb",
+      "busy": true,
+      "labels": [
+        "linux-gfx942-8gpu-ossci-rocm"
+      ],
+      "pool": "OSSCI Managed"
+    },
+    {
+      "name": "linux-gfx942-8gpu-ossci-rocm-7hpkh-runner-k5mtx",
+      "busy": false,
+      "labels": [
+        "linux-gfx942-8gpu-ossci-rocm"
+      ],
+      "pool": "OSSCI Managed"
+    },
+    {
+      "name": "linux-gfx942-8gpu-ossci-rocm-7hpkh-runner-qvq2b",
+      "busy": true,
+      "labels": [
+        "linux-gfx942-8gpu-ossci-rocm"
+      ],
+      "pool": "OSSCI Managed"
+    },
+    {
+      "name": "linux-mi355-1gpu-ossci-rocm-j5v9z-runner-7pnkq",
+      "busy": false,
+      "labels": [
+        "linux-mi355-1gpu-ossci-rocm"
+      ],
+      "pool": "OSSCI Managed"
+    },
+    {
+      "name": "linux-mi355-1gpu-ossci-rocm-j5v9z-runner-j8zgr",
+      "busy": true,
+      "labels": [
+        "linux-mi355-1gpu-ossci-rocm"
+      ],
+      "pool": "OSSCI Managed"
+    },
+    {
+      "name": "CS-RORDMZ-DT146",
+      "busy": false,
+      "labels": [
+        "self-hosted",
+        "X64",
+        "Windows",
+        "gpu_navi4x",
+        "lease_2026-05-06",
+        "test_setup_windows_gpu_navi4x"
+      ],
+      "pool": "OrchestrAI Managed"
+    },
+    {
+      "name": "CS-RORDMZ-DT222",
+      "busy": false,
+      "labels": [
+        "self-hosted",
+        "X64",
+        "igpu_stxh",
+        "Linux",
+        "linux-gfx1151-gpu-rocm",
+        "linux-gfx115X-gpu-rocm",
+        "test_setup_linux_igpu_stxh",
+        "lease_2026-05-06"
+      ],
+      "pool": "OrchestrAI Managed"
+    },
+    {
+      "name": "CS-RORDMZ-DT238",
+      "busy": false,
+      "labels": [
+        "self-hosted",
+        "X64",
+        "Windows",
+        "igpu_stxh",
+        "test_setup_windows_igpu_stxh",
+        "lease_2026-05-06"
+      ],
+      "pool": "OrchestrAI Managed"
+    },
+    {
+      "name": "CS-RORDMZ-DT240",
+      "busy": false,
+      "labels": [
+        "self-hosted",
+        "X64",
+        "Windows",
+        "igpu_stxh",
+        "test_setup_windows_igpu_stxh",
+        "lease_2026-05-06"
+      ],
+      "pool": "OrchestrAI Managed"
+    },
+    {
+      "name": "CS-RORDMZ-DT242",
+      "busy": false,
+      "labels": [
+        "self-hosted",
+        "X64",
+        "Windows",
+        "igpu_stxh",
+        "test_setup_windows_igpu_stxh",
+        "lease_2026-05-06"
+      ],
+      "pool": "OrchestrAI Managed"
+    },
+    {
+      "name": "CS-RORDMZ-DT244",
+      "busy": false,
+      "labels": [
+        "self-hosted",
+        "X64",
+        "Windows",
+        "igpu_stxh",
+        "test_setup_windows_igpu_stxh",
+        "lease_2026-05-06"
+      ],
+      "pool": "OrchestrAI Managed"
+    },
+    {
+      "name": "CS-RORDMZ-DT70",
+      "busy": false,
+      "labels": [
+        "self-hosted",
+        "X64",
+        "gpu_navi3x",
+        "Windows",
+        "lease_2026-05-06",
+        "test_setup_windows_gpu_navi3x"
+      ],
+      "pool": "OrchestrAI Managed"
+    },
+    {
+      "name": "CS-RORDMZ-DT72",
+      "busy": false,
+      "labels": [
+        "self-hosted",
+        "X64",
+        "Linux",
+        "gpu_navi4x",
+        "test_setup_linux_gpu_navi4x",
+        "linux-gfx120X-gpu-rocm",
+        "lease_2026-05-06"
+      ],
+      "pool": "OrchestrAI Managed"
+    },
+    {
+      "name": "CS-RORDMZ-DT73",
+      "busy": false,
+      "labels": [
+        "self-hosted",
+        "X64",
+        "Windows",
+        "gpu_navi4x",
+        "lease_2026-05-06",
+        "test_setup_windows_gpu_navi4x"
+      ],
+      "pool": "OrchestrAI Managed"
+    },
+    {
+      "name": "CS-RORDMZ-DT74",
+      "busy": false,
+      "labels": [
+        "self-hosted",
+        "X64",
+        "gpu_navi3x",
+        "Windows",
+        "lease_2026-05-06",
+        "test_setup_windows_gpu_navi3x"
+      ],
+      "pool": "OrchestrAI Managed"
+    },
+    {
+      "name": "CS-RORDMZ-DT76",
+      "busy": false,
+      "labels": [
+        "self-hosted",
+        "X64",
+        "gpu_navi3x",
+        "Windows",
+        "lease_2026-05-06",
+        "test_setup_windows_gpu_navi3x"
+      ],
+      "pool": "OrchestrAI Managed"
+    },
+    {
+      "name": "CS-RORDMZ-DT77",
+      "busy": false,
+      "labels": [
+        "self-hosted",
+        "X64",
+        "gpu_navi3x",
+        "Linux",
+        "linux-gfx110X-gpu-rocm",
+        "test_setup_linux_gpu_navi3x",
+        "lease_2026-05-06"
+      ],
+      "pool": "OrchestrAI Managed"
+    },
+    {
+      "name": "CS-RORDMZ-DT78",
+      "busy": false,
+      "labels": [
+        "self-hosted",
+        "X64",
+        "gpu_navi3x",
+        "Windows",
+        "lease_2026-05-06",
+        "test_setup_windows_gpu_navi3x"
+      ],
+      "pool": "OrchestrAI Managed"
+    },
+    {
+      "name": "CS-RORDMZ-DT79",
+      "busy": false,
+      "labels": [
+        "self-hosted",
+        "X64",
+        "gpu_navi3x",
+        "Linux",
+        "lease_2026-05-06"
+      ],
+      "pool": "OrchestrAI Managed"
+    },
+    {
+      "name": "CS-RORDMZ-DT81",
+      "busy": false,
+      "labels": [
+        "self-hosted",
+        "X64",
+        "Linux",
+        "gpu_navi4x",
+        "test_setup_linux_gpu_navi4x",
+        "linux-gfx120X-gpu-rocm",
+        "lease_2026-05-06"
+      ],
+      "pool": "OrchestrAI Managed"
+    },
+    {
+      "name": "CS-RORDMZ-DT82",
+      "busy": false,
+      "labels": [
+        "self-hosted",
+        "X64",
+        "Windows",
+        "gpu_navi4x",
+        "lease_2026-05-06",
+        "test_setup_windows_gpu_navi4x"
+      ],
+      "pool": "OrchestrAI Managed"
+    },
+    {
+      "name": "CS-RORDMZ-DT83",
+      "busy": false,
+      "labels": [
+        "self-hosted",
+        "X64",
+        "Linux",
+        "gpu_navi4x",
+        "test_setup_linux_gpu_navi4x",
+        "linux-gfx120X-gpu-rocm",
+        "lease_2026-05-06"
+      ],
+      "pool": "OrchestrAI Managed"
+    },
+    {
+      "name": "CS-RORDMZ-DT84",
+      "busy": false,
+      "labels": [
+        "self-hosted",
+        "X64",
+        "Windows",
+        "gpu_navi4x",
+        "lease_2026-05-06",
+        "test_setup_windows_gpu_navi4x"
+      ],
+      "pool": "OrchestrAI Managed"
+    },
+    {
+      "name": "CS-RORDMZ-DT86",
+      "busy": false,
+      "labels": [
+        "self-hosted",
+        "X64",
+        "gpu_navi3x",
+        "Linux",
+        "lease_2026-05-06"
+      ],
+      "pool": "OrchestrAI Managed"
+    },
+    {
+      "name": "CS-RORDMZ-DT87",
+      "busy": false,
+      "labels": [
+        "self-hosted",
+        "X64",
+        "Linux",
+        "gpu_navi4x",
+        "test_setup_linux_gpu_navi4x",
+        "linux-gfx120X-gpu-rocm",
+        "lease_2026-05-06"
+      ],
+      "pool": "OrchestrAI Managed"
+    },
+    {
+      "name": "azure-windows-11-gfx1030-gpu-rocm-runner-01",
+      "busy": false,
+      "labels": [
+        "azure",
+        "cloud",
+        "noscale",
+        "windows-gfx103X-gpu-rocm",
+        "windows-gfx1030-gpu-rocm",
+        "windows-v620-gpu-rocm"
+      ],
+      "pool": "On-prem"
+    },
+    {
+      "name": "azure-windows-11-gfx1101-gpu-rocm-runner-01",
+      "busy": false,
+      "labels": [
+        "windows-gfx110X-gpu-rocm",
+        "windows-gfx1101-gpu-rocm",
+        "windows-v710-gpu-rocm",
+        "azure",
+        "cloud",
+        "noscale",
+        "lab",
+        "ram-128g",
+        "vram-28g"
+      ],
+      "pool": "On-prem"
+    },
+    {
+      "name": "azure-windows-11-gfx1101-gpu-rocm-runner-07",
+      "busy": true,
+      "labels": [
+        "windows-gfx110X-gpu-rocm",
+        "windows-gfx1101-gpu-rocm",
+        "windows-v710-gpu-rocm",
+        "azure",
+        "cloud",
+        "noscale",
+        "lab",
+        "ram-128g",
+        "vram-28g"
+      ],
+      "pool": "On-prem"
+    },
+    {
+      "name": "azure-windows-11-gfx1101-gpu-rocm-runner-09",
+      "busy": true,
+      "labels": [
+        "windows-gfx110X-gpu-rocm",
+        "windows-gfx1101-gpu-rocm",
+        "windows-v710-gpu-rocm",
+        "azure",
+        "cloud",
+        "noscale",
+        "lab",
+        "ram-128g",
+        "vram-28g"
+      ],
+      "pool": "On-prem"
+    },
+    {
+      "name": "azure-windows-11-gfx1101-gpu-rocm-runner-10",
+      "busy": true,
+      "labels": [
+        "windows-gfx110X-gpu-rocm",
+        "windows-gfx1101-gpu-rocm",
+        "windows-v710-gpu-rocm",
+        "azure",
+        "cloud",
+        "noscale",
+        "lab",
+        "ram-128g",
+        "vram-28g"
+      ],
+      "pool": "On-prem"
+    },
+    {
+      "name": "azure-windows-11-gfx1101-gpu-rocm-runner-15",
+      "busy": false,
+      "labels": [
+        "windows-v710-gpu-rocm",
+        "azure",
+        "cloud",
+        "noscale",
+        "lab",
+        "ram-128g",
+        "test-windows-gfx110X-gpu-rocm",
+        "vram-28g",
+        "test-windows-gfx1101-gpu-rocm"
+      ],
+      "pool": "On-prem"
+    },
+    {
+      "name": "azure-windows-11-gfx1101-gpu-rocm-runner-16",
+      "busy": true,
+      "labels": [
+        "windows-gfx110X-gpu-rocm"
+      ],
+      "pool": "On-prem"
+    },
+    {
+      "name": "labblr-linux-u2404-gfx1150-gpu-rocm-runner-00",
+      "busy": false,
+      "labels": [
+        "noscale",
+        "linux-gfx115X-gpu-rocm",
+        "linux-gfx1150-gpu-rocm",
+        "linux-890m-gpu-rocm",
+        "ubuntu",
+        "lab",
+        "labblr"
+      ],
+      "pool": "On-prem"
+    },
+    {
+      "name": "labctr-linux-u2204-gfx1103-gpu-rocm-runner-00",
+      "busy": false,
+      "labels": [
+        "noscale",
+        "ubuntu",
+        "lab",
+        "linux-gfx1103-gpu-rocm",
+        "linux-760m-gpu-rocm",
+        "labctr"
+      ],
+      "pool": "On-prem"
+    },
+    {
+      "name": "labctr-linux-u2404-gfx1103-gpu-rocm-runner-00",
+      "busy": true,
+      "labels": [
+        "linux-gfx110X-gpu-rocm",
+        "noscale",
+        "ubuntu",
+        "lab",
+        "linux-780m-gpu-rocm",
+        "linux-gfx1103-gpu-rocm",
+        "labctr"
+      ],
+      "pool": "On-prem"
+    },
+    {
+      "name": "labctr-linux-u2404-gfx1152-gpu-rocm-runner-00",
+      "busy": false,
+      "labels": [
+        "noscale",
+        "linux-gfx115X-gpu-rocm",
+        "ubuntu",
+        "lab",
+        "linux-840m-gpu-rocm",
+        "labctr",
+        "linux-gfx1152-gpu-rocm"
+      ],
+      "pool": "On-prem"
+    },
+    {
+      "name": "labctr-linux-u2404-gfx1152-gpu-rocm-runner-01",
+      "busy": false,
+      "labels": [
+        "noscale",
+        "linux-gfx115X-gpu-rocm",
+        "ubuntu",
+        "lab",
+        "linux-840m-gpu-rocm",
+        "labctr",
+        "linux-gfx1152-gpu-rocm"
+      ],
+      "pool": "On-prem"
+    },
+    {
+      "name": "labctr-windows-11-gfx1103-gpu-rocm-runner-00",
+      "busy": false,
+      "labels": [
+        "noscale",
+        "lab",
+        "test-gfx110X-gpu-rocm",
+        "labctr",
+        "windows-gfx1103-gpu-rocm",
+        "windows-740m-gpu-rocm",
+        "vram-1g",
+        "ram-16g"
+      ],
+      "pool": "On-prem"
+    },
+    {
+      "name": "labctr-windows-11-gfx1152-gpu-rocm-runner-00",
+      "busy": false,
+      "labels": [
+        "noscale",
+        "lab",
+        "labctr",
+        "vram-1g",
+        "ram-16g",
+        "windows-gfx1152-gpu-rocm",
+        "windows-840m-gpu-rocm"
+      ],
+      "pool": "On-prem"
+    },
+    {
+      "name": "labxsj-linux-u2404-gfx1103-gpu-rocm-runner-00",
+      "busy": false,
+      "labels": [
+        "linux-gfx110X-gpu-rocm",
+        "noscale",
+        "ubuntu",
+        "lab",
+        "labxsj",
+        "linux-780m-gpu-rocm",
+        "linux-gfx1103-gpu-rocm"
+      ],
+      "pool": "On-prem"
+    },
+    {
+      "name": "labxsj-linux-u2404-gfx1153-gpu-rocm-runner-00",
+      "busy": false,
+      "labels": [
+        "noscale",
+        "linux-gfx115X-gpu-rocm",
+        "ubuntu",
+        "lab",
+        "labxsj",
+        "linux-840m-gpu-rocm",
+        "linux-gfx1153-gpu-rocm"
+      ],
+      "pool": "On-prem"
+    },
+    {
+      "name": "labxsj-linux-u2404-gfx1153-gpu-rocm-runner-01",
+      "busy": false,
+      "labels": [
+        "noscale",
+        "linux-gfx115X-gpu-rocm",
+        "ubuntu",
+        "lab",
+        "labxsj",
+        "linux-840m-gpu-rocm",
+        "linux-gfx1153-gpu-rocm"
+      ],
+      "pool": "On-prem"
+    },
+    {
+      "name": "labxsj-linux-u2404-gfx1153-gpu-rocm-runner-02",
+      "busy": false,
+      "labels": [
+        "noscale",
+        "linux-gfx115X-gpu-rocm",
+        "ubuntu",
+        "lab",
+        "labxsj",
+        "linux-840m-gpu-rocm",
+        "linux-gfx1153-gpu-rocm"
+      ],
+      "pool": "On-prem"
+    },
+    {
+      "name": "labxsj-windows-11-gfx1151-gpu-rocm-runner-03",
+      "busy": false,
+      "labels": [
+        "windows-strix-halo-gpu-rocm",
+        "windows-gfx115X-gpu-rocm"
+      ],
+      "pool": "On-prem"
+    },
+    {
+      "name": "labxsj-windows-11-gfx1201-gpu-rocm-runner-01",
+      "busy": false,
+      "labels": [
+        "windows-gfx1201-gpu-rocm",
+        "labxsj",
+        "windows-r9700-gpu-rocm",
+        "windows-gfx120X-gpu-rocm"
+      ],
+      "pool": "On-prem"
+    },
+    {
+      "name": "labxsj-windows-11-gfx1201-gpu-rocm-runner-02",
+      "busy": false,
+      "labels": [
+        "noscale",
+        "lab",
+        "windows-gfx1201-gpu-rocm",
+        "labxsj",
+        "windows-r9700-gpu-rocm",
+        "vram-32g",
+        "ram-128g",
+        "windows-gfx120X-gpu-rocm"
+      ],
+      "pool": "On-prem"
+    },
+    {
+      "name": "labxsj-windows-11-gfx1201-gpu-rocm-runner-03",
+      "busy": false,
+      "labels": [
+        "windows-gfx1201-gpu-rocm",
+        "labxsj",
+        "windows-r9700-gpu-rocm",
+        "windows-gfx120X-gpu-rocm"
+      ],
+      "pool": "On-prem"
+    },
+    {
+      "name": "labxsj-windows-11-gfx1201-gpu-rocm-runner-04",
+      "busy": false,
+      "labels": [
+        "windows-rx9070-gpu-rocm",
+        "windows-gfx1201-gpu-rocm",
+        "labxsj",
+        "windows-gfx120X-gpu-rocm"
+      ],
+      "pool": "On-prem"
+    },
+    {
+      "name": "labxsj-windows-11-gfx1201-gpu-rocm-runner-05",
+      "busy": false,
+      "labels": [
+        "windows-gfx1201-gpu-rocm",
+        "labxsj",
+        "windows-gfx120X-gpu-rocm",
+        "windows-r9070-gpu-rocm"
+      ],
+      "pool": "On-prem"
+    },
+    {
+      "name": "linux-gfx110X-gpu-rocm-1",
+      "busy": false,
+      "labels": [
+        "linux-gfx110X-gpu-rocm",
+        "linux-gfx1100-gpu-rocm"
+      ],
+      "pool": "On-prem"
+    },
+    {
+      "name": "linux-gfx110X-gpu-rocm-2",
+      "busy": false,
+      "labels": [
+        "linux-gfx110X-gpu-rocm",
+        "linux-gfx1100-gpu-rocm"
+      ],
+      "pool": "On-prem"
+    },
+    {
+      "name": "linux-gfx110X-gpu-rocm-3-gpu0-1778145612",
+      "busy": false,
+      "labels": [
+        "linux-gfx110X-gpu-rocm",
+        "linux-gfx1100-gpu-rocm",
+        "controller-mode:docker",
+        "controller-id:Shark38-docker"
+      ],
+      "pool": "On-prem"
+    },
+    {
+      "name": "linux-gfx110X-gpu-rocm-3-gpu1-1778144997",
+      "busy": false,
+      "labels": [
+        "linux-gfx110X-gpu-rocm",
+        "linux-gfx1100-gpu-rocm",
+        "controller-mode:docker",
+        "controller-id:Shark38-docker"
+      ],
+      "pool": "On-prem"
+    },
+    {
+      "name": "linux-gfx110X-gpu-rocm-5-gpu0-1778145168",
+      "busy": false,
+      "labels": [
+        "linux-gfx110X-gpu-rocm",
+        "linux-gfx1100-gpu-rocm",
+        "controller-mode:docker",
+        "controller-id:shark48-ci-docker"
+      ],
+      "pool": "On-prem"
+    },
+    {
+      "name": "linux-gfx110X-gpu-rocm-6-gpu0-1778145999",
+      "busy": false,
+      "labels": [
+        "linux-gfx110X-gpu-rocm",
+        "linux-gfx1100-gpu-rocm",
+        "controller-mode:docker",
+        "controller-id:shark46-ci-docker"
+      ],
+      "pool": "On-prem"
+    },
+    {
+      "name": "linux-gfx120X-gpu-rocm-1-gpu0-1778135009",
+      "busy": true,
+      "labels": [
+        "linux-rx9070-gpu-rocm",
+        "linux-gfx1201-gpu-rocm",
+        "linux-gfx120X-gpu-rocm",
+        "controller-mode:docker",
+        "controller-id:Shark40-docker"
+      ],
+      "pool": "On-prem"
+    },
+    {
+      "name": "linux-gfx120X-gpu-rocm-1-gpu1-1778135412",
+      "busy": true,
+      "labels": [
+        "linux-rx9070-gpu-rocm",
+        "linux-gfx1201-gpu-rocm",
+        "linux-gfx120X-gpu-rocm",
+        "controller-mode:docker",
+        "controller-id:Shark40-docker"
+      ],
+      "pool": "On-prem"
+    },
+    {
+      "name": "linux-rx6950-gpu-rocm-1",
+      "busy": false,
+      "labels": [
+        "linux-rx6950-gpu-rocm",
+        "linux-gfx1030-gpu-rocm",
+        "linux-gfx103X-gpu-rocm"
+      ],
+      "pool": "On-prem"
+    },
+    {
+      "name": "linux-rx9070-gpu-rocm-4",
+      "busy": false,
+      "labels": [
+        "linux-rx9070-gpu-rocm",
+        "linux-gfx1201-gpu-rocm",
+        "linux-gfx120X-gpu-rocm"
+      ],
+      "pool": "On-prem"
+    },
+    {
+      "name": "linux-rx9700-gpu-rocm-1",
+      "busy": false,
+      "labels": [
+        "linux-gfx1201-gpu-rocm",
+        "linux-gfx120X-gpu-rocm",
+        "linux-rx9700-gpu-rocm"
+      ],
+      "pool": "On-prem"
+    },
+    {
+      "name": "linux-strix-gpu-rocm-2",
+      "busy": false,
+      "labels": [
+        "linux-strix-gpu-rocm",
+        "linux-gfx115X-gpu-rocm",
+        "linux-gfx1150-gpu-rocm"
+      ],
+      "pool": "On-prem"
+    },
+    {
+      "name": "linux-strix-halo-gpu-rocm-3-gpu0-1778148254",
+      "busy": false,
+      "labels": [
+        "linux-strix-halo-gpu-rocm",
+        "linux-gfx115X-gpu-rocm",
+        "linux-gfx1151-gpu-rocm",
+        "linux-strix-halo-gpu-rocm-oem",
+        "controller-mode:docker",
+        "controller-id:shark-strixhalo-10-docker"
+      ],
+      "pool": "On-prem"
+    },
+    {
+      "name": "linux-strix-halo-gpu-rocm-5-gpu0-1778147508",
+      "busy": false,
+      "labels": [
+        "linux-strix-halo-gpu-rocm",
+        "linux-gfx115X-gpu-rocm",
+        "linux-gfx1151-gpu-rocm",
+        "linux-strix-halo-gpu-rocm-oem",
+        "controller-id:shark-strixhalo-12-docker",
+        "controller-mode:docker"
+      ],
+      "pool": "On-prem"
+    },
+    {
+      "name": "linux-strix-halo-gpu-rocm-6-gpu0-1778147972",
+      "busy": false,
+      "labels": [
+        "linux-strix-halo-gpu-rocm",
+        "linux-gfx115X-gpu-rocm",
+        "linux-gfx1151-gpu-rocm",
+        "linux-strix-halo-gpu-rocm-oem",
+        "controller-mode:docker",
+        "controller-id:ctr-halo-b46-09-docker",
+        "linux-strix-halo-gpu-rocm-noneng"
+      ],
+      "pool": "On-prem"
+    },
+    {
+      "name": "linux-strix-halo-gpu-rocm-7-gpu0-1778147603",
+      "busy": false,
+      "labels": [
+        "linux-strix-halo-gpu-rocm",
+        "linux-gfx115X-gpu-rocm",
+        "linux-gfx1151-gpu-rocm",
+        "linux-strix-halo-gpu-rocm-oem",
+        "controller-mode:docker",
+        "controller-id:ctr-halo-b47-10-docker",
+        "linux-strix-halo-gpu-rocm-noneng"
+      ],
+      "pool": "On-prem"
+    },
+    {
+      "name": "linux-strix-halo-gpu-rocm-8-gpu0-1778148257",
+      "busy": false,
+      "labels": [
+        "linux-strix-halo-gpu-rocm",
+        "linux-gfx115X-gpu-rocm",
+        "linux-gfx1151-gpu-rocm",
+        "linux-strix-halo-gpu-rocm-oem",
+        "controller-mode:docker",
+        "controller-id:shark-strixhalo-17-docker",
+        "linux-strix-halo-gpu-rocm-noneng"
+      ],
+      "pool": "On-prem"
+    },
+    {
+      "name": "linux-strix-halo-gpu-rocm-9-gpu0-1778147556",
+      "busy": false,
+      "labels": [
+        "linux-strix-halo-gpu-rocm",
+        "linux-gfx115X-gpu-rocm",
+        "linux-gfx1151-gpu-rocm",
+        "linux-strix-halo-gpu-rocm-oem",
+        "controller-mode:docker",
+        "controller-id:shark-strixhalo-18-docker",
+        "linux-strix-halo-gpu-rocm-noneng"
+      ],
+      "pool": "On-prem"
+    },
+    {
+      "name": "windows-gfx110X-gpu-rocm-1",
+      "busy": false,
+      "labels": [
+        "windows-gfx1101-gpu-rocm",
+        "test-windows-gfx110X-gpu-rocm"
+      ],
+      "pool": "On-prem"
+    },
+    {
+      "name": "windows-strix-halo-gpu-rocm-10",
+      "busy": true,
+      "labels": [
+        "windows-strix-halo-gpu-rocm",
+        "windows-gfx1151-gpu-rocm",
+        "windows-gfx115X-gpu-rocm"
+      ],
+      "pool": "On-prem"
+    },
+    {
+      "name": "windows-strix-halo-gpu-rocm-11",
+      "busy": true,
+      "labels": [
+        "windows-strix-halo-gpu-rocm",
+        "windows-gfx1151-gpu-rocm",
+        "windows-gfx115X-gpu-rocm",
+        "windows-strix-halo-gpu-rocm-128gb"
+      ],
+      "pool": "On-prem"
+    },
+    {
+      "name": "windows-strix-halo-gpu-rocm-12",
+      "busy": false,
+      "labels": [
+        "windows-strix-halo-gpu-rocm",
+        "windows-gfx1151-gpu-rocm",
+        "windows-gfx115X-gpu-rocm",
+        "windows-strix-halo-gpu-rocm-128gb"
+      ],
+      "pool": "On-prem"
+    },
+    {
+      "name": "windows-strix-halo-gpu-rocm-13",
+      "busy": false,
+      "labels": [
+        "windows-strix-halo-gpu-rocm",
+        "windows-gfx115X-gpu-rocm"
+      ],
+      "pool": "On-prem"
+    },
+    {
+      "name": "windows-strix-halo-gpu-rocm-14",
+      "busy": true,
+      "labels": [
+        "windows-strix-halo-gpu-rocm",
+        "windows-gfx1151-gpu-rocm",
+        "windows-gfx115X-gpu-rocm",
+        "windows-strix-halo-gpu-rocm-128gb"
+      ],
+      "pool": "On-prem"
+    },
+    {
+      "name": "windows-strix-halo-gpu-rocm-15",
+      "busy": true,
+      "labels": [
+        "windows-strix-halo-gpu-rocm",
+        "windows-gfx1151-gpu-rocm",
+        "windows-gfx115X-gpu-rocm",
+        "windows-strix-halo-gpu-rocm-128gb"
+      ],
+      "pool": "On-prem"
+    },
+    {
+      "name": "windows-strix-halo-gpu-rocm-16",
+      "busy": false,
+      "labels": [
+        "windows-strix-halo-gpu-rocm",
+        "windows-gfx1151-gpu-rocm",
+        "windows-gfx115X-gpu-rocm",
+        "windows-strix-halo-gpu-rocm-128gb"
+      ],
+      "pool": "On-prem"
+    },
+    {
+      "name": "windows-strix-halo-gpu-rocm-2",
+      "busy": true,
+      "labels": [
+        "windows-strix-halo-gpu-rocm",
+        "windows-gfx1151-gpu-rocm",
+        "windows-gfx115X-gpu-rocm"
+      ],
+      "pool": "On-prem"
+    },
+    {
+      "name": "windows-strix-halo-gpu-rocm-4",
+      "busy": true,
+      "labels": [
+        "windows-strix-halo-gpu-rocm",
+        "windows-gfx1151-gpu-rocm",
+        "windows-gfx115X-gpu-rocm",
+        "windows-strix-halo-gpu-rocm-128gb"
+      ],
+      "pool": "On-prem"
+    },
+    {
+      "name": "windows-strix-halo-gpu-rocm-5",
+      "busy": true,
+      "labels": [
+        "windows-strix-halo-gpu-rocm",
+        "windows-gfx1151-gpu-rocm",
+        "windows-gfx115X-gpu-rocm"
+      ],
+      "pool": "On-prem"
+    },
+    {
+      "name": "windows-strix-halo-gpu-rocm-6",
+      "busy": true,
+      "labels": [
+        "windows-strix-halo-gpu-rocm",
+        "windows-gfx1151-gpu-rocm",
+        "windows-gfx115X-gpu-rocm",
+        "windows-strix-halo-gpu-rocm-high"
+      ],
+      "pool": "On-prem"
+    },
+    {
+      "name": "windows-strix-halo-gpu-rocm-7",
+      "busy": false,
+      "labels": [
+        "windows-gfx115X-gpu-rocm",
+        "DO-NOT-ENABLE",
+        "windows-strix-halo-gpu-rocm-8gb"
+      ],
+      "pool": "On-prem"
+    },
+    {
+      "name": "windows-strix-halo-gpu-rocm-8",
+      "busy": false,
+      "labels": [
+        "windows-strix-halo-gpu-rocm",
+        "windows-gfx115X-gpu-rocm"
+      ],
+      "pool": "On-prem"
+    },
+    {
+      "name": "aiter-1gpu-runner-9zvl5-runner-z7xcx",
+      "busy": false,
+      "labels": [
+        "aiter-1gpu-runner"
+      ],
+      "pool": "Other GPU"
+    },
+    {
+      "name": "aiter-8gpu-runner-9ln9h-runner-dh2z6",
+      "busy": false,
+      "labels": [
+        "aiter-8gpu-runner"
+      ],
+      "pool": "Other GPU"
+    },
+    {
+      "name": "arc-llvm-ci-2gpu-sxlpl-runner-2w4c2",
+      "busy": false,
+      "labels": [
+        "arc-llvm-ci-2gpu"
+      ],
+      "pool": "Other GPU"
+    },
+    {
+      "name": "arc-llvm-ci-2gpu-sxlpl-runner-n66ll",
+      "busy": false,
+      "labels": [
+        "arc-llvm-ci-2gpu"
+      ],
+      "pool": "Other GPU"
+    },
+    {
+      "name": "ctr-halo-b46-09-housekeeping-nogpu-1777550205",
+      "busy": false,
+      "labels": [
+        "controller-mode:docker",
+        "dev",
+        "no-gpu",
+        "housekeeping",
+        "ephemeral",
+        "cpu",
+        "controller-id:ctr-halo-b46-09-docker",
+        "ctr-halo-b46-09"
+      ],
+      "pool": "Other GPU"
+    },
+    {
+      "name": "ctr-halo-b47-10-housekeeping-nogpu-1778109988",
+      "busy": false,
+      "labels": [
+        "controller-mode:docker",
+        "dev",
+        "no-gpu",
+        "housekeeping",
+        "ephemeral",
+        "cpu",
+        "controller-id:ctr-halo-b47-10-docker",
+        "ctr-halo-b47-10"
+      ],
+      "pool": "Other GPU"
+    },
+    {
+      "name": "linux-x86-64-1gpu-amd-9tkkn-runner-prqpt",
+      "busy": false,
+      "labels": [
+        "linux-x86-64-1gpu-amd"
+      ],
+      "pool": "Other GPU"
+    },
+    {
+      "name": "linux-x86-64-4gpu-amd-tfgns-runner-78hxx",
+      "busy": false,
+      "labels": [
+        "linux-x86-64-4gpu-amd"
+      ],
+      "pool": "Other GPU"
+    },
+    {
+      "name": "linux-x86-64-8gpu-amd-zrw5d-runner-cvcff",
+      "busy": false,
+      "labels": [
+        "linux-x86-64-8gpu-amd"
+      ],
+      "pool": "Other GPU"
+    },
+    {
+      "name": "shark-strixhalo-10-housekeeping-nogpu-1777502020",
+      "busy": false,
+      "labels": [
+        "controller-mode:docker",
+        "dev",
+        "no-gpu",
+        "housekeeping",
+        "ephemeral",
+        "cpu",
+        "controller-id:shark-strixhalo-10-docker",
+        "shark-strixhalo-10"
+      ],
+      "pool": "Other GPU"
+    },
+    {
+      "name": "shark-strixhalo-10-housekeeping-nogpu-1778100398",
+      "busy": false,
+      "labels": [
+        "controller-mode:docker",
+        "dev",
+        "no-gpu",
+        "housekeeping",
+        "ephemeral",
+        "cpu",
+        "controller-id:shark-strixhalo-10-docker",
+        "shark-strixhalo-10"
+      ],
+      "pool": "Other GPU"
+    },
+    {
+      "name": "shark-strixhalo-12-housekeeping-nogpu-1777912284",
+      "busy": false,
+      "labels": [
+        "controller-id:shark-strixhalo-12-docker",
+        "controller-mode:docker",
+        "dev",
+        "no-gpu",
+        "housekeeping",
+        "ephemeral",
+        "cpu",
+        "shark-strixhalo-12"
+      ],
+      "pool": "Other GPU"
+    },
+    {
+      "name": "shark-strixhalo-12-housekeeping-nogpu-1778051571",
+      "busy": false,
+      "labels": [
+        "controller-id:shark-strixhalo-12-docker",
+        "controller-mode:docker",
+        "dev",
+        "no-gpu",
+        "housekeeping",
+        "ephemeral",
+        "cpu",
+        "shark-strixhalo-12"
+      ],
+      "pool": "Other GPU"
+    },
+    {
+      "name": "shark-strixhalo-12-housekeeping-nogpu-1778092912",
+      "busy": false,
+      "labels": [
+        "controller-id:shark-strixhalo-12-docker",
+        "controller-mode:docker",
+        "dev",
+        "no-gpu",
+        "housekeeping",
+        "ephemeral",
+        "cpu",
+        "shark-strixhalo-12"
+      ],
+      "pool": "Other GPU"
+    },
+    {
+      "name": "shark-strixhalo-12-housekeeping-nogpu-1778098613",
+      "busy": false,
+      "labels": [
+        "controller-id:shark-strixhalo-12-docker",
+        "controller-mode:docker",
+        "dev",
+        "no-gpu",
+        "housekeeping",
+        "ephemeral",
+        "cpu",
+        "shark-strixhalo-12"
+      ],
+      "pool": "Other GPU"
+    },
+    {
+      "name": "shark-strixhalo-12-housekeeping-nogpu-1778113263",
+      "busy": false,
+      "labels": [
+        "controller-id:shark-strixhalo-12-docker",
+        "controller-mode:docker",
+        "dev",
+        "no-gpu",
+        "housekeeping",
+        "ephemeral",
+        "cpu",
+        "shark-strixhalo-12"
+      ],
+      "pool": "Other GPU"
+    },
+    {
+      "name": "shark-strixhalo-12-housekeeping-nogpu-1778125633",
+      "busy": false,
+      "labels": [
+        "controller-id:shark-strixhalo-12-docker",
+        "controller-mode:docker",
+        "dev",
+        "no-gpu",
+        "housekeeping",
+        "ephemeral",
+        "cpu",
+        "shark-strixhalo-12"
+      ],
+      "pool": "Other GPU"
+    },
+    {
+      "name": "shark-strixhalo-17-housekeeping-nogpu-1777500566",
+      "busy": false,
+      "labels": [
+        "controller-mode:docker",
+        "dev",
+        "no-gpu",
+        "housekeeping",
+        "ephemeral",
+        "cpu",
+        "controller-id:shark-strixhalo-17-docker",
+        "shark-strixhalo-17"
+      ],
+      "pool": "Other GPU"
+    },
+    {
+      "name": "shark-strixhalo-17-housekeeping-nogpu-1777986132",
+      "busy": false,
+      "labels": [
+        "controller-mode:docker",
+        "dev",
+        "no-gpu",
+        "housekeeping",
+        "ephemeral",
+        "cpu",
+        "controller-id:shark-strixhalo-17-docker",
+        "shark-strixhalo-17"
+      ],
+      "pool": "Other GPU"
+    },
+    {
+      "name": "shark-strixhalo-18-housekeeping-nogpu-1778109383",
+      "busy": false,
+      "labels": [
+        "controller-mode:docker",
+        "dev",
+        "no-gpu",
+        "housekeeping",
+        "ephemeral",
+        "cpu",
+        "controller-id:shark-strixhalo-18-docker",
+        "shark-strixhalo-18"
+      ],
+      "pool": "Other GPU"
+    },
+    {
+      "name": "shark-strixhalo-18-housekeeping-nogpu-1778140545",
+      "busy": false,
+      "labels": [
+        "controller-mode:docker",
+        "dev",
+        "no-gpu",
+        "housekeeping",
+        "ephemeral",
+        "cpu",
+        "controller-id:shark-strixhalo-18-docker",
+        "shark-strixhalo-18"
+      ],
+      "pool": "Other GPU"
+    },
+    {
+      "name": "Shark38-housekeeping-nogpu-1777561796",
+      "busy": false,
+      "labels": [
+        "controller-mode:docker",
+        "dev",
+        "no-gpu",
+        "housekeeping",
+        "ephemeral",
+        "cpu",
+        "controller-id:Shark38-docker",
+        "Shark38"
+      ],
+      "pool": "Other GPU"
+    },
+    {
+      "name": "Shark38-housekeeping-nogpu-1777887582",
+      "busy": false,
+      "labels": [
+        "controller-mode:docker",
+        "dev",
+        "no-gpu",
+        "housekeeping",
+        "ephemeral",
+        "cpu",
+        "controller-id:Shark38-docker",
+        "Shark38"
+      ],
+      "pool": "Other GPU"
+    },
+    {
+      "name": "Shark38-housekeeping-nogpu-1778027149",
+      "busy": false,
+      "labels": [
+        "controller-mode:docker",
+        "dev",
+        "no-gpu",
+        "housekeeping",
+        "ephemeral",
+        "cpu",
+        "controller-id:Shark38-docker",
+        "Shark38"
+      ],
+      "pool": "Other GPU"
+    },
+    {
+      "name": "Shark38-housekeeping-nogpu-1778135816",
+      "busy": false,
+      "labels": [
+        "controller-mode:docker",
+        "dev",
+        "no-gpu",
+        "housekeeping",
+        "ephemeral",
+        "cpu",
+        "controller-id:Shark38-docker",
+        "Shark38"
+      ],
+      "pool": "Other GPU"
+    },
+    {
+      "name": "Shark40-housekeeping-nogpu-1777562649",
+      "busy": false,
+      "labels": [
+        "controller-mode:docker",
+        "dev",
+        "no-gpu",
+        "housekeeping",
+        "ephemeral",
+        "cpu",
+        "controller-id:Shark40-docker",
+        "Shark40"
+      ],
+      "pool": "Other GPU"
+    },
+    {
+      "name": "Shark40-housekeeping-nogpu-1777674637",
+      "busy": false,
+      "labels": [
+        "controller-mode:docker",
+        "dev",
+        "no-gpu",
+        "housekeeping",
+        "ephemeral",
+        "cpu",
+        "controller-id:Shark40-docker",
+        "Shark40"
+      ],
+      "pool": "Other GPU"
+    },
+    {
+      "name": "Shark40-housekeeping-nogpu-1778039231",
+      "busy": false,
+      "labels": [
+        "controller-mode:docker",
+        "dev",
+        "no-gpu",
+        "housekeeping",
+        "ephemeral",
+        "cpu",
+        "controller-id:Shark40-docker",
+        "Shark40"
+      ],
+      "pool": "Other GPU"
+    },
+    {
+      "name": "Shark40-housekeeping-nogpu-1778144124",
+      "busy": false,
+      "labels": [
+        "controller-mode:docker",
+        "dev",
+        "no-gpu",
+        "housekeeping",
+        "ephemeral",
+        "cpu",
+        "controller-id:Shark40-docker",
+        "Shark40"
+      ],
+      "pool": "Other GPU"
+    },
+    {
+      "name": "shark46-ci-housekeeping-nogpu-1777561443",
+      "busy": false,
+      "labels": [
+        "controller-mode:docker",
+        "dev",
+        "no-gpu",
+        "housekeeping",
+        "ephemeral",
+        "cpu",
+        "controller-id:shark46-ci-docker",
+        "shark46-ci"
+      ],
+      "pool": "Other GPU"
+    },
+    {
+      "name": "shark46-ci-housekeeping-nogpu-1777971443",
+      "busy": false,
+      "labels": [
+        "controller-mode:docker",
+        "dev",
+        "no-gpu",
+        "housekeeping",
+        "ephemeral",
+        "cpu",
+        "controller-id:shark46-ci-docker",
+        "shark46-ci"
+      ],
+      "pool": "Other GPU"
+    },
+    {
+      "name": "shark46-ci-housekeeping-nogpu-1778102045",
+      "busy": false,
+      "labels": [
+        "controller-mode:docker",
+        "dev",
+        "no-gpu",
+        "housekeeping",
+        "ephemeral",
+        "cpu",
+        "controller-id:shark46-ci-docker",
+        "shark46-ci"
+      ],
+      "pool": "Other GPU"
+    },
+    {
+      "name": "shark48-ci-housekeeping-nogpu-1777561624",
+      "busy": false,
+      "labels": [
+        "controller-mode:docker",
+        "dev",
+        "no-gpu",
+        "housekeeping",
+        "ephemeral",
+        "cpu",
+        "controller-id:shark48-ci-docker",
+        "shark48-ci"
+      ],
+      "pool": "Other GPU"
+    },
+    {
+      "name": "shark48-ci-housekeeping-nogpu-1777664376",
+      "busy": false,
+      "labels": [
+        "controller-mode:docker",
+        "dev",
+        "no-gpu",
+        "housekeeping",
+        "ephemeral",
+        "cpu",
+        "controller-id:shark48-ci-docker",
+        "shark48-ci"
+      ],
+      "pool": "Other GPU"
+    },
+    {
+      "name": "shark48-ci-housekeeping-nogpu-1777672245",
+      "busy": false,
+      "labels": [
+        "controller-mode:docker",
+        "dev",
+        "no-gpu",
+        "housekeeping",
+        "ephemeral",
+        "cpu",
+        "controller-id:shark48-ci-docker",
+        "shark48-ci"
+      ],
+      "pool": "Other GPU"
+    },
+    {
+      "name": "shark48-ci-housekeeping-nogpu-1777792500",
+      "busy": false,
+      "labels": [
+        "controller-mode:docker",
+        "dev",
+        "no-gpu",
+        "housekeeping",
+        "ephemeral",
+        "cpu",
+        "controller-id:shark48-ci-docker",
+        "shark48-ci"
+      ],
+      "pool": "Other GPU"
+    },
+    {
+      "name": "shark48-ci-housekeeping-nogpu-1777925622",
+      "busy": false,
+      "labels": [
+        "controller-mode:docker",
+        "dev",
+        "no-gpu",
+        "housekeeping",
+        "ephemeral",
+        "cpu",
+        "controller-id:shark48-ci-docker",
+        "shark48-ci"
+      ],
+      "pool": "Other GPU"
+    },
+    {
+      "name": "shark48-ci-housekeeping-nogpu-1778080306",
+      "busy": false,
+      "labels": [
+        "controller-mode:docker",
+        "dev",
+        "no-gpu",
+        "housekeeping",
+        "ephemeral",
+        "cpu",
+        "controller-id:shark48-ci-docker",
+        "shark48-ci"
+      ],
+      "pool": "Other GPU"
+    },
+    {
+      "name": "shark48-ci-housekeeping-nogpu-1778143086",
+      "busy": false,
+      "labels": [
+        "controller-mode:docker",
+        "dev",
+        "no-gpu",
+        "housekeeping",
+        "ephemeral",
+        "cpu",
+        "controller-id:shark48-ci-docker",
+        "shark48-ci"
+      ],
+      "pool": "Other GPU"
+    },
+    {
+      "name": "smci250-ccs-aus-c03-38-dev-1gpu-gpu0-1778137996",
+      "busy": false,
+      "labels": [
+        "linux-gfx90a-gpu-rocm",
+        "controller-mode:docker",
+        "controller-id:smci250-ccs-aus-c03-38-docker"
+      ],
+      "pool": "Other GPU"
+    },
+    {
+      "name": "smci250-ccs-aus-c03-38-dev-1gpu-gpu1-1778139018",
+      "busy": false,
+      "labels": [
+        "linux-gfx90a-gpu-rocm",
+        "controller-mode:docker",
+        "controller-id:smci250-ccs-aus-c03-38-docker"
+      ],
+      "pool": "Other GPU"
+    },
+    {
+      "name": "smci250-ccs-aus-c03-38-dev-1gpu-gpu2-1778140039",
+      "busy": false,
+      "labels": [
+        "linux-gfx90a-gpu-rocm",
+        "controller-mode:docker",
+        "controller-id:smci250-ccs-aus-c03-38-docker"
+      ],
+      "pool": "Other GPU"
+    },
+    {
+      "name": "smci250-ccs-aus-c03-38-dev-1gpu-gpu3-1778140090",
+      "busy": false,
+      "labels": [
+        "linux-gfx90a-gpu-rocm",
+        "controller-mode:docker",
+        "controller-id:smci250-ccs-aus-c03-38-docker"
+      ],
+      "pool": "Other GPU"
+    },
+    {
+      "name": "smci250-ccs-aus-c05-13-dev-1gpu-gpu0-1778137942",
+      "busy": false,
+      "labels": [
+        "linux-gfx90a-gpu-rocm",
+        "controller-mode:docker",
+        "controller-id:smci250-ccs-aus-c05-13-docker"
+      ],
+      "pool": "Other GPU"
+    },
+    {
+      "name": "smci250-ccs-aus-c05-13-dev-1gpu-gpu1-1778137965",
+      "busy": false,
+      "labels": [
+        "linux-gfx90a-gpu-rocm",
+        "controller-mode:docker",
+        "controller-id:smci250-ccs-aus-c05-13-docker"
+      ],
+      "pool": "Other GPU"
+    },
+    {
+      "name": "smci250-ccs-aus-c05-13-dev-1gpu-gpu2-1778141633",
+      "busy": false,
+      "labels": [
+        "linux-gfx90a-gpu-rocm",
+        "controller-mode:docker",
+        "controller-id:smci250-ccs-aus-c05-13-docker"
+      ],
+      "pool": "Other GPU"
+    },
+    {
+      "name": "smci250-ccs-aus-c05-13-dev-1gpu-gpu3-1778137762",
+      "busy": false,
+      "labels": [
+        "linux-gfx90a-gpu-rocm",
+        "controller-mode:docker",
+        "controller-id:smci250-ccs-aus-c05-13-docker"
+      ],
+      "pool": "Other GPU"
+    },
+    {
+      "name": "smci250-ccs-aus-c05-33-dev-1gpu-gpu0-1778138013",
+      "busy": false,
+      "labels": [
+        "linux-gfx90a-gpu-rocm",
+        "controller-id:smci250-ccs-aus-c05-33-docker",
+        "controller-mode:docker"
+      ],
+      "pool": "Other GPU"
+    },
+    {
+      "name": "smci250-ccs-aus-c05-33-dev-1gpu-gpu1-1778139881",
+      "busy": false,
+      "labels": [
+        "linux-gfx90a-gpu-rocm",
+        "controller-id:smci250-ccs-aus-c05-33-docker",
+        "controller-mode:docker"
+      ],
+      "pool": "Other GPU"
+    },
+    {
+      "name": "smci250-ccs-aus-c05-33-dev-1gpu-gpu2-1778139418",
+      "busy": false,
+      "labels": [
+        "linux-gfx90a-gpu-rocm",
+        "controller-id:smci250-ccs-aus-c05-33-docker",
+        "controller-mode:docker"
+      ],
+      "pool": "Other GPU"
+    },
+    {
+      "name": "smci250-ccs-aus-c05-33-dev-1gpu-gpu3-1778137896",
+      "busy": false,
+      "labels": [
+        "linux-gfx90a-gpu-rocm",
+        "controller-id:smci250-ccs-aus-c05-33-docker",
+        "controller-mode:docker"
+      ],
+      "pool": "Other GPU"
+    },
+    {
+      "name": "ais-ci-runner-1",
+      "busy": false,
+      "labels": [
+        "AIS"
+      ],
+      "pool": "Other"
+    },
+    {
+      "name": "ais-ci-runner-2",
+      "busy": false,
+      "labels": [
+        "AIS"
+      ],
+      "pool": "Other"
+    },
+    {
+      "name": "ais-ci-runner-3",
+      "busy": false,
+      "labels": [
+        "AIS"
+      ],
+      "pool": "Other"
+    },
+    {
+      "name": "ais-ci-runner-4",
+      "busy": false,
+      "labels": [
+        "AIS"
+      ],
+      "pool": "Other"
+    },
+    {
+      "name": "ais-ci-runner-5",
+      "busy": false,
+      "labels": [
+        "AIS"
+      ],
+      "pool": "Other"
+    },
+    {
+      "name": "ais-ci-runner-6",
+      "busy": false,
+      "labels": [
+        "AIS"
+      ],
+      "pool": "Other"
+    },
+    {
+      "name": "ais-ci-runner-7",
+      "busy": false,
+      "labels": [
+        "AIS"
+      ],
+      "pool": "Other"
+    },
+    {
+      "name": "ais-ci-runner-8",
+      "busy": false,
+      "labels": [
+        "AIS"
+      ],
+      "pool": "Other"
+    },
+    {
+      "name": "linux-SA-ROCm-scale-runner",
+      "busy": false,
+      "labels": [
+        "linux-SA-ROCm-scale-runner"
+      ],
+      "pool": "Other"
+    },
+    {
+      "name": "linux-vultr-mi325-scale-runner",
+      "busy": false,
+      "labels": [
+        "linux-vultr-mi325-scale-runner"
+      ],
+      "pool": "Other"
+    },
+    {
+      "name": "lsttdev13.amd.com",
+      "busy": false,
+      "labels": [
+        "self-hosted",
+        "Linux",
+        "X64",
+        "lsttdev13.amd.com"
+      ],
+      "pool": "Other"
+    },
+    {
+      "name": "mi450-golden-u24",
+      "busy": false,
+      "labels": [
+        "self-hosted",
+        "Linux",
+        "X64",
+        "mi450-golden-u24"
+      ],
+      "pool": "Other"
+    },
+    {
+      "name": "pdue-rocmci-vm1",
+      "busy": false,
+      "labels": [
+        "self-hosted",
+        "Linux",
+        "X64",
+        "azure-vms"
+      ],
+      "pool": "Other"
+    },
+    {
+      "name": "pdue-rocmci-vm2",
+      "busy": false,
+      "labels": [
+        "self-hosted",
+        "Linux",
+        "X64",
+        "azure-vms"
+      ],
+      "pool": "Other"
+    },
+    {
+      "name": "pdue-rocmci-vm3",
+      "busy": false,
+      "labels": [
+        "self-hosted",
+        "Linux",
+        "X64",
+        "azure-vms"
+      ],
+      "pool": "Other"
+    },
+    {
+      "name": "pdue-rocmci-vm4",
+      "busy": false,
+      "labels": [
+        "self-hosted",
+        "Linux",
+        "X64",
+        "azure-vms"
+      ],
+      "pool": "Other"
+    },
+    {
+      "name": "sc-hw-smc-acc-04",
+      "busy": false,
+      "labels": [
+        "self-hosted",
+        "Linux",
+        "X64",
+        "rocm.gfx90a",
+        "rocm-org"
+      ],
+      "pool": "Other"
+    },
+    {
+      "name": "tw-gfx950-ainic-ROCm-scale-runner",
+      "busy": false,
+      "labels": [
+        "tw-gfx950-ainic-ROCm-scale-runner"
+      ],
+      "pool": "Other"
+    }
+  ],
+  "raw_size": 271776
+}

@@ -679,20 +679,39 @@ def _parse_server_count(phys_str: str) -> int:
 _runner_counts: dict = {rec[0]: _parse_server_count(rec[4]) for rec in RUNNER_DATA}
 
 # ── Optional: load runner-health dashboard data ──────────────────────────────
-# If the user dropped a saved page from https://therock-runner-health.com/ in
-# this folder, pick it up so we can decorate the gfx groupings with live
-# online / busy / idle counts and queue health badges.
+# Three-tier source chain (handled by runner_health_parser.load_runner_health_any):
+#   1. local TheRock Runner Health.mhtml   (saved manually from the dashboard;
+#                                           NOT committed to the repo)
+#   2. live HTTPS GET of therock-runner-health.com  (works only when the host
+#                                           is reachable AND the request isn't
+#                                           bounced to GitHub OAuth)
+#   3. runner_health_snapshot.json         (committed fallback so the report
+#                                           always renders something current)
 _RUNNER_HEALTH = None
+_RUNNER_HEALTH_SOURCE = None  # "mhtml" / "live" / "snapshot" / None
 try:
-    from runner_health_parser import load_runner_health
+    from runner_health_parser import load_runner_health_any
     from pathlib import Path as _P
-    for _candidate in ("TheRock Runner Health.mhtml", "runner_health.mhtml",
-                       "runner-health.mhtml", "TheRockRunnerHealth.mhtml"):
-        if (_P(__file__).parent / _candidate).exists():
-            _RUNNER_HEALTH = load_runner_health(_P(__file__).parent / _candidate)
-            if _RUNNER_HEALTH:
-                print(f"  [runner-health] Loaded {_candidate}: {len(_RUNNER_HEALTH.per_machine)} machines, {len(_RUNNER_HEALTH.per_label)} labelled metrics")
-                break
+    _here = _P(__file__).parent
+    _mhtml_candidates = [
+        _here / "TheRock Runner Health.mhtml",
+        _here / "runner_health.mhtml",
+        _here / "runner-health.mhtml",
+        _here / "TheRockRunnerHealth.mhtml",
+    ]
+    _RUNNER_HEALTH, _RUNNER_HEALTH_SOURCE = load_runner_health_any(
+        mhtml_candidates=_mhtml_candidates,
+        live_url="https://therock-runner-health.com/",
+        snapshot_path=_here / "runner_health_snapshot.json",
+        refresh_snapshot=True,
+        try_live=True,
+    )
+    if _RUNNER_HEALTH:
+        print(f"  [runner-health] Loaded via {_RUNNER_HEALTH_SOURCE}: "
+              f"{len(_RUNNER_HEALTH.per_machine)} machines, "
+              f"{len(_RUNNER_HEALTH.per_label)} labelled metrics")
+    else:
+        print("  [runner-health] No source available (no mhtml, live unreachable, no snapshot).")
 except Exception as _e:
     print(f"  [runner-health] WARN: {_e}")
 
@@ -1073,12 +1092,23 @@ if _RUNNER_HEALTH:
     _s = _RUNNER_HEALTH.summary
     _gpu = _s.get("resource", {}).get("GPU", {})
     _cpu = _s.get("resource", {}).get("CPU", {})
+    _src = _RUNNER_HEALTH_SOURCE or "?"
+    _src_chip = {
+        "mhtml":    ('#2E7D32', '#E8F5E9', 'fresh — local <code>TheRock Runner Health.mhtml</code>'),
+        "live":     ('#1565C0', '#E3F2FD', 'fresh — live HTTPS fetch of therock-runner-health.com'),
+        "snapshot": ('#EF6C00', '#FFF3E0', 'cached snapshot — <code>runner_health_snapshot.json</code> '
+                                            '(live dashboard unreachable, no local .mhtml)'),
+    }.get(_src, ('#555', '#EEE', _src))
     _live_status_banner = (
-        f'<div style="margin:0 0 14px 0;padding:10px 14px;background:#E8F5E9;border-left:4px solid #2E7D32;'
-        f'border-radius:4px;font-size:12px;color:#1B5E20">'
-        f'&#x1F4E1; <b>Live runner-health snapshot</b> &mdash; refreshed '
+        f'<div style="margin:0 0 14px 0;padding:10px 14px;background:{_src_chip[1]};'
+        f'border-left:4px solid {_src_chip[0]};border-radius:4px;font-size:12px;color:#1B1B1B">'
+        f'&#x1F4E1; <b>Runner-health snapshot</b> &mdash; source: '
+        f'<span style="background:{_src_chip[0]};color:#fff;padding:1px 8px;border-radius:10px;'
+        f'font-weight:600;font-size:11px">{_src}</span> &nbsp;'
+        f'<span style="color:#555">{_src_chip[2]}</span><br>'
+        f'&nbsp;&nbsp;&nbsp;&nbsp;refreshed '
         f'<b>{_RUNNER_HEALTH.refresh_time or "(time unknown)"}</b> '
-        f'(parsed from <a href="https://therock-runner-health.com/" target="_blank" rel="noopener" style="color:#1B5E20;font-weight:600">therock-runner-health.com</a>):'
+        f'(<a href="https://therock-runner-health.com/" target="_blank" rel="noopener" style="color:{_src_chip[0]};font-weight:600">therock-runner-health.com</a>):'
         f'<br>&nbsp;&nbsp;&nbsp;&nbsp;'
         f'<b>{_s.get("online", "?")}</b> online &middot; '
         f'<b>{_s.get("offline", "?")}</b> offline &middot; '
@@ -1098,10 +1128,11 @@ else:
     _live_status_banner = (
         f'<div style="margin:0 0 14px 0;padding:10px 14px;background:#FFF3E0;border-left:4px solid #F57C00;'
         f'border-radius:4px;font-size:12px;color:#777">'
-        f'&#x1F4E1; <b>Live status not available</b> &mdash; drop a saved page from '
-        f'<a href="https://therock-runner-health.com/" target="_blank" rel="noopener" style="color:#1565C0">'
-        f'therock-runner-health.com</a> as <code>TheRock Runner Health.mhtml</code> in this folder to enrich '
-        f'gfx groupings with live online/busy counts and queue-health badges.'
+        f'&#x1F4E1; <b>Runner-health data not available.</b> Resolution order: '
+        f'(1) drop a saved page from <a href="https://therock-runner-health.com/" target="_blank" rel="noopener" style="color:#1565C0">therock-runner-health.com</a> '
+        f'as <code>TheRock Runner Health.mhtml</code> in this folder, or '
+        f'(2) be on the AMD network so the live dashboard is reachable, or '
+        f'(3) ensure <code>runner_health_snapshot.json</code> is present in this folder.'
         f'</div>'
     )
 # Recomputed total counts based on new comprehensive sets
@@ -2329,6 +2360,30 @@ footer{{background:var(--amd-dark);color:#888;text-align:center;padding:16px;fon
   </div>
 </div>
 
+<div style="background:#FFF3E0;border-radius:8px;padding:16px 20px;border-left:4px solid #EF6C00">
+  <div style="font-weight:700;font-size:13px;color:#E65100;margin-bottom:10px">
+    &#128279; Source 5 &mdash; <a href="https://therock-runner-health.com/" target="_blank" rel="noopener" style="color:#E65100">therock-runner-health.com</a>
+    <span style="font-size:12.5px;font-weight:400"> (live runner fleet status, AMD-internal)</span>
+  </div>
+  <p style="font-size:12.5px;margin:0 0 6px 0">
+    <b>Populates:</b> the live online/offline/busy/idle counts and queue-health badges
+    shown next to every runner label in the &ldquo;Server count&rdquo; section, plus the
+    physical-machine deduplication used to reconcile declared vs. live capacity.
+  </p>
+  <div style="font-size:12.5px;color:#555">
+    <b>Data source priority</b> (handled by <code>runner_health_parser.load_runner_health_any</code>):<br>
+    (1) Local <code>TheRock Runner Health.mhtml</code> in this folder &mdash;
+        save the dashboard via <i>Save&nbsp;Page&nbsp;As&nbsp;&rarr;&nbsp;Webpage Single&nbsp;File</i>
+        while signed in on the AMD network. <b>Not committed to git.</b><br>
+    (2) Live HTTPS <code>GET</code> of the dashboard &mdash; usually fails for scripted
+        runs because the page is gated by GitHub OAuth, but works if your shell
+        already has session cookies / network access.<br>
+    (3) <code>runner_health_snapshot.json</code> &mdash; committed JSON cache of the last
+        successful parse. Refreshed automatically every time path&nbsp;(1) or&nbsp;(2)
+        succeeds, so most users transparently see recent numbers.
+  </div>
+</div>
+
 </div><!-- end grid -->
 
 <div style="margin-top:18px;background:#f5f5f5;border-radius:6px;padding:12px 18px;font-size:12.5px;color:#555">
@@ -2340,6 +2395,9 @@ footer{{background:var(--amd-dark);color:#888;text-align:center;padding:16px;fon
   <b>ROCm_CICD_Comprehensive.html</b> + <b>ROCm_CICD_Comprehensive.xlsx</b><br>
   <b>Resilience:</b> any clone failure transparently falls back to the committed
   <code>therock_ci_snapshot.json</code> / <code>inferencemax_snapshot.json</code>.
+  Runner-health enrichment uses its own three-tier chain
+  (local <code>.mhtml</code> &rarr; live HTTPS &rarr; committed
+  <code>runner_health_snapshot.json</code>).
 </div>
 
 </div>

@@ -114,7 +114,7 @@ footer{background:var(--amd-dark);color:#888;text-align:center;padding:16px;font
 <div class="page-header">
   <h1>ROCm CI/CD Matrix &mdash; TheRock &amp; InferenceMAX Ecosystems</h1>
   <p>Two distinct CI ecosystems in one view: <b>TheRock CI</b> (component builds, frameworks, runners) and <b>InferenceMAX CI</b> (AMD GPU inference benchmarking).</p>
-  <p style="margin-top:6px;opacity:.6;font-size:12px">&#128337; Last updated: May 12, 2026 03:39 AM PDT</p>
+  <p style="margin-top:6px;opacity:.6;font-size:12px">&#128337; Last updated: May 12, 2026 03:57 AM PDT</p>
   
 </div>
 <div class="ecosystem-banner therock">
@@ -2272,7 +2272,7 @@ footer{background:var(--amd-dark);color:#888;text-align:center;padding:16px;font
   Live per-machine status &mdash; including online / offline and queue health &mdash; is published at
   <a href="https://therock-runner-health.com/" target="_blank" rel="noopener" style="color:#1565C0;font-weight:600">therock-runner-health.com</a>.
 </p>
-<div style="margin:0 0 14px 0;padding:10px 14px;background:#E8F5E9;border-left:4px solid #2E7D32;border-radius:4px;font-size:12px;color:#1B5E20">&#x1F4E1; <b>Live runner-health snapshot</b> &mdash; refreshed <b>May 7, 5:10 AM PT</b> (parsed from <a href="https://therock-runner-health.com/" target="_blank" rel="noopener" style="color:#1B5E20;font-weight:600">therock-runner-health.com</a>):<br>&nbsp;&nbsp;&nbsp;&nbsp;<b>297</b> online &middot; <b>30</b> offline &middot; <b>153</b> busy &middot; <b>144</b> idle &nbsp;|&nbsp; <b>GPU pool:</b> 163/184 online (62 busy, 101 idle, 21 offline) &nbsp;|&nbsp; <b>CPU pool:</b> 96/96 online (91 busy, 5 idle)<br><span style="font-size:11px;color:#555">Each gfx group below shows live online/busy counts and queue-health badges per runner label (&#x26A0; = queue lag, &#x2713; = healthy). Hover badges for 6h job stats and worst queue time.</span></div>
+<div style="margin:0 0 14px 0;padding:10px 14px;background:#E8F5E9;border-left:4px solid #2E7D32;border-radius:4px;font-size:12px;color:#1B1B1B">&#x1F4E1; <b>Runner-health snapshot</b> &mdash; source: <span style="background:#2E7D32;color:#fff;padding:1px 8px;border-radius:10px;font-weight:600;font-size:11px">mhtml</span> &nbsp;<span style="color:#555">fresh — local <code>TheRock Runner Health.mhtml</code></span><br>&nbsp;&nbsp;&nbsp;&nbsp;refreshed <b>May 7, 5:10 AM PT</b> (<a href="https://therock-runner-health.com/" target="_blank" rel="noopener" style="color:#2E7D32;font-weight:600">therock-runner-health.com</a>):<br>&nbsp;&nbsp;&nbsp;&nbsp;<b>297</b> online &middot; <b>30</b> offline &middot; <b>153</b> busy &middot; <b>144</b> idle &nbsp;|&nbsp; <b>GPU pool:</b> 163/184 online (62 busy, 101 idle, 21 offline) &nbsp;|&nbsp; <b>CPU pool:</b> 96/96 online (91 busy, 5 idle)<br><span style="font-size:11px;color:#555">Each gfx group below shows live online/busy counts and queue-health badges per runner label (&#x26A0; = queue lag, &#x2713; = healthy). Hover badges for 6h job stats and worst queue time.</span></div>
 
 <!-- ── 1/3: COMPONENT CI MATRIX SERVER COUNTS BY TIER ───────────────── -->
 <h3 id="server-counts-component" style="margin:24px 0 8px 0;font-size:14px;color:#37474F;font-weight:700;border-bottom:2px solid #37474F;padding-bottom:4px">
@@ -3322,6 +3322,30 @@ footer{background:var(--amd-dark);color:#888;text-align:center;padding:16px;font
   </div>
 </div>
 
+<div style="background:#FFF3E0;border-radius:8px;padding:16px 20px;border-left:4px solid #EF6C00">
+  <div style="font-weight:700;font-size:13px;color:#E65100;margin-bottom:10px">
+    &#128279; Source 5 &mdash; <a href="https://therock-runner-health.com/" target="_blank" rel="noopener" style="color:#E65100">therock-runner-health.com</a>
+    <span style="font-size:12.5px;font-weight:400"> (live runner fleet status, AMD-internal)</span>
+  </div>
+  <p style="font-size:12.5px;margin:0 0 6px 0">
+    <b>Populates:</b> the live online/offline/busy/idle counts and queue-health badges
+    shown next to every runner label in the &ldquo;Server count&rdquo; section, plus the
+    physical-machine deduplication used to reconcile declared vs. live capacity.
+  </p>
+  <div style="font-size:12.5px;color:#555">
+    <b>Data source priority</b> (handled by <code>runner_health_parser.load_runner_health_any</code>):<br>
+    (1) Local <code>TheRock Runner Health.mhtml</code> in this folder &mdash;
+        save the dashboard via <i>Save&nbsp;Page&nbsp;As&nbsp;&rarr;&nbsp;Webpage Single&nbsp;File</i>
+        while signed in on the AMD network. <b>Not committed to git.</b><br>
+    (2) Live HTTPS <code>GET</code> of the dashboard &mdash; usually fails for scripted
+        runs because the page is gated by GitHub OAuth, but works if your shell
+        already has session cookies / network access.<br>
+    (3) <code>runner_health_snapshot.json</code> &mdash; committed JSON cache of the last
+        successful parse. Refreshed automatically every time path&nbsp;(1) or&nbsp;(2)
+        succeeds, so most users transparently see recent numbers.
+  </div>
+</div>
+
 </div><!-- end grid -->
 
 <div style="margin-top:18px;background:#f5f5f5;border-radius:6px;padding:12px 18px;font-size:12.5px;color:#555">
@@ -3333,6 +3357,9 @@ footer{background:var(--amd-dark);color:#888;text-align:center;padding:16px;font
   <b>ROCm_CICD_Comprehensive.html</b> + <b>ROCm_CICD_Comprehensive.xlsx</b><br>
   <b>Resilience:</b> any clone failure transparently falls back to the committed
   <code>therock_ci_snapshot.json</code> / <code>inferencemax_snapshot.json</code>.
+  Runner-health enrichment uses its own three-tier chain
+  (local <code>.mhtml</code> &rarr; live HTTPS &rarr; committed
+  <code>runner_health_snapshot.json</code>).
 </div>
 
 </div>
@@ -3467,7 +3494,7 @@ footer{background:var(--amd-dark);color:#888;text-align:center;padding:16px;font
 
 </div>
 
-<footer>ROCm CI/CD Matrix &mdash; Last updated: May 12, 2026 03:39 AM PDT &bull; AMD Advanced Micro Devices &bull; Data sourced from TheRock/.github/workflows &amp; amdgpu_family_matrix.py</footer>
+<footer>ROCm CI/CD Matrix &mdash; Last updated: May 12, 2026 03:57 AM PDT &bull; AMD Advanced Micro Devices &bull; Data sourced from TheRock/.github/workflows &amp; amdgpu_family_matrix.py</footer>
 
 <script>
 function filterTable(){
