@@ -2289,7 +2289,7 @@ footer{{background:var(--amd-dark);color:#888;text-align:center;padding:16px;fon
   <table style="width:100%;font-size:12.5px;border-collapse:collapse">
     <thead><tr><th style="text-align:left;padding:4px 8px;background:#1565C0;color:#fff">File</th><th style="text-align:left;padding:4px 8px;background:#1565C0;color:#fff">What it populates</th></tr></thead>
     <tbody>
-      <tr><td style="padding:4px 8px;border-bottom:1px solid #ddd"><a href="https://github.com/ROCm/TheRock/blob/main/amdgpu_family_matrix.py" target="_blank" rel="noopener">amdgpu_family_matrix.py</a></td><td style="padding:4px 8px;border-bottom:1px solid #ddd">Runner labels per GPU family, GPU ISA strings (gfx94X, gfx950, &hellip;), nightly-only flags</td></tr>
+      <tr><td style="padding:4px 8px;border-bottom:1px solid #ddd"><a href="https://github.com/ROCm/TheRock/blob/main/build_tools/github_actions/amdgpu_family_matrix.py" target="_blank" rel="noopener">build_tools/github_actions/amdgpu_family_matrix.py</a></td><td style="padding:4px 8px;border-bottom:1px solid #ddd">Runner labels per GPU family, GPU ISA strings (gfx94X, gfx950, &hellip;), nightly-only flags</td></tr>
       <tr><td style="padding:4px 8px;border-bottom:1px solid #ddd"><a href="https://github.com/ROCm/TheRock/blob/main/BUILD_TOPOLOGY.toml" target="_blank" rel="noopener">BUILD_TOPOLOGY.toml</a></td><td style="padding:4px 8px;border-bottom:1px solid #ddd">Component &rarr; super-repo mapping (rocm-libraries / rocm-systems / TheRock)</td></tr>
       <tr><td style="padding:4px 8px;border-bottom:1px solid #ddd"><a href="https://github.com/ROCm/TheRock/blob/main/.gitmodules" target="_blank" rel="noopener">.gitmodules</a></td><td style="padding:4px 8px;border-bottom:1px solid #ddd">Direct submodule list — identifies components tested inside TheRock itself</td></tr>
       <tr><td style="padding:4px 8px"><a href="https://github.com/ROCm/TheRock/blob/main/.github/workflows/ci_nightly.yml" target="_blank" rel="noopener">ci_nightly.yml</a></td><td style="padding:4px 8px">Nightly schedule time, GPU family test matrix for the nightly tier</td></tr>
@@ -2298,8 +2298,9 @@ footer{{background:var(--amd-dark);color:#888;text-align:center;padding:16px;fon
   <div style="font-size:12.5px;color:#555;margin-top:8px">
     <b>Workflow files also used (for CI Tiers section):</b>
     <a href="https://github.com/ROCm/TheRock/blob/main/.github/workflows/ci.yml" target="_blank" rel="noopener">ci.yml</a> &bull;
-    <a href="https://github.com/ROCm/TheRock/blob/main/.github/workflows/ci_postsubmit.yml" target="_blank" rel="noopener">ci_postsubmit.yml</a> &bull;
     <a href="https://github.com/ROCm/TheRock/blob/main/.github/workflows/ci_asan.yml" target="_blank" rel="noopener">ci_asan.yml</a> &bull;
+    <a href="https://github.com/ROCm/TheRock/blob/main/.github/workflows/ci_tsan.yml" target="_blank" rel="noopener">ci_tsan.yml</a> &bull;
+    <a href="https://github.com/ROCm/TheRock/blob/main/.github/workflows/multi_arch_ci.yml" target="_blank" rel="noopener">multi_arch_ci.yml</a> &bull;
     <a href="https://github.com/ROCm/TheRock/blob/main/.github/workflows/multi_arch_release.yml" target="_blank" rel="noopener">multi_arch_release.yml</a>
   </div>
 </div>

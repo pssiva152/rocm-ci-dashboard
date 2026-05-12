@@ -114,7 +114,7 @@ footer{background:var(--amd-dark);color:#888;text-align:center;padding:16px;font
 <div class="page-header">
   <h1>ROCm CI/CD Matrix &mdash; TheRock &amp; InferenceMAX Ecosystems</h1>
   <p>Two distinct CI ecosystems in one view: <b>TheRock CI</b> (component builds, frameworks, runners) and <b>InferenceMAX CI</b> (AMD GPU inference benchmarking).</p>
-  <p style="margin-top:6px;opacity:.6;font-size:12px">&#128337; Last updated: May 12, 2026 04:53 AM PDT</p>
+  <p style="margin-top:6px;opacity:.6;font-size:12px">&#128337; Last updated: May 12, 2026 05:19 AM PDT</p>
   
 </div>
 <div class="ecosystem-banner therock">
@@ -3264,7 +3264,7 @@ footer{background:var(--amd-dark);color:#888;text-align:center;padding:16px;font
   <table style="width:100%;font-size:12.5px;border-collapse:collapse">
     <thead><tr><th style="text-align:left;padding:4px 8px;background:#1565C0;color:#fff">File</th><th style="text-align:left;padding:4px 8px;background:#1565C0;color:#fff">What it populates</th></tr></thead>
     <tbody>
-      <tr><td style="padding:4px 8px;border-bottom:1px solid #ddd"><a href="https://github.com/ROCm/TheRock/blob/main/amdgpu_family_matrix.py" target="_blank" rel="noopener">amdgpu_family_matrix.py</a></td><td style="padding:4px 8px;border-bottom:1px solid #ddd">Runner labels per GPU family, GPU ISA strings (gfx94X, gfx950, &hellip;), nightly-only flags</td></tr>
+      <tr><td style="padding:4px 8px;border-bottom:1px solid #ddd"><a href="https://github.com/ROCm/TheRock/blob/main/build_tools/github_actions/amdgpu_family_matrix.py" target="_blank" rel="noopener">build_tools/github_actions/amdgpu_family_matrix.py</a></td><td style="padding:4px 8px;border-bottom:1px solid #ddd">Runner labels per GPU family, GPU ISA strings (gfx94X, gfx950, &hellip;), nightly-only flags</td></tr>
       <tr><td style="padding:4px 8px;border-bottom:1px solid #ddd"><a href="https://github.com/ROCm/TheRock/blob/main/BUILD_TOPOLOGY.toml" target="_blank" rel="noopener">BUILD_TOPOLOGY.toml</a></td><td style="padding:4px 8px;border-bottom:1px solid #ddd">Component &rarr; super-repo mapping (rocm-libraries / rocm-systems / TheRock)</td></tr>
       <tr><td style="padding:4px 8px;border-bottom:1px solid #ddd"><a href="https://github.com/ROCm/TheRock/blob/main/.gitmodules" target="_blank" rel="noopener">.gitmodules</a></td><td style="padding:4px 8px;border-bottom:1px solid #ddd">Direct submodule list — identifies components tested inside TheRock itself</td></tr>
       <tr><td style="padding:4px 8px"><a href="https://github.com/ROCm/TheRock/blob/main/.github/workflows/ci_nightly.yml" target="_blank" rel="noopener">ci_nightly.yml</a></td><td style="padding:4px 8px">Nightly schedule time, GPU family test matrix for the nightly tier</td></tr>
@@ -3273,8 +3273,9 @@ footer{background:var(--amd-dark);color:#888;text-align:center;padding:16px;font
   <div style="font-size:12.5px;color:#555;margin-top:8px">
     <b>Workflow files also used (for CI Tiers section):</b>
     <a href="https://github.com/ROCm/TheRock/blob/main/.github/workflows/ci.yml" target="_blank" rel="noopener">ci.yml</a> &bull;
-    <a href="https://github.com/ROCm/TheRock/blob/main/.github/workflows/ci_postsubmit.yml" target="_blank" rel="noopener">ci_postsubmit.yml</a> &bull;
     <a href="https://github.com/ROCm/TheRock/blob/main/.github/workflows/ci_asan.yml" target="_blank" rel="noopener">ci_asan.yml</a> &bull;
+    <a href="https://github.com/ROCm/TheRock/blob/main/.github/workflows/ci_tsan.yml" target="_blank" rel="noopener">ci_tsan.yml</a> &bull;
+    <a href="https://github.com/ROCm/TheRock/blob/main/.github/workflows/multi_arch_ci.yml" target="_blank" rel="noopener">multi_arch_ci.yml</a> &bull;
     <a href="https://github.com/ROCm/TheRock/blob/main/.github/workflows/multi_arch_release.yml" target="_blank" rel="noopener">multi_arch_release.yml</a>
   </div>
 </div>
@@ -3499,7 +3500,7 @@ footer{background:var(--amd-dark);color:#888;text-align:center;padding:16px;font
 
 </div>
 
-<footer>ROCm CI/CD Matrix &mdash; Last updated: May 12, 2026 04:53 AM PDT &bull; AMD Advanced Micro Devices &bull; Data sourced from TheRock/.github/workflows &amp; amdgpu_family_matrix.py</footer>
+<footer>ROCm CI/CD Matrix &mdash; Last updated: May 12, 2026 05:19 AM PDT &bull; AMD Advanced Micro Devices &bull; Data sourced from TheRock/.github/workflows &amp; amdgpu_family_matrix.py</footer>
 
 <script>
 function filterTable(){

@@ -1282,7 +1282,8 @@ ws9.set_row(0, 28)
 ws9.set_row(1, 18)
 ws9.merge_range(0, 0, 0, 2,
     "How Data Is Fetched — fetch_rocm_data.py pulls from 4 GitHub repos "
-    "(auth: 5 000 req/hr with GITHUB_TOKEN; unauth: 60 req/hr with local-clone fallback)",
+    "via anonymous sparse git clone (public repos) + SSH sparse clone (InferenceMAX_rocm); "
+    "falls back to committed JSON snapshots if any clone fails",
     _src_hdr_fmt)
 
 for ci, h in enumerate(["File / Endpoint", "What It Populates", "GitHub Link"]):
@@ -1291,9 +1292,9 @@ for ci, h in enumerate(["File / Endpoint", "What It Populates", "GitHub Link"]):
 _DS_ROWS = [
     # (source_label, color, file, description, url)
     ("Source 1 — ROCm/TheRock", _DS_BLUE,
-     "amdgpu_family_matrix.py",
+     "build_tools/github_actions/amdgpu_family_matrix.py",
      "Runner labels per GPU family, GPU ISA strings (gfx94X, gfx950, …), nightly-only flags",
-     "https://github.com/ROCm/TheRock/blob/main/amdgpu_family_matrix.py"),
+     "https://github.com/ROCm/TheRock/blob/main/build_tools/github_actions/amdgpu_family_matrix.py"),
     ("", _DS_BLUE,
      "BUILD_TOPOLOGY.toml",
      "Component → super-repo mapping (rocm-libraries / rocm-systems / TheRock)",
@@ -1311,13 +1312,17 @@ _DS_ROWS = [
      "Pre-commit tier — PR trigger, quick builds across core GPU families",
      "https://github.com/ROCm/TheRock/blob/main/.github/workflows/ci.yml"),
     ("", _DS_BLUE,
-     "ci_postsubmit.yml",
-     "Post-commit tier — triggered by submodule bump merges",
-     "https://github.com/ROCm/TheRock/blob/main/.github/workflows/ci_postsubmit.yml"),
-    ("", _DS_BLUE,
      "ci_asan.yml",
-     "ASAN sanitizer builds",
+     "ASAN sanitizer builds (gfx94X test pool)",
      "https://github.com/ROCm/TheRock/blob/main/.github/workflows/ci_asan.yml"),
+    ("", _DS_BLUE,
+     "ci_tsan.yml",
+     "TSAN sanitizer builds",
+     "https://github.com/ROCm/TheRock/blob/main/.github/workflows/ci_tsan.yml"),
+    ("", _DS_BLUE,
+     "multi_arch_ci.yml",
+     "Multi-arch CI matrix (Linux + Windows GPU families)",
+     "https://github.com/ROCm/TheRock/blob/main/.github/workflows/multi_arch_ci.yml"),
     ("", _DS_BLUE,
      "multi_arch_release.yml",
      "Release pipeline (workflow_dispatch)",
@@ -1325,11 +1330,11 @@ _DS_ROWS = [
     ("Source 2 — ROCm/rocm-libraries", _DS_GREEN,
      "projects/ (directory listing)",
      "Discovers all library component names (rocBLAS, hipBLAS, MIOpen, rocFFT, …). Every subdirectory is treated as an active CI component.",
-     "https://api.github.com/repos/ROCm/rocm-libraries/contents/projects"),
+     "https://github.com/ROCm/rocm-libraries/tree/main/projects"),
     ("Source 3 — ROCm/rocm-systems", _DS_ORANGE,
      "projects/ (directory listing)",
      "Discovers all system component names (RCCL, rocminfo, ROCm-SMI, …).",
-     "https://api.github.com/repos/ROCm/rocm-systems/contents/projects"),
+     "https://github.com/ROCm/rocm-systems/tree/main/projects"),
     ("Source 4 — ROCm/InferenceMAX_rocm", _DS_PURPLE,
      "amd-master.yaml",
      "All 34 AMD benchmark configs — model, GPU runner, precision, framework, pinned Docker image",
