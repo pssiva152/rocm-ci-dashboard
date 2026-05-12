@@ -811,43 +811,32 @@ def _normalize_isa(isa: str) -> tuple:
     return (short, "")
 
 def _live_status_chip(label: str) -> str:
-    """Render an inline live status chip from runner-health data, or '' if none."""
+    """Render the inline live online/busy/idle/offline split for a runner
+    label, or '' if no live data exists. Plain numeric breakdown — no
+    badges, no status pills (kept executive-friendly)."""
     if not _RUNNER_HEALTH:
         return ""
     busy, idle = _RUNNER_HEALTH.label_busy_idle(label)
     online = busy + idle
-    metrics = _RUNNER_HEALTH.per_label.get(label, {})
-    status   = metrics.get("status", "unknown")
-    med_q    = metrics.get("median_queue", "")
-    worst_q  = metrics.get("worst_queue", "")
-    jobs_6h  = metrics.get("jobs_6h", "")
-    if online == 0 and not metrics:
+    if online == 0:
         return ""
-    badge_color = {"bad": "#F9A825", "ok": "#2E7D32"}.get(status, "#888")  # yellow for lag, green for ok
-    badge_fg    = {"bad": "#000",     "ok": "#fff"   }.get(status, "#fff")  # dark text on yellow for contrast
-    badge_text  = {"bad": "&#x26A0; queue lag", "ok": "&#x2713; healthy"}.get(status, "")
-    badge = (f' <span title="6h: {jobs_6h} jobs &bull; median queue {med_q} &bull; worst {worst_q}" '
-             f'style="display:inline-block;padding:0 6px;border-radius:8px;background:{badge_color};color:{badge_fg};font-size:10px;font-weight:700">{badge_text}</span>'
-             if badge_text else "")
-    live = ""
-    if online > 0:
-        # Include offline derived from snapshot count when we know it
-        snap_total = _runner_counts.get(label, 0)
-        offline = max(0, snap_total - online) if snap_total else 0
-        off_part = f" &middot; <b>{offline}</b> offline" if offline else ""
-        live = (f' <span style="color:#1B5E20" '
-                f'title="Snapshot says {snap_total} physical nodes for this label. '
-                f'Dashboard enumerates {online} online runners ({busy} busy + {idle} idle). '
-                f'The remaining {offline} are offline or unreachable.">'
-                f'&#x25CF; live: <b>{online}</b> online ({busy} busy / {idle} idle){off_part}</span>')
-    return live + badge
+    snap_total = _runner_counts.get(label, 0)
+    offline = max(0, snap_total - online) if snap_total else 0
+    off_part = f" &middot; <b>{offline}</b> offline" if offline else ""
+    return (f' <span style="color:#1B5E20" '
+            f'title="Snapshot: {snap_total} declared nodes for this label. '
+            f'Dashboard enumerates {online} online runners ({busy} busy + {idle} idle). '
+            f'The remaining {offline} are offline or unreachable.">'
+            f'&#x25CF; live: <b>{online}</b> online ({busy} busy / {idle} idle){off_part}</span>')
 
 
 def _runner_labels_by_gfx_html(labels: list) -> str:
     """Render the given runner labels grouped by gfx family.
-    Each row shows: family / GPU description / subtotal / per-label breakdown.
-    When runner-health data is loaded, also shows live online/busy/idle counts
-    and a queue-health badge per label."""
+    Each row shows: family / GPU description / subtotal / per-label count.
+    When runner-health data is loaded, also shows the live
+    online / busy / idle / offline split per label. Pool-type badges and
+    queue-health pills are intentionally omitted to keep the column
+    executive-readable; pool composition lives in the Comments column."""
     from collections import OrderedDict
     groups = OrderedDict()
     for label in labels:
@@ -894,10 +883,9 @@ def _runner_labels_by_gfx_html(labels: list) -> str:
         )
         for label, count, _plat in info["items"]:
             chip = _live_status_chip(label)
-            ptag = _pool_tag(label)
             parts.append(
                 f'<div style="margin-left:14px;color:#333">&bull; '
-                f'<code style="font-size:12px;color:#1565C0">{label}</code>{ptag} = <b>{count}</b>{chip}</div>'
+                f'<code style="font-size:12px;color:#1565C0">{label}</code> = <b>{count}</b>{chip}</div>'
             )
         parts.append('</div>')
     parts.append('</div>')
@@ -969,7 +957,7 @@ def _gfx_os_breakdown_html(labels: list, include_caveats: bool = True) -> str:
              '<table style="border-collapse:collapse;font-size:11px;width:100%;margin-bottom:4px">'
              '<thead><tr style="color:#fff;font-weight:700">'
              '<th style="padding:3px 6px;text-align:left;border:1px solid #CFD8DC;background:#37474F">gfx</th>'
-             '<th style="padding:3px 6px;text-align:center;border:1px solid #CFD8DC;background:#546E7A" title="Total = Online + Offline (per snapshot in RUNNER_DATA). &#10;&#10;Bare-metal pools: fixed physical machines. &#10;ARC-GPU pools: current ephemeral runner capacity (autoscaling, point-in-time). &#10;ARC-VM pools: build-only Azure VMs (excluded from GPU breakdowns). &#10;&#10;Hover the BM / ARC-GPU / VM badges next to each label for pool type details.">Total</th>'
+             '<th style="padding:3px 6px;text-align:center;border:1px solid #CFD8DC;background:#546E7A" title="Total = declared physical nodes per RUNNER_DATA snapshot. Online + Offline.">Total</th>'
              '<th style="padding:3px 6px;text-align:center;border:1px solid #2E7D32;background:#2E7D32">Online</th>'
              '<th style="padding:3px 6px;text-align:center;border:1px solid #C62828;background:#C62828">Offline</th>'
              '<th style="padding:3px 6px;text-align:left;border:1px solid #CFD8DC;background:#37474F">Per-OS</th>'
@@ -1120,8 +1108,7 @@ if _RUNNER_HEALTH:
         f'&nbsp;|&nbsp; '
         f'<b>CPU pool:</b> {_cpu.get("online","?")}/{_cpu.get("total","?")} online '
         f'({_cpu.get("busy","?")} busy, {_cpu.get("idle","?")} idle)'
-        f'<br><span style="font-size:11px;color:#555">Each gfx group below shows live online/busy counts and queue-health badges per runner label '
-        f'(&#x26A0; = queue lag, &#x2713; = healthy). Hover badges for 6h job stats and worst queue time.</span>'
+        f'<br><span style="font-size:11px;color:#555">Each gfx group below shows the declared count plus live online / busy / idle / offline split per runner label.</span>'
         f'</div>'
     )
 else:
