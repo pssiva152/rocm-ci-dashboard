@@ -318,14 +318,13 @@ def load_runner_health(path: str | Path) -> Optional[RunnerHealth]:
         return None
 
 
-def fetch_live(url: str = "https://therock-runner-health.com/",
-               timeout: float = 10.0) -> Optional[RunnerHealth]:
-    """Attempt an anonymous HTTPS GET against the live dashboard.
+def _fetch_live_anonymous(url: str, timeout: float) -> Optional[str]:
+    """Cheap anonymous urllib GET. Returns HTML body or None.
 
-    The dashboard sits behind GitHub OAuth, so an unauthenticated script
-    typically gets redirected to a GitHub sign-in page. We detect that
-    case (and any network error) and return None so the caller can fall
-    through to the JSON snapshot.
+    Almost always returns None for therock-runner-health.com (the URL is
+    GitHub-OAuth-gated and we get a sign-in page back), but it's a 1-second
+    probe that's worth keeping in case the dashboard ever opens up or the
+    user happens to be on a network that proxies in cookies.
     """
     req = urllib.request.Request(
         url,
@@ -339,17 +338,52 @@ def fetch_live(url: str = "https://therock-runner-health.com/",
             final_url = resp.geturl()
             body = resp.read().decode("utf-8", errors="replace")
     except (urllib.error.URLError, urllib.error.HTTPError, OSError, ValueError) as e:
-        print(f"[runner_health_parser] live fetch FAIL: {e}")
+        print(f"[runner_health_parser] anonymous live fetch FAIL: {e}")
         return None
 
-    # If we got bounced to GitHub's OAuth/sign-in flow, there's no usable
-    # data in the body — bail out so the snapshot fallback can run.
     if "github.com" in final_url.lower() or "<title>Sign in to GitHub" in body:
-        print("[runner_health_parser] live fetch: redirected to GitHub login "
-              "(needs an authenticated browser session — falling back).")
+        print("[runner_health_parser] anonymous live fetch: redirected to GitHub login.")
+        return None
+    return body
+
+
+def _fetch_live_playwright(url: str) -> Optional[str]:
+    """Try the Playwright-based fetch (persistent Chromium profile). Returns
+    HTML body or None. Disabled by RUNNER_HEALTH_NO_PLAYWRIGHT=1; silently
+    no-ops when the playwright package isn't installed."""
+    try:
+        from runner_health_playwright import fetch_via_playwright
+    except ImportError:
+        return None
+    try:
+        return fetch_via_playwright(url)
+    except Exception as e:
+        print(f"[runner_health_parser] playwright fetch FAIL: {e}")
         return None
 
-    rh = _parse_html(body)
+
+def fetch_live(url: str = "https://therock-runner-health.com/",
+               timeout: float = 10.0) -> Optional[RunnerHealth]:
+    """Attempt to fetch the live dashboard via two mechanisms in order:
+
+      (a) Anonymous urllib GET — fast probe; almost always falls through
+          because the dashboard is gated by GitHub OAuth.
+      (b) Playwright with persistent Chromium profile — opt-in (requires
+          `pip install playwright && python -m playwright install chromium`).
+          First run is interactive (visible browser for one-time GitHub
+          sign-in); subsequent runs are silent and headless using the
+          cached session.
+
+    Returns a parsed `RunnerHealth` on success, or None so the caller can
+    fall through to the JSON snapshot.
+    """
+    html = _fetch_live_anonymous(url, timeout)
+    if html is None:
+        html = _fetch_live_playwright(url)
+    if html is None:
+        return None
+
+    rh = _parse_html(html)
     if rh is None:
         print("[runner_health_parser] live fetch: response did not look like "
               "the runner-health dashboard — falling back.")

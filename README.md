@@ -16,7 +16,7 @@ Instead, it now uses **anonymous `git clone`** for the public repos and **SSH `g
 | `ROCm/rocm-libraries` | public | `git clone` (HTTPS, metadata only) | none | `therock_ci_snapshot.json` |
 | `ROCm/rocm-systems` | public | `git clone` (HTTPS, metadata only) | none | `therock_ci_snapshot.json` |
 | `ROCm/InferenceMAX_rocm` | private | `git clone` (SSH, sparse) | SSH key registered with GitHub | `inferencemax_snapshot.json` |
-| `therock-runner-health.com` | AMD-internal | local `.mhtml` → live HTTPS GET | AMD VPN + GitHub-authenticated browser session | `runner_health_snapshot.json` |
+| `therock-runner-health.com` | AMD-internal | local `.mhtml` → Playwright (persistent Chromium profile) → live HTTPS GET | AMD VPN + GitHub sign-in (one-time, via Chromium) | `runner_health_snapshot.json` |
 
 If any of these primary sources fail (no network, git missing, SSH key not configured, repo unreachable, dashboard requires login), the fetcher transparently falls back to the **last good JSON snapshot** committed alongside the script.
 
@@ -30,6 +30,7 @@ If any of these primary sources fail (no network, git missing, SSH key not confi
 | **`git`** on `PATH` | All live data fetching goes through `git clone` |
 | `pip install xlsxwriter` | Required for the Excel workbook |
 | `pip install pyyaml` *(optional)* | Only needed by `create_snapshots.py` if you build snapshots from a local `InferenceMAX_rocm/` clone |
+| `pip install playwright` + `python -m playwright install chromium` *(optional)* | Enables silent live fetching of `therock-runner-health.com`; without it the report falls back to the committed `runner_health_snapshot.json`. See [Refreshing the runner-health snapshot](#refreshing-the-runner-health-snapshot-amd-vpn-required) |
 | **SSH key registered with GitHub** *(optional)* | Only needed for live `ROCm/InferenceMAX_rocm` data; without it the fetcher falls back to the local clone or the JSON snapshot |
 
 ---
@@ -108,14 +109,21 @@ Use this when:
 │     (saved manually from the dashboard while signed in on AMD VPN;   │
 │      NEVER committed — it's a verbatim copy of an internal page)     │
 │       ↓ not present ↓                                                │
-│  ② anonymous HTTPS GET of https://therock-runner-health.com/         │
-│     (will succeed only if your shell can reach the host AND the      │
-│      response isn't bounced to a GitHub OAuth login page)            │
-│       ↓ fails (page gated, host unreachable, parse mismatch) ↓       │
+│  ②a anonymous HTTPS GET of https://therock-runner-health.com/        │
+│      (1-second probe; almost always falls through because the URL    │
+│       is gated by GitHub OAuth)                                      │
+│       ↓ falls through ↓                                              │
+│  ②b Playwright + persistent Chromium profile  [opt-in dependency]    │
+│      First run: visible browser → you sign in to GitHub → dashboard  │
+│      loads → script captures the HTML, refreshes the snapshot.       │
+│      Subsequent runs: silent / headless reuse of the cached session. │
+│      Auto-recovers when the session expires (re-opens visible).      │
+│       ↓ not installed / disabled / sign-in not completed ↓           │
 │  ③ runner_health_snapshot.json   ← committed to repo                 │
-│     (auto-refreshed every time path ① or ② succeeds, so even this    │
-│      committed cache stays current as long as one team-mate runs     │
-│      with the .mhtml present and pushes the regenerated snapshot)    │
+│     (auto-refreshed every time path ①, ②a or ②b succeeds, so even   │
+│      this committed cache stays current as long as one team-mate    │
+│      runs with .mhtml or Playwright and pushes the regenerated      │
+│      snapshot)                                                       │
 └──────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -133,7 +141,8 @@ TheRock_CI-CD/
 ├── rocm_report_bundle.py        # Single entry point — LIVE or --snapshot
 ├── create_snapshots.py          # Dev tool: rebuild snapshots from static defaults + local InferenceMAX clone
 ├── create_bundle.py             # Dev tool: rebuild rocm_report_bundle.py from sources
-├── runner_health_parser.py      # Parses TheRock Runner Health.mhtml for live online/busy data
+├── runner_health_parser.py      # Loads runner-health data: mhtml → live HTTPS → Playwright → JSON snapshot
+├── runner_health_playwright.py  # Optional: drives Chromium with a persistent profile to fetch the dashboard live
 │
 ├── rocm_ci_data.py              # COMMITTED snapshot — full COMPONENTS / RUNNER_DATA / TIER_DATA / etc.
 ├── therock_ci_snapshot.json     # COMMITTED snapshot — raw text of TheRock files (matrix, topology, …)
@@ -236,29 +245,65 @@ Once SSH is set up, every `python fetch_rocm_data.py` run will pick up the lates
 
 ## Refreshing the runner-health snapshot (AMD VPN required)
 
-`runner_health_snapshot.json` is the public-facing cache of live runner-fleet status (online/offline/busy/idle counts, per-label queue lag, per-machine details). It is committed to the repo so the report always renders. To refresh it:
+`runner_health_snapshot.json` is the public-facing cache of live runner-fleet status (online/offline/busy/idle counts, per-label queue lag, per-machine details). It is committed to the repo so the report always renders. There are **two ways** to refresh it — pick whichever fits your workflow:
+
+### Option A — Playwright (recommended; sign in once, fully automatic afterwards)
+
+The dashboard is gated by GitHub OAuth, so a plain HTTP `GET` from a script is bounced to the GitHub sign-in page. Playwright drives Chromium with a *persistent* user-data directory: you sign in **once** in a real browser, and every future run silently reuses that session — no `.mhtml` to babysit.
+
+**One-time setup:**
+```bash
+pip install playwright
+python -m playwright install chromium    # ~300 MB Chromium download
+```
+
+**First run (interactive — opens a Chromium window):**
+```bash
+python generate_rocm_html.py
+# → "[runner_health_playwright] First run: opening Chromium for GitHub OAuth sign-in..."
+# → a Chromium window appears at https://therock-runner-health.com/
+# → click "Sign in with GitHub", complete the OAuth flow
+# → as soon as the dashboard renders, the script captures the HTML and continues
+```
+
+**Subsequent runs (silent — no window, ~5s overhead):**
+```bash
+python generate_rocm_html.py
+# → "[runner_health_playwright] Reusing cached session (profile: ~/.rocm-cicd-report/playwright-profile)"
+# → headless Chromium fetches the dashboard
+# → snapshot is automatically refreshed
+```
+
+When your GitHub session eventually expires (every few days), the script auto-falls-back to a visible browser window so you can re-authenticate, then silent runs resume.
+
+**Environment overrides:**
+
+| Env var | Purpose | Default |
+|---|---|---|
+| `RUNNER_HEALTH_NO_PLAYWRIGHT=1` | Skip the Playwright path entirely (use this in CI / unattended jobs) | unset |
+| `RUNNER_HEALTH_PLAYWRIGHT_PROFILE` | Persistent profile location | `~/.rocm-cicd-report/playwright-profile` |
+| `RUNNER_HEALTH_PLAYWRIGHT_TIMEOUT` | Seconds to wait for first-run sign-in | `300` |
+
+### Option B — Save the page as MHTML manually (no extra deps)
 
 1. **On AMD VPN**, open <https://therock-runner-health.com/> in a browser and sign in with GitHub.
 2. **Save the page** as `TheRock Runner Health.mhtml` in this folder
    *(Edge / Chrome → "Save page as…" → "Webpage, Single File")*. The file name must match exactly (or any of the other four names listed in `.gitignore`).
-3. Run any of the generators:
-   ```bash
-   python generate_rocm_html.py        # or
-   python rocm_report_bundle.py        # full report
-   ```
-   The runner-health loader detects the `.mhtml`, parses it, and **automatically rewrites** `runner_health_snapshot.json` so that downstream users without VPN access still see your refreshed numbers.
-4. Commit the regenerated snapshot:
-   ```bash
-   git add runner_health_snapshot.json
-   git commit -m "chore: refresh runner-health snapshot"
-   git push
-   ```
+3. Run any of the generators — the loader detects the `.mhtml`, parses it, and rewrites `runner_health_snapshot.json` automatically.
+
+### Either way: commit the regenerated snapshot for everyone else
+
+```bash
+git add runner_health_snapshot.json
+git commit -m "chore: refresh runner-health snapshot"
+git push
+```
 
 > **Why isn't the `.mhtml` in the repo?**
 > It's a verbatim copy of an AMD-internal dashboard page (with internal hostnames, GitHub session metadata, etc.). The parsed JSON snapshot is safe to publish — it's the same numerical data we already render in the public HTML report — but the raw page is not. `.gitignore` covers all four common name variants of the saved page.
 
 > **Resolution order at run time** (mirrored in `runner_health_parser.load_runner_health_any`):
-> ① local `.mhtml` → ② live HTTPS GET of the dashboard (usually fails for scripted runs because the URL requires a logged-in browser session) → ③ committed `runner_health_snapshot.json`. The HTML report shows a coloured chip indicating which path was actually used for the current build.
+> ① local `.mhtml` → ②a anonymous HTTPS GET → ②b Playwright with persistent Chromium profile → ③ committed `runner_health_snapshot.json`. The HTML report shows a coloured chip in the live-status banner indicating which path was actually used for the current build (green = mhtml, blue = live, orange = snapshot).
 
 ---
 
@@ -391,7 +436,25 @@ Either snapshots are out of date (run `python fetch_rocm_data.py` and commit the
 The fetcher already passes `-c core.longpaths=true` to every git command. If you still see issues, enable the Windows long-path policy: `git config --global core.longpaths true`.
 
 **Live-status banner shows orange "snapshot" chip even on AMD VPN**
-The live HTTPS fetch silently fell back because the request was bounced to GitHub's OAuth flow (the dashboard is gated by GitHub login). This is expected for any non-browser HTTP client. To get fresh numbers, save the dashboard page as `TheRock Runner Health.mhtml` in this folder and re-run — see the *Refreshing the runner-health snapshot* section above. The orange chip means the report is rendering from the last committed snapshot, which is always present.
+Either Playwright isn't installed (so we can't drive a real browser past the GitHub OAuth gate), or your cached Chromium session has expired and you haven't re-signed-in yet. Two ways to refresh:
+1. **Easiest**: `pip install playwright && python -m playwright install chromium`, then run any generator. A Chromium window will open for one-time GitHub sign-in; after that it's silent.
+2. **Manual**: save the dashboard page from your browser as `TheRock Runner Health.mhtml` in this folder and re-run.
+
+Either path automatically rewrites `runner_health_snapshot.json` so the chip turns green/blue.
+
+**Playwright says `Executable doesn't exist at .../chromium-XXXX/...`**
+Chromium binary wasn't downloaded. Run:
+```bash
+python -m playwright install chromium
+```
+
+**Playwright opens Chromium window every run instead of being silent**
+Your cached session keeps getting invalidated. Possible causes:
+- You're using `--incognito` somehow, or a profile-cleaning utility deletes cookies between runs.
+- You set `RUNNER_HEALTH_PLAYWRIGHT_PROFILE` to a path that gets wiped (e.g. `/tmp`).
+- GitHub revoked your OAuth grant; re-authorize once and it'll stick again.
+
+The default profile (`~/.rocm-cicd-report/playwright-profile/`) is persistent and survives reboots.
 
 **`AttributeError: 'RunnerHealth' object has no attribute …` after pulling latest**
 You have a stale `runner_health_snapshot.json` written by an older schema. Delete it and re-run:

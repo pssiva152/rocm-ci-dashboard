@@ -2375,11 +2375,16 @@ footer{{background:var(--amd-dark);color:#888;text-align:center;padding:16px;fon
     (1) Local <code>TheRock Runner Health.mhtml</code> in this folder &mdash;
         save the dashboard via <i>Save&nbsp;Page&nbsp;As&nbsp;&rarr;&nbsp;Webpage Single&nbsp;File</i>
         while signed in on the AMD network. <b>Not committed to git.</b><br>
-    (2) Live HTTPS <code>GET</code> of the dashboard &mdash; usually fails for scripted
-        runs because the page is gated by GitHub OAuth, but works if your shell
-        already has session cookies / network access.<br>
+    (2a) Anonymous HTTPS <code>GET</code> of the dashboard &mdash; 1-second probe;
+        almost always falls through because the URL is gated by GitHub OAuth.<br>
+    (2b) <b>Playwright</b> with persistent Chromium profile (opt-in dependency:
+        <code>pip install playwright &amp;&amp; python -m playwright install chromium</code>) &mdash;
+        first run pops a visible Chromium window for one-time GitHub sign-in,
+        every subsequent run reuses the cached session silently and headlessly.
+        Profile lives at <code>~/.rocm-cicd-report/playwright-profile</code> by default;
+        set <code>RUNNER_HEALTH_NO_PLAYWRIGHT=1</code> to skip on CI.<br>
     (3) <code>runner_health_snapshot.json</code> &mdash; committed JSON cache of the last
-        successful parse. Refreshed automatically every time path&nbsp;(1) or&nbsp;(2)
+        successful parse. Refreshed automatically every time path&nbsp;(1), (2a) or (2b)
         succeeds, so most users transparently see recent numbers.
   </div>
 </div>

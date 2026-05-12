@@ -1,6 +1,6 @@
 {
   "_schema_version": 1,
-  "_captured": "2026-05-12 03:57 AM PDT",
+  "_captured": "2026-05-12 04:31 AM PDT",
   "_source_note": "Snapshot of the parsed runner-health data. Used as a fallback when the .mhtml is absent and the live dashboard is unreachable.",
   "refresh_time": "May 7, 5:10 AM PT",
   "summary": {
