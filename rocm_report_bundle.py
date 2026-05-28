@@ -74,7 +74,6 @@ def main() -> None:
     _check_required()
 
     has_fetch = (HERE / "fetch_rocm_data.py").exists()
-    has_data  = (HERE / "rocm_ci_data.py").exists()
 
     print("=" * 60)
     print("  ROCm CI/CD Report Generator")
@@ -123,6 +122,7 @@ def main() -> None:
                 check=True,
                 cwd=str(tmp),
                 env={**os.environ},
+                timeout=900,
             )
         else:
             # ── SNAPSHOT-only: skip the fetcher entirely, run generators
@@ -132,12 +132,14 @@ def main() -> None:
             subprocess.run(
                 [sys.executable, str(tmp / "generate_rocm_html.py")],
                 check=True, cwd=str(tmp),
+                timeout=300,
             )
 
             print("\nGenerating Excel workbook...")
             subprocess.run(
                 [sys.executable, str(tmp / "generate_rocm_cicd.py")],
                 check=True, cwd=str(tmp),
+                timeout=300,
             )
 
         # ── Copy outputs (and updated snapshots) next to this bundle script ───

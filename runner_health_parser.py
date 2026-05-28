@@ -177,7 +177,11 @@ def _extract_html_part(mhtml_path: Path) -> str:
             cloc = part.get("Content-Location", "")
             if "runner-health" in cloc:
                 payload = part.get_payload(decode=True)
-                return payload.decode("utf-8", errors="replace") if isinstance(payload, bytes) else payload
+                if isinstance(payload, bytes):
+                    return payload.decode("utf-8", errors="replace")
+                if isinstance(payload, str):
+                    return payload
+                return ""
     return ""
 
 
@@ -262,7 +266,8 @@ def _parse_per_machine(html: str) -> list:
         re.S,
     )
     row_pat = re.compile(
-        r'<tr><td><b>([^<]+)</b></td><td>(yes|no)</td><td>([^<]*)</td></tr>'
+        r'<tr><td><b>([^<]+)</b></td><td>(yes|no)</td><td>([^<]*)</td></tr>',
+        re.S,
     )
     # ARC ephemeral runner naming: "<label>-<5-char-pool-id>-runner-<rand>"
     # The labels column is often empty for these because labels are inherited

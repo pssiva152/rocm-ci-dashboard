@@ -18,13 +18,19 @@ _exec_end = next(
     (i for i, l in enumerate(_src_lines) if "─── Summary counts" in l),
     560,  # fallback if marker moves
 )
-exec("".join(_src_lines[:_exec_end]))
+# Isolate exec into its own namespace so HTML-only locals don't leak in here.
+# Provide __file__ so the HTML generator can locate sibling files (e.g. rocm_ci_data.py).
+_html_ns: dict = {"__file__": str(_HERE / "generate_rocm_html.py")}
+exec("".join(_src_lines[:_exec_end]), _html_ns)
+COMPONENTS        = _html_ns["COMPONENTS"]
+INFERENCEMAX_DATA = _html_ns.get("INFERENCEMAX_DATA", [])
+INFERENCE_RUNNERS = _html_ns.get("INFERENCE_RUNNERS", {})
 OUT = _xlsx_out   # restore
 
 # ── Live data override for RUNNER_DATA / TIER_DATA (Excel-only data) ─────────
 _data_file2 = _HERE / "rocm_ci_data.py"
 if _data_file2.exists():
-    _data_ns2: dict = {}
+    _data_ns2: dict = {"__file__": str(_data_file2)}
     exec(_data_file2.read_text(encoding="utf-8"), _data_ns2)
     if "RUNNER_DATA" in _data_ns2:
         RUNNER_DATA = _data_ns2["RUNNER_DATA"]
@@ -258,6 +264,18 @@ FW_DATA = [
 # BUILD WORKBOOK
 # ════════════════════════════════════════════════════════════════════════════
 wb = xlsxwriter.Workbook(OUT)
+# Ensure the workbook is closed even if a later step fails — xlsxwriter holds
+# an open file handle on Windows and orphan workbooks corrupt the .xlsx output.
+import atexit as _atexit
+_wb_closed = [False]
+def _safe_close_wb() -> None:
+    if not _wb_closed[0]:
+        try:
+            wb.close()
+        except Exception:
+            pass
+        _wb_closed[0] = True
+_atexit.register(_safe_close_wb)
 
 def fmt(wb, **kw):
     return wb.add_format(kw)
@@ -683,7 +701,7 @@ for _ri, rec in enumerate(RUNNER_DATA, 1):
     f  = _f(bg_color=bg)
     ws4.set_row(row, auto_row_h(list(rec)))
     ws4.write(row, 0, _ri, f)
-    for ci2, v in enumerate(rec):
+    for ci2, v in enumerate(rec[:len(RUNNER_HEADERS)-1]):
         ws4.write(row, ci2+1, v, f)
     row += 1
 
@@ -981,19 +999,22 @@ if THEROCK_SNAPSHOT_TS or IMAX_SNAPSHOT_TS:
     _notice_fmt = fmt(wb, font_name="Arial", font_size=10, bold=True,
                       bg_color="#FFF8E1", font_color="#b26000",
                       border=1, text_wrap=True, valign="vcenter")
+    # Notices land 3 rows below the Grand Total (which occupies _sc_r);
+    # +3 leaves at least two clear rows so no earlier merge_range can collide.
+    _notice_row = _sc_r + 3
     if THEROCK_SNAPSHOT_TS:
-        ws1.write(_sc_r + 2, 0,
-                  f"⚠ TheRock CI data from cached snapshot ({THEROCK_SNAPSHOT_TS}) "
-                  f"— GitHub was unreachable or hit rate limits at report generation time.",
-                  _notice_fmt)
-        ws1.merge_range(_sc_r + 2, 0, _sc_r + 2, 6, "")  # extend across columns
+        ws1.merge_range(_notice_row, 0, _notice_row, 6,
+                        f"⚠ TheRock CI data from cached snapshot ({THEROCK_SNAPSHOT_TS}) "
+                        f"— GitHub was unreachable or hit rate limits at report generation time.",
+                        _notice_fmt)
+        ws1.set_row(_notice_row, 30)
+        _notice_row += 1
     if IMAX_SNAPSHOT_TS:
-        _imax_notice_row = _sc_r + (3 if THEROCK_SNAPSHOT_TS else 2)
-        ws1.write(_imax_notice_row, 0,
-                  f"⚠ InferenceMAX data from cached snapshot ({IMAX_SNAPSHOT_TS}) "
-                  f"— all live sources were unavailable at report generation time.",
-                  _notice_fmt)
-        ws1.merge_range(_imax_notice_row, 0, _imax_notice_row, 6, "")
+        ws1.merge_range(_notice_row, 0, _notice_row, 6,
+                        f"⚠ InferenceMAX data from cached snapshot ({IMAX_SNAPSHOT_TS}) "
+                        f"— all live sources were unavailable at report generation time.",
+                        _notice_fmt)
+        ws1.set_row(_notice_row, 30)
 
 # ── Sheet 6: InferenceMAX — AMD Benchmarks ───────────────────────────────────
 ws6 = wb.add_worksheet("InferenceMAX — AMD Benchmarks")
@@ -1269,7 +1290,6 @@ _DS_ORANGE = "#E65100"
 _DS_PURPLE = "#4A148C"
 
 _src_hdr_fmt  = _f(bold=True, font_color=WHITE, bg_color=_DS_HDR_GREY, font_size=11)
-_src_title_fmt = lambda color: _f(bold=True, font_color=WHITE, bg_color=color, font_size=10)
 _src_key_fmt  = _f(bold=True, bg_color="#F5F5F5", font_size=10)
 _src_val_fmt  = _f(bg_color="#FFFFFF", font_size=10)
 _src_note_fmt = _f(italic=True, font_color="#555555", bg_color="#FAFAFA", font_size=10)
@@ -1353,7 +1373,6 @@ _ds_row = 2
 _last_source = ""
 for src_label, color, fname, desc, url in _DS_ROWS:
     ws9.set_row(_ds_row, auto_row_h([desc]))
-    title_fmt = _src_title_fmt(color)
     label = src_label if src_label else _last_source
     if src_label:
         _last_source = src_label
@@ -1366,9 +1385,17 @@ for src_label, color, fname, desc, url in _DS_ROWS:
     # Color the row left border by source group via set_row won't work, so we
     # write the source label in col 0 with color when it changes
     if src_label:
-        ws9.write(_ds_row, 0, fname, _f(bold=True, bg_color=color + "22", font_size=10,
+        # Tint by blending color with white (xlsxwriter only accepts 6-digit hex).
+        def _tint(hex_color: str, ratio: float) -> str:
+            h = hex_color.lstrip("#")
+            r, g, b = int(h[0:2], 16), int(h[2:4], 16), int(h[4:6], 16)
+            r = int(r + (255 - r) * (1 - ratio))
+            g = int(g + (255 - g) * (1 - ratio))
+            b = int(b + (255 - b) * (1 - ratio))
+            return f"#{r:02X}{g:02X}{b:02X}"
+        ws9.write(_ds_row, 0, fname, _f(bold=True, bg_color=_tint(color, 0.18), font_size=10,
                                         font_color="#000000"))
-        ws9.write(_ds_row, 1, desc, _f(bg_color=color + "11", font_size=10))
+        ws9.write(_ds_row, 1, desc, _f(bg_color=_tint(color, 0.10), font_size=10))
     _ds_row += 1
 
 # Pipeline note row
@@ -1379,7 +1406,11 @@ ws9.merge_range(_ds_row, 0, _ds_row, 2,
     "ROCm_CICD_Comprehensive.html  +  ROCm_CICD_Comprehensive.xlsx",
     _src_note_fmt)
 
-wb.close()
+_sheet_count = len(wb.worksheets())
+try:
+    wb.close()
+finally:
+    _wb_closed[0] = True
 
 # ── Inject AMD "Internal Only" MIP sensitivity label ─────────────────────────
 # Label XML extracted from an existing AMD-labelled workbook.
@@ -1397,18 +1428,27 @@ _CONTENT_TYPE = (
 )
 
 _tmp_path = OUT + ".tmp"
-with _zf.ZipFile(OUT, "r") as _zin, _zf.ZipFile(_tmp_path, "w", _zf.ZIP_DEFLATED) as _zout:
-    for _item in _zin.infolist():
-        _data = _zin.read(_item.filename)
-        if _item.filename == "[Content_Types].xml":
-            _text = _data.decode("utf-8")
-            if "LabelInfo.xml" not in _text:
-                _text = _text.replace("</Types>", _CONTENT_TYPE + "</Types>")
-            _data = _text.encode("utf-8")
-        _zout.writestr(_item, _data)
-    if "docMetadata/LabelInfo.xml" not in _zin.namelist():
-        _zout.writestr("docMetadata/LabelInfo.xml", _LABEL_XML)
-_os.replace(_tmp_path, OUT)
+try:
+    with _zf.ZipFile(OUT, "r") as _zin, _zf.ZipFile(_tmp_path, "w", _zf.ZIP_DEFLATED) as _zout:
+        for _item in _zin.infolist():
+            _data = _zin.read(_item.filename)
+            if _item.filename == "[Content_Types].xml":
+                _text = _data.decode("utf-8")
+                if "LabelInfo.xml" not in _text:
+                    _text = _text.replace("</Types>", _CONTENT_TYPE + "</Types>")
+                _data = _text.encode("utf-8")
+            _zout.writestr(_item, _data)
+        if "docMetadata/LabelInfo.xml" not in _zin.namelist():
+            _zout.writestr("docMetadata/LabelInfo.xml", _LABEL_XML)
+    _os.replace(_tmp_path, OUT)
+except Exception:
+    # Clean up the temp file on any failure so we don't leave a stray .tmp
+    try:
+        if _os.path.exists(_tmp_path):
+            _os.remove(_tmp_path)
+    except OSError:
+        pass
+    raise
 
 total = len(COMPONENTS)
 non_fw = sum(1 for r in COMPONENTS if r[0] != "Frameworks")
@@ -1417,6 +1457,6 @@ ci_en = sum(1 for r in COMPONENTS if r[0] != "Frameworks" and r[4] in ("Yes","Pa
 print(f"Excel written: {OUT}")
 print(f"Components: {total} total ({non_fw} non-framework, {fw_rows} framework slots)")
 print(f"CI-Enabled (non-FW): {ci_en}")
-print(f"Runners: {len(RUNNER_DATA)}  |  Framework rows: {len(FW_DATA)}  |  Sheets: {len(wb.worksheets())}")
+print(f"Runners: {len(RUNNER_DATA)}  |  Framework rows: {len(FW_DATA)}  |  Sheets: {_sheet_count}")
 if INFERENCEMAX_DATA:
     print(f"InferenceMAX AMD configs: {len(INFERENCEMAX_DATA)}")

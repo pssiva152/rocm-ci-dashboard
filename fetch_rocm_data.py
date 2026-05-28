@@ -249,11 +249,17 @@ def _raw_is_empty(raw: dict) -> bool:
 
 def save_therock_snapshot(raw: dict) -> None:
     """Persist the raw GitHub API responses to THEROCK_SNAPSHOT."""
+    required_keys = ("matrix_src", "topology_src", "gitmodules_src",
+                     "lib_projects", "sys_projects", "nightly_yml")
+    missing = [k for k in required_keys if not raw.get(k)]
+    if missing:
+        print(f"  [TheRock] Skipping snapshot save — incomplete fetch (missing: {', '.join(missing)})")
+        return
     try:
         import zoneinfo
         _pt = zoneinfo.ZoneInfo("America/Los_Angeles")
     except ImportError:
-        _pt = datetime.timezone(datetime.timedelta(hours=-7))
+        _pt = datetime.timezone(datetime.timedelta(hours=-8))
     ts = datetime.datetime.now(_pt).strftime("%Y-%m-%d %I:%M %p %Z")
     snap = {"timestamp": ts, **raw}
     THEROCK_SNAPSHOT.write_text(json.dumps(snap, indent=2, ensure_ascii=False), encoding="utf-8")
@@ -535,7 +541,9 @@ def build_tier_data(matrices: dict, nightly_yml: str) -> list[tuple]:
     nightly_schedule = _utc_cron_to_pt(2)  # default: 02:00 UTC
     for line in nightly_yml.splitlines():
         if "cron" in line and "*" in line:
-            parts = line.split("'")
+            # Support both single- and double-quoted cron values
+            quote = "'" if "'" in line else ('"' if '"' in line else None)
+            parts = line.split(quote) if quote else []
             if len(parts) >= 2:
                 cron = parts[1].strip()
                 # Parse hour from cron expression "M H * * *"
@@ -617,9 +625,13 @@ def _load_baseline_components() -> list[tuple]:
     try:
         exec("".join(lines[:stop]), ns)  # noqa: S102
     except Exception as e:
-        print(f"  WARN: could not load baseline COMPONENTS — {e}")
+        print(f"  WARN: could not load baseline COMPONENTS — {e}", file=sys.stderr)
         return []
-    return ns.get("COMPONENTS", [])
+    baseline = ns.get("COMPONENTS", [])
+    if not baseline:
+        print("  WARN: baseline COMPONENTS list is empty — check generate_rocm_html.py",
+              file=sys.stderr)
+    return baseline
 
 
 def _runner_strings(matrices: dict) -> dict:
@@ -783,7 +795,8 @@ def _update_component(comp: tuple, rs: dict) -> tuple:
         "gfx94X (Build + Test)":                           rs["PC_L_94"],
         "gfx94X (Build + Test)\ngfx110X, gfx1151, gfx120X — Build-only (nightly_check_only)":
                                                            rs["PC_L_TEST"],
-        "gfx1151 (Build-only)":                            rs["PC_W_BUILD"],
+        # "gfx1151 (Build-only)" is the same default for both PC and PO Windows;
+        # PO_W_BUILD wins (dict de-dup) — PC_W_BUILD is currently equal to it.
         "gfx94X, gfx950 (Both Build + Test)":             rs["PO_L_FULL"],
         "gfx1151 (Build-only)":                            rs["PO_W_BUILD"],
         "gfx1151, gfx110X, gfx103X, gfx120X":             rs["NW_FULL"],
@@ -968,7 +981,7 @@ def _repr_tuple(t: tuple, indent: int = 4) -> str:
     for i, v in enumerate(t):
         comma = "," if i < len(t) - 1 else ""
         if isinstance(v, str):
-            escaped = v.replace("\\", "\\\\").replace('"', '\\"').replace("\n", "\\n")
+            escaped = v.replace("\\", "\\\\").replace('"', '\\"').replace("\n", "\\n").replace("\r", "\\r")
             lines.append(f'{pad}    "{escaped}"{comma}')
         else:
             lines.append(f"{pad}    {v!r}{comma}")
@@ -1036,7 +1049,10 @@ def write_data_module(
 
 
 def _extract_block(src: str, var_name: str) -> str:
-    """Extract 'VAR_NAME = [...]' block verbatim from a Python source string."""
+    """Extract 'VAR_NAME = [...]' block verbatim from a Python source string.
+
+    Quote-aware: skips characters inside "..." or '...' literals when counting brackets.
+    """
     lines = src.splitlines(keepends=True)
     start = None
     for i, line in enumerate(lines):
@@ -1047,8 +1063,28 @@ def _extract_block(src: str, var_name: str) -> str:
         return f"{var_name} = []"
     depth = 0
     end = start
+    in_str: str | None = None
+    escape = False
     for i in range(start, len(lines)):
-        depth += lines[i].count("[") - lines[i].count("]")
+        for ch in lines[i]:
+            if in_str is not None:
+                if escape:
+                    escape = False
+                elif ch == "\\":
+                    escape = True
+                elif ch == in_str:
+                    in_str = None
+                continue
+            if ch in ('"', "'"):
+                in_str = ch
+                continue
+            if ch == "[":
+                depth += 1
+            elif ch == "]":
+                depth -= 1
+                if depth <= 0 and i > start:
+                    end = i
+                    return "".join(lines[start : end + 1])
         if depth <= 0 and i > start:
             end = i
             break
@@ -1094,7 +1130,11 @@ def _read_local_inferencemax(file_rel: str) -> str:
         p = repo_root / file_rel
         if p.exists():
             print(f"  [InferenceMAX] Read {file_rel} from {repo_root.name} working tree (warning: branch may be stale)")
-            return p.read_text(encoding="utf-8")
+            try:
+                return p.read_text(encoding="utf-8")
+            except (OSError, UnicodeDecodeError) as e:
+                print(f"  [InferenceMAX] Could not read {p}: {e}")
+                continue
     return ""
 
 
@@ -1172,15 +1212,21 @@ def _git_clone_inferencemax() -> str:
 _cloned_runners_yaml: str = ""  # set as side-effect of _git_clone_inferencemax()
 
 
+_imax_snapshot_cache: dict | None = None
+
+
 def _load_imax_snapshot() -> tuple[list[tuple], dict] | tuple[None, None]:
     """
     Load INFERENCEMAX_DATA and INFERENCE_RUNNERS from the JSON snapshot file.
     Returns (None, None) if the snapshot doesn't exist or is unreadable.
+    Caches the parsed JSON in _imax_snapshot_cache for reuse (e.g. timestamp).
     """
+    global _imax_snapshot_cache
     if not IMAX_SNAPSHOT.exists():
         return None, None
     try:
         snap = json.loads(IMAX_SNAPSHOT.read_text(encoding="utf-8"))
+        _imax_snapshot_cache = snap
         data    = [tuple(row) for row in snap["inferencemax_data"]]
         runners = snap["inference_runners"]
         ts      = snap.get("timestamp", "unknown")
@@ -1247,7 +1293,6 @@ def parse_benchmark_yaml(yaml_src: str) -> list[dict]:
       name, model, model_prefix, runner, precision, framework,
       multinode, docker_image
     """
-    import re
     if not yaml_src:
         return []
 
@@ -1371,13 +1416,19 @@ def generate_outputs() -> None:
         print("\nGenerating HTML report...")
         src = html_py.read_text(encoding="utf-8")
         ns: dict = {"__file__": str(html_py)}
-        exec(src, ns)  # noqa: S102
+        try:
+            exec(src, ns)  # noqa: S102
+        except SystemExit as e:
+            print(f"  [HTML] generator exited with code {e.code}")
 
     if cicd_py.exists():
         print("\nGenerating Excel workbook...")
         src = cicd_py.read_text(encoding="utf-8")
         ns = {"__file__": str(cicd_py)}
-        exec(src, ns)  # noqa: S102
+        try:
+            exec(src, ns)  # noqa: S102
+        except SystemExit as e:
+            print(f"  [Excel] generator exited with code {e.code}")
 
 
 # ── Main ──────────────────────────────────────────────────────────────────────
@@ -1418,7 +1469,12 @@ def main() -> None:
     print(f"  Tiers      : {len(tier_data)}")
 
     # Extract FW_DATA and WH_DATA verbatim from the existing cicd generator
-    cicd_src = (HERE / "generate_rocm_cicd.py").read_text(encoding="utf-8")
+    cicd_path = HERE / "generate_rocm_cicd.py"
+    try:
+        cicd_src = cicd_path.read_text(encoding="utf-8")
+    except FileNotFoundError:
+        print(f"  ERROR: {cicd_path.name} not found — cannot extract FW_DATA/WH_DATA. Aborting.")
+        sys.exit(1)
     fw_block  = _extract_block(cicd_src, "FW_DATA")
     wh_block  = _extract_block(cicd_src, "WH_DATA")
     # Include helper strings referenced by FW_DATA / WH_DATA.
@@ -1475,8 +1531,8 @@ def main() -> None:
         snap_data, snap_runners = _load_imax_snapshot()
         if snap_data is not None:
             imax_data, inference_runners = snap_data, snap_runners
-            # Read timestamp from snapshot to surface in HTML
-            snap_meta = json.loads(IMAX_SNAPSHOT.read_text(encoding="utf-8"))
+            # Reuse cached snapshot dict (avoid second read of the same file)
+            snap_meta = _imax_snapshot_cache or {}
             imax_snapshot_ts = snap_meta.get("timestamp", "unknown")
             print(f"  AMD benchmark configs (snapshot): {len(imax_data)}")
         else:

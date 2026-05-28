@@ -45,7 +45,7 @@ try:
     from zoneinfo import ZoneInfo as _ZI
     _PT = _ZI("America/Los_Angeles")
 except ImportError:
-    _PT = datetime.timezone(datetime.timedelta(hours=-7))
+    _PT = datetime.timezone(datetime.timedelta(hours=-8))
 _now_pt = datetime.datetime.now(_PT)
 snapshot_date = _now_pt.strftime(f"%Y-%m-%d %I:%M %p {_now_pt.strftime('%Z')}")
 

@@ -101,7 +101,7 @@ NWR_FULL = ("windows-gfx1151-gpu-rocm (gfx1151)\n"
             "windows-gfx120X-gpu-rocm (gfx120X)")
 
 # ─── Component data ───────────────────────────────────────────────────────────
-# Tuple fields (23):
+# Tuple fields (22):
 #   cat, sub, comp, repo, ci_en,
 #   pc_lgfx, pc_lr, pc_wgfx, pc_wr, pc_tt,       ← Pre-commit
 #   po_lgfx, po_lr, po_wgfx, po_wr, po_tt,       ← Post-commit
@@ -599,15 +599,16 @@ sub_bg = {
     "Development":    "#F3E5F5",
 }
 
+import html as _html
 def cell(v):
     if v in ("—","","None"):
         return '<span class="dash">&mdash;</span>'
-    return str(v).replace("\n","<br>")
+    return _html.escape(str(v)).replace("\n","<br>")
 
 def ci_badge(v):
     if v == "Yes":   return '<span class="yes">Yes</span>'
     if v == "No":    return '<span class="no">No</span>'
-    return f'<span class="part">{v}</span>'
+    return f'<span class="part">{_html.escape(str(v))}</span>'
 
 rows_html = ""
 for rec in COMPONENTS:
@@ -1033,7 +1034,13 @@ _PO_GPU_LABELS = _PC_GPU_LABELS + [
     "linux-gfx950-1gpu-ccs-ossci-rocm", "linux-gfx950-8gpu-ccs-ossci-rocm",
 ]
 # Nightly: everything (all GPU runners)
-_NI_GPU_LABELS = [r[0] for r in RUNNER_DATA if r[10] in ("runner-linux", "runner-windows")]
+# Exclude linux-strix-halo-gpu-rocm-oem — same physical machines as linux-gfx1151-gpu-rocm
+# (OEM kernel variant selected via test_runner:oem PR label; counting both double-counts hardware)
+_NI_GPU_LABELS = [
+    r[0] for r in RUNNER_DATA
+    if r[10] in ("runner-linux", "runner-windows")
+    and r[0] != "linux-strix-halo-gpu-rocm-oem"
+]
 
 _pt_build_servers = _runner_counts.get("azure-linux-scale-rocm", 0) + _runner_counts.get("azure-windows-scale-rocm", 0)
 _pt_gpu_runners = [
@@ -1155,6 +1162,9 @@ from collections import defaultdict as _dd
 _loc_summary: dict = _dd(lambda: {"count": 0, "runners": [], "linux": 0, "windows": 0})
 for _rec in RUNNER_DATA:
     _lbl, _plat, _os, _loc, _phys, _gpu_fam, _isa, _cnt, _used, _notes, _cls = _rec
+    # Skip OEM Strix Halo lane — same physical machines as linux-gfx1151-gpu-rocm
+    if _lbl == "linux-strix-halo-gpu-rocm-oem":
+        continue
     if _cls in ("runner-linux", "runner-windows"):
         _n = _parse_server_count(_phys)
         if _n > 0:
@@ -1250,7 +1260,7 @@ def _inf_rows_html(data: list, row_cls: str) -> str:
           <td style="text-align:center;vertical-align:middle;white-space:nowrap">{precision}</td>
           <td style="text-align:center;vertical-align:middle;white-space:nowrap">{framework}</td>
           {_inf_bool(multinode)}
-          <td style="font-size:12.5px;color:#555;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;vertical-align:middle" title="{docker_image}">{docker_image if docker_image else "—"}</td>
+          <td style="font-size:12.5px;color:#555;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;vertical-align:middle" title="{_html.escape(docker_image)}">{_html.escape(docker_image) if docker_image else "—"}</td>
         </tr>\n"""
     return rows
 
@@ -2535,7 +2545,7 @@ function filterTable(){{
   document.querySelectorAll('#compTbody tr').forEach(r=>{{
     const cells=[...r.querySelectorAll('td')].map(c=>c.innerText.toLowerCase());
     const matchCat=!cat||cells[0].includes(cat);
-    const matchCI=!ci||cells[4].includes(ci);
+    const matchCI=!ci||cells[4].trim()===ci;
     const matchQ=!q||cells.some(c=>c.includes(q));
     r.style.display=(matchCat&&matchCI&&matchQ)?'':'none';
   }});

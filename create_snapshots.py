@@ -58,8 +58,8 @@ def _now_pt() -> str:
         import zoneinfo
         _pt = zoneinfo.ZoneInfo("America/Los_Angeles")
     except ImportError:
-        _pt = datetime.timezone(datetime.timedelta(hours=-7))
-    return datetime.datetime.now(_pt).strftime("%Y-%m-%d %I:%M %p %Z").lstrip("0")
+        _pt = datetime.timezone(datetime.timedelta(hours=-8))
+    return datetime.datetime.now(_pt).strftime("%Y-%m-%d %I:%M %p %Z")
 
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -89,7 +89,7 @@ def _exec_html_data() -> dict:
     ci_data_hidden = HERE / "_rocm_ci_data_hidden.py"
     _hidden = False
     if ci_data.exists():
-        ci_data.rename(ci_data_hidden)
+        ci_data.replace(ci_data_hidden)
         _hidden = True
     try:
         ns: dict = {
@@ -100,19 +100,13 @@ def _exec_html_data() -> dict:
         exec("".join(src_lines[:end]), ns)  # noqa: S102
     finally:
         if _hidden:
-            ci_data_hidden.rename(ci_data)
+            ci_data_hidden.replace(ci_data)
     return ns
 
 
 def _exec_cicd_tier_data() -> list:
     """Extract TIER_DATA from generate_rocm_cicd.py by exec-ing its data section."""
     cicd_gen = HERE / "generate_rocm_cicd.py"
-    src_lines = cicd_gen.read_text(encoding="utf-8").splitlines(keepends=True)
-    # Stop just before Sheet 1 construction (after TIER_DATA closes)
-    end = next(
-        (i for i, l in enumerate(src_lines) if l.strip().startswith("_PT_BUILD_L")),
-        172,
-    )
     ns: dict = {"__file__": str(cicd_gen)}
     # exec needs COMPONENTS etc. — just capture TIER_DATA block via _extract_block
     tier_block = _extract_block(cicd_gen.read_text(encoding="utf-8"), "TIER_DATA")
@@ -133,11 +127,48 @@ def _extract_block(src: str, var_name: str) -> str:
             break
     if start is None:
         return f"{var_name} = []"
-    depth, end = 0, start
+    # Quote-aware bracket depth scan: brackets inside string literals
+    # (single, double, triple-quoted) must not affect depth.
+    depth = 0
+    end = start
+    in_str: str | None = None  # None, "'", '"', "'''", or '"""'
+    escape = False
+    found = False
     for i in range(start, len(lines)):
-        depth += lines[i].count("[") - lines[i].count("]")
-        if depth <= 0 and i > start:
-            end = i
+        line = lines[i]
+        j = 0
+        while j < len(line):
+            ch = line[j]
+            if in_str:
+                if escape:
+                    escape = False
+                elif ch == "\\" and len(in_str) == 1:
+                    escape = True
+                elif line[j:j + len(in_str)] == in_str:
+                    j += len(in_str)
+                    in_str = None
+                    continue
+                j += 1
+                continue
+            # not in string
+            if ch in ("'", '"'):
+                if line[j:j + 3] == ch * 3:
+                    in_str = ch * 3
+                    j += 3
+                    continue
+                in_str = ch
+                j += 1
+                continue
+            if ch == "[":
+                depth += 1
+            elif ch == "]":
+                depth -= 1
+                if depth <= 0 and i > start:
+                    end = i
+                    found = True
+                    break
+            j += 1
+        if found:
             break
     return "".join(lines[start: end + 1])
 
@@ -163,7 +194,7 @@ def _extract_fw_wh(cicd_src: str) -> tuple[str, str]:
     # We scan backwards and stop when we hit the closing ']' of TIER_DATA,
     # which is the boundary between the previous data block and the helpers.
     fw_helper_start = fw_data_idx
-    if fw_data_idx:
+    if fw_data_idx is not None:
         for i in range(fw_data_idx - 1, -1, -1):
             stripped = lines[i].strip()
             if stripped == "]":          # closing bracket of TIER_DATA
@@ -172,7 +203,7 @@ def _extract_fw_wh(cicd_src: str) -> tuple[str, str]:
 
     # Same for WH_DATA — helpers start after FW_DATA's closing bracket.
     wh_helper_start = wh_data_idx
-    if wh_data_idx:
+    if wh_data_idx is not None:
         for i in range(wh_data_idx - 1, -1, -1):
             stripped = lines[i].strip()
             if stripped == "]":          # closing bracket of FW_DATA
@@ -238,7 +269,8 @@ def _parse_imax_local(imax_dir: Path) -> tuple[list, dict]:
         for pool_name, pool_cfg in run_raw.items():
             nodes = pool_cfg if isinstance(pool_cfg, list) else pool_cfg.get("runners", [])
             if nodes:
-                eco = "amd" if pool_name.startswith("mi") else "nvidia"
+                lo = pool_name.lower()
+                eco = "amd" if (lo.startswith("mi") or lo.startswith("amd")) else "nvidia"
                 inference_runners[eco][pool_name] = nodes
 
     return imax_data, inference_runners
