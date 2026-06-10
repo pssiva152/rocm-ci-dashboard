@@ -9,9 +9,9 @@ Data fetching strategy:
         2. therock_ci_snapshot.json                            ← fallback if clone fails
 
     Private repo (ROCm/InferenceMAX_rocm):
-        1. Local clone at ./InferenceMAX_rocm/ (or ../)        ← if you have one
-        2. gh CLI authenticated HTTPS clone                    ← if `gh auth login` done
-        3. SSH git clone via git@github.com:ROCm/InferenceMAX_rocm.git  ← needs SSH key
+        1. gh CLI authenticated HTTPS clone                    ← always fresh, preferred
+        2. SSH git clone via git@github.com:ROCm/InferenceMAX_rocm.git  ← needs SSH key
+        3. Local clone at ./InferenceMAX_rocm/ (or ../)        ← stale fallback
         4. inferencemax_snapshot.json                          ← fallback if all fail
 
 Usage:
@@ -1242,7 +1242,7 @@ def _git_clone_inferencemax() -> str:
             print("  [InferenceMAX] SSH clone succeeded but amd-master.yaml not present in repo")
             return ""
 
-        print("  [InferenceMAX] SSH clone succeeded.")
+        print(f"  [InferenceMAX] {method} clone succeeded.")
         _cloned_runners_yaml = runners_path.read_text(encoding="utf-8") if runners_path.exists() else ""
         return amd_path.read_text(encoding="utf-8")
     finally:
@@ -1298,9 +1298,9 @@ def fetch_inferencemax() -> tuple[str, str]:
     Fetch InferenceMAX_rocm AMD configs and runner pool YAML.
 
     Priority order:
-      1. Local clone at ./InferenceMAX_rocm/ (or ../InferenceMAX_rocm/) — instant
-      2. gh CLI authenticated HTTPS clone — if `gh auth login` has been run
-      3. SSH git clone (git@github.com:ROCm/InferenceMAX_rocm.git) — needs SSH key
+      1. gh CLI authenticated HTTPS clone — if `gh auth login` has been run (always fresh)
+      2. SSH git clone (git@github.com:ROCm/InferenceMAX_rocm.git) — needs SSH key
+      3. Local clone at ./InferenceMAX_rocm/ (or ../InferenceMAX_rocm/) — stale fallback
       4. JSON snapshot (inferencemax_snapshot.json) — handled by caller
 
     Returns:
@@ -1310,18 +1310,18 @@ def fetch_inferencemax() -> tuple[str, str]:
     global _cloned_runners_yaml
     amd_yaml = runners_yaml = ""
 
-    # ── 1. Local clone (already on disk) ───────────────────────────────────────
-    print("  [InferenceMAX] Trying local InferenceMAX_rocm/ folder...")
-    amd_yaml     = _read_local_inferencemax(".github/configs/amd-master.yaml")
-    runners_yaml = _read_local_inferencemax(".github/configs/runners.yaml")
+    # ── 1. gh CLI / SSH clone (always fetches latest from GitHub) ─────────────
+    amd_yaml = _git_clone_inferencemax()
     if amd_yaml:
-        print("  [InferenceMAX] Local clone found and used.")
+        runners_yaml = _cloned_runners_yaml
 
-    # ── 2. SSH git clone ───────────────────────────────────────────────────────
+    # ── 2. Local clone fallback (may be stale — used only when clone fails) ───
     if not amd_yaml:
-        amd_yaml = _git_clone_inferencemax()
+        print("  [InferenceMAX] Clone failed — falling back to local InferenceMAX_rocm/ folder...")
+        amd_yaml     = _read_local_inferencemax(".github/configs/amd-master.yaml")
+        runners_yaml = _read_local_inferencemax(".github/configs/runners.yaml")
         if amd_yaml:
-            runners_yaml = _cloned_runners_yaml
+            print("  [InferenceMAX] Local clone found and used (data may be stale).")
 
     return amd_yaml, runners_yaml
 
