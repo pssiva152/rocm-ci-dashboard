@@ -2,7 +2,7 @@
 """
 Fetch live CI/CD data from ROCm GitHub repos and regenerate HTML + Excel reports.
 
-Data fetching strategy (no GITHUB_TOKEN needed for public repos):
+Data fetching strategy:
 
     Public repos (TheRock, rocm-libraries, rocm-systems):
         1. Anonymous sparse + shallow git clone over HTTPS    ← preferred
@@ -10,8 +10,9 @@ Data fetching strategy (no GITHUB_TOKEN needed for public repos):
 
     Private repo (ROCm/InferenceMAX_rocm):
         1. Local clone at ./InferenceMAX_rocm/ (or ../)        ← if you have one
-        2. SSH git clone via git@github.com:ROCm/InferenceMAX_rocm.git  ← needs SSH key
-        3. inferencemax_snapshot.json                          ← fallback if both fail
+        2. gh CLI authenticated HTTPS clone                    ← if `gh auth login` done
+        3. SSH git clone via git@github.com:ROCm/InferenceMAX_rocm.git  ← needs SSH key
+        4. inferencemax_snapshot.json                          ← fallback if all fail
 
 Usage:
     python fetch_rocm_data.py
@@ -19,7 +20,8 @@ Usage:
 Prerequisites:
     git              installed and on PATH (any modern version)
     pip install xlsxwriter
-    SSH key registered with GitHub  (only needed for live InferenceMAX_rocm data)
+    gh auth login    recommended for InferenceMAX_rocm access (no SSH key needed)
+                     fallback: SSH key registered with GitHub
 
 Outputs (written to project folder alongside this script):
     rocm_ci_data.py                — generated Python data module (intermediate)
@@ -1138,23 +1140,59 @@ def _read_local_inferencemax(file_rel: str) -> str:
     return ""
 
 
+def _gh_available() -> bool:
+    """Return True iff `gh` CLI is on PATH and authenticated."""
+    try:
+        result = subprocess.run(
+            ["gh", "auth", "status"],
+            capture_output=True, timeout=10,
+        )
+        return result.returncode == 0
+    except (FileNotFoundError, subprocess.TimeoutExpired):
+        return False
+
+
+def _gh_token() -> str:
+    """Return the token from `gh auth token`, or '' if unavailable."""
+    try:
+        result = subprocess.run(
+            ["gh", "auth", "token"],
+            capture_output=True, text=True, timeout=10,
+        )
+        if result.returncode == 0:
+            return result.stdout.strip()
+    except (FileNotFoundError, subprocess.TimeoutExpired):
+        pass
+    return ""
+
+
 def _git_clone_inferencemax() -> str:
     """
-    Sparse + shallow SSH clone of ROCm/InferenceMAX_rocm into a temp dir;
+    Sparse + shallow clone of ROCm/InferenceMAX_rocm into a temp dir;
     read the two required YAML files. Returns amd-master.yaml content (or "").
     Sets module-level _cloned_runners_yaml as a side effect.
 
-    SSH is required because the repo is private — anonymous HTTPS will not work.
-    The user must have an SSH key registered with GitHub for this to succeed.
+    Clone priority:
+      1. gh CLI token → authenticated HTTPS clone (no SSH key needed)
+      2. SSH clone (git@github.com) → needs SSH key registered with GitHub
     """
     global _cloned_runners_yaml
     _cloned_runners_yaml = ""
 
     if not _git_available():
-        print("  [InferenceMAX] `git` not on PATH — skipping SSH clone")
+        print("  [InferenceMAX] `git` not on PATH — skipping clone")
         return ""
 
-    print("  [InferenceMAX] Attempting SSH clone (git@github.com:ROCm/InferenceMAX_rocm.git)...")
+    # ── Prefer gh CLI authenticated HTTPS clone ──────────────────────────────
+    token = _gh_token()
+    if token:
+        clone_url = f"https://oauth2:{token}@github.com/ROCm/InferenceMAX_rocm.git"
+        method = "gh CLI (authenticated HTTPS)"
+    else:
+        clone_url = IMAX_SSH_URL
+        method = "SSH"
+
+    print(f"  [InferenceMAX] Attempting {method} clone...")
     tmp = Path(tempfile.mkdtemp(prefix="imax_clone_"))
     try:
         cmd = [
@@ -1166,18 +1204,19 @@ def _git_clone_inferencemax() -> str:
             "--filter=blob:none",
             "--sparse",
             "--no-checkout",
-            IMAX_SSH_URL,
+            clone_url,
             str(tmp / "repo"),
         ]
         try:
             subprocess.run(cmd, capture_output=True, check=True, timeout=GIT_TIMEOUT)
         except subprocess.CalledProcessError as e:
             err = (e.stderr or b"").decode("utf-8", "replace").strip().splitlines()[-1:]
-            print(f"  [InferenceMAX] SSH clone failed: {err[0] if err else e}")
-            print(f"  [InferenceMAX] (Hint: ensure your SSH key is registered with GitHub and has access to ROCm/InferenceMAX_rocm)")
+            print(f"  [InferenceMAX] {method} clone failed: {err[0] if err else e}")
+            if not token:
+                print("  [InferenceMAX] (Hint: run `gh auth login` or set GITHUB_TOKEN for authenticated access)")
             return ""
         except subprocess.TimeoutExpired:
-            print(f"  [InferenceMAX] SSH clone timed out after {GIT_TIMEOUT}s")
+            print(f"  [InferenceMAX] Clone timed out after {GIT_TIMEOUT}s")
             return ""
 
         repo = tmp / "repo"
@@ -1258,10 +1297,11 @@ def fetch_inferencemax() -> tuple[str, str]:
     """
     Fetch InferenceMAX_rocm AMD configs and runner pool YAML.
 
-    Priority order (no GitHub API — the repo is private and PATs are blocked):
+    Priority order:
       1. Local clone at ./InferenceMAX_rocm/ (or ../InferenceMAX_rocm/) — instant
-      2. SSH git clone (git@github.com:ROCm/InferenceMAX_rocm.git) — needs SSH key
-      3. JSON snapshot (inferencemax_snapshot.json) — handled by caller
+      2. gh CLI authenticated HTTPS clone — if `gh auth login` has been run
+      3. SSH git clone (git@github.com:ROCm/InferenceMAX_rocm.git) — needs SSH key
+      4. JSON snapshot (inferencemax_snapshot.json) — handled by caller
 
     Returns:
         (amd_yaml, runners_yaml). If the first element is empty, the caller
