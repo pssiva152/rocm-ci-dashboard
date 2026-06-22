@@ -194,7 +194,10 @@ def fetch_all() -> dict:
             "build_tools/github_actions/amdgpu_family_matrix.py",
             "BUILD_TOPOLOGY.toml",
             ".gitmodules",
-            ".github/workflows/ci_nightly.yml",
+            # The standalone ci_nightly.yml was retired when TheRock migrated
+            # to the multi_arch_* workflow set. The nightly `schedule: cron`
+            # trigger now lives in multi_arch_ci_asan.yml (`0 02 * * *`).
+            ".github/workflows/multi_arch_ci_asan.yml",
         ],
         label="TheRock",
     )
@@ -203,7 +206,7 @@ def fetch_all() -> dict:
             raw["matrix_src"]      = _read(therock, "build_tools/github_actions/amdgpu_family_matrix.py")
             raw["topology_src"]    = _read(therock, "BUILD_TOPOLOGY.toml")
             raw["gitmodules_src"]  = _read(therock, ".gitmodules")
-            raw["nightly_yml"]     = _read(therock, ".github/workflows/ci_nightly.yml")
+            raw["nightly_yml"]     = _read(therock, ".github/workflows/multi_arch_ci_asan.yml")
             sizes = " · ".join(f"{k}={len(v)}B" for k, v in [
                 ("matrix",   raw["matrix_src"]),
                 ("topology", raw["topology_src"]),
@@ -574,14 +577,14 @@ def build_tier_data(matrices: dict, nightly_yml: str) -> list[tuple]:
          "PyTorch torch package only\nROCm Python wheels (Ubuntu 24.04 + UBI10 smoke)\nNo JAX",
          "Ubuntu 22.04 LTS", "Windows 11"),
         ("CI Nightly",
-         "ci_nightly.yml + ci_nightly_pytorch_full_test.yml (schedule)",
-         nightly_schedule + f"\n{_utc_cron_to_pt(12)} daily (PyTorch full)",
+         "multi_arch_ci_asan.yml (schedule) + test_pytorch_wheels_full.yml (on-demand)",
+         nightly_schedule + "\nPyTorch full suite: on-demand (workflow_dispatch)",
          "comprehensive = full + integration (ROCm)\nfull = complete suite (PyTorch)",
          ni_linux_str, ni_win_str,
          "PyTorch: all 5 versions × all Pythons × all families\nJAX: all 4 versions × 4 Pythons\nTriton + Apex (Linux)",
          "Ubuntu 22.04 LTS", "Windows 11"),
         ("ASAN / TSAN",
-         "ci_asan.yml / ci_tsan.yml (schedule)", _utc_cron_to_pt(2) + " daily",
+         "multi_arch_ci_asan.yml (schedule + push)", _utc_cron_to_pt(2) + " daily",
          "quick = smoke/sanity only\n(same suite as Post-commit but with sanitizer build)",
          "gfx94X-dcgpu, gfx950-dcgpu — Build + Test", "—",
          "None (sanitizer build validation only)",

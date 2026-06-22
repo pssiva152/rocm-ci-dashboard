@@ -1586,8 +1586,8 @@ footer{{background:var(--amd-dark);color:#888;text-align:center;padding:16px;fon
 </tr>
 <tr class="tier-row">
   <td>CI Nightly</td>
-  <td><code>ci_nightly.yml</code> + <code>ci_nightly_pytorch_full_test.yml</code><br><small>(schedule + workflow_dispatch)</small></td>
-  <td>02:00 UTC ({_utc_to_pt(2)}) daily (ROCm) &mdash; <code>0 02 * * *</code><br>12:00 UTC ({_utc_to_pt(12)}) daily (PyTorch full) &mdash; <code>0 12 * * *</code></td>
+  <td><code>multi_arch_ci_asan.yml</code> (schedule) + <code>test_pytorch_wheels_full.yml</code><br><small>(ROCm nightly: schedule; PyTorch full: workflow_dispatch)</small></td>
+  <td>02:00 UTC ({_utc_to_pt(2)}) daily (ROCm) &mdash; <code>0 02 * * *</code><br>PyTorch full suite: on-demand (<code>workflow_dispatch</code>)</td>
   <td><b>comprehensive</b> = full + integration (ROCm)<br><b>full</b> = complete suite (PyTorch)</td>
   <td>
     <b>Build + Test</b> (HW runners available):<br>
@@ -1609,15 +1609,14 @@ footer{{background:var(--amd-dark);color:#888;text-align:center;padding:16px;fon
 <tr class="tier-row" style="background:#f7faff">
   <td>ASAN / TSAN</td>
   <td>
-    <b>ASAN</b>: <code>ci_asan.yml</code> &mdash; <b>workflow_dispatch only</b><br>
-    <small><i>(legacy workflow; no schedule. Header notes "will be removed after legacy TheRock CI is retired")</i></small><br>
-    <b>TSAN</b>: <code>ci_tsan.yml</code> &mdash; schedule + workflow_dispatch
+    <b>ASAN + TSAN</b>: <code>multi_arch_ci_asan.yml</code><br>
+    <small><i>(push to main + schedule + workflow_dispatch; consolidated the retired ci_asan.yml / ci_tsan.yml)</i></small>
   </td>
   <td>
-    <b>ASAN</b>: on-demand only<br>
-    <b>TSAN</b>: 02:00 UTC ({_utc_to_pt(2)}) daily &mdash; <code>0 02 * * *</code>
+    02:00 UTC ({_utc_to_pt(2)}) daily &mdash; <code>0 02 * * *</code><br>
+    + on push to main &amp; on-demand
   </td>
-  <td><b>quick</b> = smoke/sanity only<br><small>Same suite as Post-commit but with sanitizer build (asan / tsan variants of <code>ci_linux.yml</code>)</small></td>
+  <td><b>quick</b> = smoke/sanity only<br><small>Same suite as Post-commit but with sanitizer build (<code>asan</code> / <code>host-asan</code> / <code>tsan</code> build variants from <code>amdgpu_family_matrix.py</code>, via <code>multi_arch_ci_linux.yml</code>)</small></td>
   <td>
     <b>Build + Test</b>:<br>
     <span class="tag">gfx94X-dcgpu</span> (presubmit matrix; <code>build_variants: ["release", "asan", "tsan"]</code>)<br>
@@ -1924,7 +1923,7 @@ footer{{background:var(--amd-dark);color:#888;text-align:center;padding:16px;fon
   <td>torch, torchaudio, torchvision, triton, apex (Linux); torch, torchaudio, torchvision (Windows)</td>
   <td>Linux: gfx94X, gfx950, gfx90a, gfx103X, gfx110X, gfx1150, gfx1151, gfx1153, gfx120X<br>Windows: gfx1151, gfx110X, gfx103X, gfx120X</td>
   <td>Linux: gfx900, gfx906, gfx908, gfx101X</td>
-  <td>CI pipeline (post-merge push to release/2.10) + 02:00 UTC ({_utc_to_pt(2)}) daily (ci_nightly.yml)</td>
+  <td>CI pipeline (post-merge push to release/2.10) + 02:00 UTC ({_utc_to_pt(2)}) daily (multi_arch_ci_asan.yml)</td>
   <td><code>azure-linux-scale-rocm</code> (Linux)<br><code>azure-windows-scale-rocm</code> (Windows)</td>
   <td><small>ubuntu-24.04 (GitHub-hosted)<br>UBI10 container smoke install</small></td>
   <td>Default CI pin branch</td>
@@ -1946,7 +1945,7 @@ footer{{background:var(--amd-dark);color:#888;text-align:center;padding:16px;fon
   <td>torch, torchaudio, torchvision, triton, apex (Linux); torch, torchaudio, torchvision (Windows)</td>
   <td>Linux: gfx94X, gfx950, gfx90a, gfx103X, gfx110X, gfx1150, gfx1151, gfx1153, gfx120X<br>Windows: gfx1151, gfx110X, gfx103X, gfx120X</td>
   <td>Linux: gfx900, gfx906, gfx908, gfx101X</td>
-  <td>02:00 UTC ({_utc_to_pt(2)}) daily (ci_nightly.yml) + on push to pytorch/pytorch main</td>
+  <td>02:00 UTC ({_utc_to_pt(2)}) daily (multi_arch_ci_asan.yml) + on push to pytorch/pytorch main</td>
   <td><code>azure-linux-scale-rocm</code> (Linux)<br><code>azure-windows-scale-rocm</code> (Windows)</td>
   <td><small>ubuntu-24.04 (GitHub-hosted)<br>UBI10 container smoke install</small></td>
   <td>Triton pin from pytorch/.ci/docker/ci_commit_pins/triton.txt</td>
@@ -2302,15 +2301,15 @@ footer{{background:var(--amd-dark);color:#888;text-align:center;padding:16px;fon
       <tr><td style="padding:4px 8px;border-bottom:1px solid #ddd"><a href="https://github.com/ROCm/TheRock/blob/main/build_tools/github_actions/amdgpu_family_matrix.py" target="_blank" rel="noopener">build_tools/github_actions/amdgpu_family_matrix.py</a></td><td style="padding:4px 8px;border-bottom:1px solid #ddd">Runner labels per GPU family, GPU ISA strings (gfx94X, gfx950, &hellip;), nightly-only flags</td></tr>
       <tr><td style="padding:4px 8px;border-bottom:1px solid #ddd"><a href="https://github.com/ROCm/TheRock/blob/main/BUILD_TOPOLOGY.toml" target="_blank" rel="noopener">BUILD_TOPOLOGY.toml</a></td><td style="padding:4px 8px;border-bottom:1px solid #ddd">Component &rarr; super-repo mapping (rocm-libraries / rocm-systems / TheRock)</td></tr>
       <tr><td style="padding:4px 8px;border-bottom:1px solid #ddd"><a href="https://github.com/ROCm/TheRock/blob/main/.gitmodules" target="_blank" rel="noopener">.gitmodules</a></td><td style="padding:4px 8px;border-bottom:1px solid #ddd">Direct submodule list — identifies components tested inside TheRock itself</td></tr>
-      <tr><td style="padding:4px 8px"><a href="https://github.com/ROCm/TheRock/blob/main/.github/workflows/ci_nightly.yml" target="_blank" rel="noopener">ci_nightly.yml</a></td><td style="padding:4px 8px">Nightly schedule time, GPU family test matrix for the nightly tier</td></tr>
+      <tr><td style="padding:4px 8px"><a href="https://github.com/ROCm/TheRock/blob/main/.github/workflows/multi_arch_ci_asan.yml" target="_blank" rel="noopener">multi_arch_ci_asan.yml</a></td><td style="padding:4px 8px">Nightly schedule (<code>schedule: cron '0 02 * * *'</code>) + ASAN test matrix for the nightly tier</td></tr>
     </tbody>
   </table>
   <div style="font-size:12.5px;color:#555;margin-top:8px">
     <b>Workflow files also used (for CI Tiers section):</b>
-    <a href="https://github.com/ROCm/TheRock/blob/main/.github/workflows/ci.yml" target="_blank" rel="noopener">ci.yml</a> &bull;
-    <a href="https://github.com/ROCm/TheRock/blob/main/.github/workflows/ci_asan.yml" target="_blank" rel="noopener">ci_asan.yml</a> &bull;
-    <a href="https://github.com/ROCm/TheRock/blob/main/.github/workflows/ci_tsan.yml" target="_blank" rel="noopener">ci_tsan.yml</a> &bull;
+    <a href="https://github.com/ROCm/TheRock/blob/main/.github/workflows/pre-commit.yml" target="_blank" rel="noopener">pre-commit.yml</a> &bull;
     <a href="https://github.com/ROCm/TheRock/blob/main/.github/workflows/multi_arch_ci.yml" target="_blank" rel="noopener">multi_arch_ci.yml</a> &bull;
+    <a href="https://github.com/ROCm/TheRock/blob/main/.github/workflows/multi_arch_ci_linux.yml" target="_blank" rel="noopener">multi_arch_ci_linux.yml</a> &bull;
+    <a href="https://github.com/ROCm/TheRock/blob/main/.github/workflows/multi_arch_ci_windows.yml" target="_blank" rel="noopener">multi_arch_ci_windows.yml</a> &bull;
     <a href="https://github.com/ROCm/TheRock/blob/main/.github/workflows/multi_arch_release.yml" target="_blank" rel="noopener">multi_arch_release.yml</a>
   </div>
 </div>
